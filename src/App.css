@@ -1,0 +1,4 @@
+/* Override Ant Design spinner dot color */
+.ant-spin-dot-item {
+  background-color: red !important;
+}
