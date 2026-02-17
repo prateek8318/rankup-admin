@@ -3,7 +3,12 @@ import { getUsers, getUsersCount } from '@/core/api';
 import usersIcon from '@/assets/icons/user.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
 import subscribersIcon from '@/assets/icons/subscribers.png';
-import vectorIcon from '@/assets/icons/Vector (3).png';
+import vectorIcon from '@/assets/icons/Vector.png';
+import vector1Icon from '@/assets/icons/Vector (3).png';
+import vector2Icon from '@/assets/icons/Vector (6).png';
+import vector3Icon from '@/assets/icons/Vector (3).png';
+import vector4Icon from '@/assets/icons/Vector (2).png';
+import vector5Icon from '@/assets/icons/Vector (8).png';
 
 interface UserCardProps {
   number: string;
@@ -41,6 +46,16 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
     return usersIcon; // default icon
   };
 
+  // Get appropriate vector based on gradient color
+  const getVectorImage = () => {
+    if (gradient.includes("#4780CF") || gradient.includes("#2B6AEC")) return vector1Icon; // Blue gradient
+    if (gradient.includes("#FF8C42") || gradient.includes("#FF6B1A")) return vector2Icon; // Orange gradient
+    if (gradient.includes("#8B5CF6") || gradient.includes("#7C3AED")) return vector3Icon; // Purple gradient
+    if (gradient.includes("#EC4899") || gradient.includes("#DB2777")) return vector4Icon; // Pink gradient
+    if (gradient.includes("#F59E0B") || gradient.includes("#D97706")) return vector5Icon; // Amber gradient
+    return vectorIcon; // Default vector
+  };
+
   return (
     <div
       style={{
@@ -71,7 +86,6 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
             width: "100%",
             height: "100%",
             objectFit: "contain",
-
           }}
         />
       </div>
@@ -83,7 +97,7 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
         {label}
       </div>
 
-      {/* Bottom left vector image */}
+      {/* Bottom left vector image - different for each card based on gradient */}
       <div style={{
         position: "absolute",
         bottom: 0,
@@ -91,10 +105,9 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
         width: "100%",
         height: 160,
         overflow: "hidden",
-
       }}>
         <img
-          src={vectorIcon}
+          src={getVectorImage()}
           alt="Vector"
           style={{
             position: "absolute",
@@ -278,8 +291,26 @@ const Users = () => {
     setCurrentPage(1);
   };
 
-  const handleExport = () => {
-    console.log('Exporting user data...');
+  const handleExport = async () => {
+    try {
+      console.log('Exporting user data...');
+      const { exportToExcel } = await import('@/shared/utils/excelUtils');
+
+      const dataToExport = users.map(user => ({
+        'User ID': `USR${String(user.id).padStart(3, '0')}`,
+        'Name': user.name,
+        'Email': user.email || 'N/A',
+        'Contact': `${user.countryCode} ${user.phoneNumber}`,
+        'Joined On': new Date(user.createdAt).toLocaleDateString('en-GB'),
+        'Plan': user.isNewUser ? 'Free' : 'Premium',
+        'Status': user.isActive ? 'Active' : 'Blocked',
+        'Last Active': new Date(user.lastLoginAt).toLocaleString(),
+      }));
+
+      exportToExcel(dataToExport, 'Users_List');
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
   };
 
   const handlePageChange = (page: number) => {
@@ -444,24 +475,24 @@ const Users = () => {
                 <option>Block Selected</option>
                 <option>Export Selected</option>
               </select>
-               <button 
+              <button
                 onClick={handleApply}
-                style={{ 
-                padding: "8px 48px", 
-                border: "none", 
-                borderRadius: "20px", 
-                background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)", 
-                color: "#fff", 
-                fontSize: "18px",
-                cursor: "pointer",
-                fontWeight: "500"
-              }}>
+                style={{
+                  padding: "8px 48px",
+                  border: "none",
+                  borderRadius: "20px",
+                  background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
+                  color: "#fff",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  fontWeight: "500"
+                }}>
                 Apply
-              </button>     
+              </button>
             </div>
 
             <div style={{ display: "flex", gap: "10px" }}>
-             
+
 
               <button
                 onClick={handleReset}
@@ -639,7 +670,7 @@ const Users = () => {
                 const maxVisiblePages = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
                 let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                
+
                 if (endPage - startPage + 1 < maxVisiblePages) {
                   startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }

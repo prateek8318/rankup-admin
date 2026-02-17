@@ -19,9 +19,14 @@ export interface ApiEndpointsShape {
   };
   EXAMS: {
     GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
     CREATE: string;
     UPDATE: (id: string) => string;
     DELETE: (id: string) => string;
+    UPDATE_STATUS: (id: string) => string;
+    UPLOAD_IMAGE: (id: string) => string;
+    GET_BY_QUALIFICATION: (qualificationId: string) => string;
+    GET_FOR_USER: string;
     BULK_UPLOAD: (examId: string) => string;
   };
   SUBSCRIPTIONS: {
@@ -63,10 +68,15 @@ export const apiEndpoints = {
     EXPORT: '/api/admin/exports/users',
   },
   EXAMS: {
-    GET_ALL: '/api/admin/exams',
-    CREATE: '/api/admin/exams',
-    UPDATE: (id: string) => `/api/admin/exams/${id}`,
-    DELETE: (id: string) => `/api/admin/exams/${id}`,
+    GET_ALL: '/api/exams',
+    GET_BY_ID: (id: string) => `/api/exams/${id}`,
+    CREATE: '/api/exams',
+    UPDATE: (id: string) => `/api/exams/${id}`,
+    DELETE: (id: string) => `/api/exams/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/exams/${id}/status`,
+    UPLOAD_IMAGE: (id: string) => `/api/exams/${id}/upload-image`,
+    GET_BY_QUALIFICATION: (qualificationId: string) => `/api/exams/by-qualification/${qualificationId}`,
+    GET_FOR_USER: '/api/exams/for-user',
     BULK_UPLOAD: (examId: string) => `/api/admin/questions/bulk-upload/${examId}`,
   },
   SUBSCRIPTIONS: {

@@ -1,28 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getExams, getExamsCount } from '@/core/api';
+import { type ExamDto, type ExamListParams } from '@/core/api';
+import mockExamsApi from '@/core/api/mockExamsApi';
 import examsIcon from '@/assets/icons/exams.png';
 import totalExamsIcon from '@/assets/icons/total exams.png';
 import vectorIcon from '@/assets/icons/Vector (3).png';
+import vectorIcon2 from '@/assets/icons/Vector (4).png';
+import vectorIcon3 from '@/assets/icons/Vector (5).png';
+import vectorIcon4 from '@/assets/icons/Vector (6).png';
 
 interface ExamCardProps {
   number: string;
   label: string;
   gradient: string;
-}
-
-interface Exam {
-  id: number;
-  title: string;
-  description?: string;
-  category: string;
-  duration: number; // in minutes
-  totalQuestions: number;
-  passingMarks: number;
-  totalMarks: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  createdBy?: string;
 }
 
 const ExamCard: React.FC<ExamCardProps> = ({ number, label, gradient }) => {
@@ -111,7 +100,7 @@ const ExamsManagement = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalExams, setTotalExams] = useState(0);
-  const [exams, setExams] = useState<Exam[]>([]);
+  const [exams, setExams] = useState<ExamDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [examStats, setExamStats] = useState({
     totalExams: 0,
@@ -132,11 +121,13 @@ const ExamsManagement = () => {
   const fetchExams = async () => {
     try {
       setLoading(true);
-      const response = await getExams({
+      const params: ExamListParams = {
         page: currentPage,
         limit: 10,
         search: searchTerm
-      });
+      };
+
+      const response = await mockExamsApi.getExamsList(params);
 
       console.log('Exams API Response:', response);
 
@@ -150,9 +141,9 @@ const ExamsManagement = () => {
 
         // Calculate stats from the current page data only
         const total = response.data.length;
-        const active = response.data.filter((exam: Exam) => exam.isActive).length;
-        const totalQuestions = response.data.reduce((sum: number, exam: Exam) => sum + exam.totalQuestions, 0);
-        const avgDuration = Math.round(response.data.reduce((sum: number, exam: Exam) => sum + exam.duration, 0) / total);
+        const active = response.data.filter((exam: ExamDto) => exam.isActive).length;
+        const totalQuestions = response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.totalMarks || 0), 0);
+        const avgDuration = Math.round(response.data.reduce((sum: number, exam: ExamDto) => sum + exam.durationInMinutes, 0) / total);
 
         console.log('Processed exams:', response.data);
 
@@ -181,12 +172,12 @@ const ExamsManagement = () => {
 
   const fetchTotalExamsCount = async () => {
     try {
-      const response = await getExamsCount();
+      const response = await mockExamsApi.getExamsCount();
       console.log('Exams Count Response:', response);
 
       if (response.success && response.data) {
         // Use the actual total count from API for pagination display
-        setTotalExams(response.data.totalExams || response.data || 0);
+        setTotalExams(response.data.totalExams || 0);
       }
     } catch (error) {
       console.error('Error fetching exams count:', error);
@@ -215,8 +206,8 @@ const ExamsManagement = () => {
     return `${hours}h ${mins}m`;
   };
 
-  const getExamId = (exam: Exam) => `EXM${String(exam.id).padStart(3, '0')}`;
-  const getStatus = (exam: Exam) => exam.isActive ? 'Active' : 'Inactive';
+  const getExamId = (exam: ExamDto) => `EXM${String(exam.id).padStart(3, '0')}`;
+  const getStatus = (exam: ExamDto) => exam.isActive ? 'Active' : 'Inactive';
 
   const handleSelectExam = (examId: string) => {
     setSelectedExams(prev =>
@@ -258,6 +249,26 @@ const ExamsManagement = () => {
     setCurrentPage(page);
   };
 
+  const handleEditExam = (exam: ExamDto) => {
+    console.log('Edit exam:', exam);
+    // TODO: Implement edit functionality - open modal or navigate to edit page
+  };
+
+  const handleDeleteExam = async (exam: ExamDto) => {
+    if (window.confirm(`Are you sure you want to delete "${exam.name}"?`)) {
+      try {
+        await mockExamsApi.deleteExam(exam.id);
+        console.log('Exam deleted successfully');
+        // Refresh the exams list
+        fetchExams();
+        fetchTotalExamsCount();
+      } catch (error) {
+        console.error('Error deleting exam:', error);
+        // TODO: Show error message to user
+      }
+    }
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: "#E6F5FF", padding: "20px" }}>
       <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
@@ -271,7 +282,6 @@ const ExamsManagement = () => {
           </p>
         </div>
 
-        
         {/* CARDS */}
         <div style={{ 
           display: "flex", 
@@ -455,21 +465,21 @@ const ExamsManagement = () => {
                       />
                     </th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam ID</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Title</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Category</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Type</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Questions</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Marks</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Passing Marks</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Status</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Created On</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {exams.map((exam: Exam) => {
+                  {exams.map((exam: ExamDto) => {
                     const examId = getExamId(exam);
                     const status = getStatus(exam);
-                    const duration = formatDuration(exam.duration);
+                    const duration = formatDuration(exam.durationInMinutes);
 
                     return (
                       <tr key={exam.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
@@ -482,11 +492,11 @@ const ExamsManagement = () => {
                           />
                         </td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{examId}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.title}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.category}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.name}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.isInternational ? 'International' : 'National'}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{duration}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.totalQuestions}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{exam.totalMarks}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.passingMarks}</td>
                         <td style={{ padding: "12px" }}>
                           <span style={{
                             padding: "4px 8px",
@@ -501,23 +511,27 @@ const ExamsManagement = () => {
                         </td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{formatDate(exam.createdAt)}</td>
                         <td style={{ padding: "12px" }}>
-                          <button style={{
-                            background: "none",
-                            border: "none",
-                            color: "#2563eb",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            marginRight: "8px"
-                          }}>
+                          <button 
+                            onClick={() => handleEditExam(exam)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#2563eb",
+                              cursor: "pointer",
+                              fontSize: "14px",
+                              marginRight: "8px"
+                            }}>
                             Edit
                           </button>
-                          <button style={{
-                            background: "none",
-                            border: "none",
-                            color: "#dc2626",
-                            cursor: "pointer",
-                            fontSize: "14px"
-                          }}>
+                          <button 
+                            onClick={() => handleDeleteExam(exam)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#dc2626",
+                              cursor: "pointer",
+                              fontSize: "14px"
+                            }}>
                             Delete
                           </button>
                         </td>

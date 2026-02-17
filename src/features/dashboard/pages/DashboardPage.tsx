@@ -2,29 +2,23 @@
  * Dashboard feature - main dashboard page component
  */
 import React, { useState, useEffect } from 'react';
-import { getDashboardTotals, getDashboardOverview } from '@/core/api/dashboardApi';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import usersIcon from '@/assets/icons/user.png';
-import expiringSoonIcon from '@/assets/icons/expiring-soon.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
-import subscribersIcon from '@/assets/icons/subscribers.png';
-import supportIcon from '@/assets/icons/tickets.png'
-import transactionsIcon from '@/assets/icons/transactions.png';
-import questionsIcon from '@/assets/icons/total questions.png';
 import examsIcon from '@/assets/icons/total exams.png';
 import vectorIcon from '@/assets/icons/Vector.png';
 import vector1Icon from '@/assets/icons/Vector (1).png';
 import vector2Icon from '@/assets/icons/Vector (2).png';
 import vector3Icon from '@/assets/icons/Vector (3).png';
-import vector4Icon from '@/assets/icons/Vector (4).png';
-import vector5Icon from '@/assets/icons/Vector (5).png';
 
 interface DashboardCardProps {
   number: string;
   label: string;
   gradient?: string;
   isWhiteBackground?: boolean;
-  topWaveImage?: boolean;
-  bottomWaveImage?: string;
+  topWaveImage?: any;
+  bottomWaveImage?: any;
+  icon?: any;
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ 
@@ -33,17 +27,17 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   gradient, 
   isWhiteBackground, 
   topWaveImage, 
-  bottomWaveImage 
+  bottomWaveImage,
+  icon 
 }) => {
   const getIcon = () => {
-    if (label.includes("Total Registered Users")) return usersIcon;
-    if (label.includes("Total Subscribers")) return subscribersIcon;
-    if (label.includes("Active Subscribers")) return activeSubscribersIcon;
-    if (label.includes("Subscriptions Expiring Soon")) return expiringSoonIcon;
-    if (label.includes("Open Support Tickets")) return supportIcon;
-    if (label.includes("Today's Transactions")) return transactionsIcon;
-    if (label.includes("Total Questions")) return questionsIcon;
+    if (icon) return icon;
+    if (label.includes("Total Users")) return usersIcon;
+    if (label.includes("Active Users")) return activeSubscribersIcon;
     if (label.includes("Total Exams")) return examsIcon;
+    if (label.includes("Active Exams")) return activeSubscribersIcon;
+    if (label.includes("Total Admins")) return usersIcon;
+    if (label.includes("Active Admins")) return activeSubscribersIcon;
     return usersIcon;
   };
 
@@ -153,78 +147,105 @@ const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [overview, setOverview] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  // Mock data for development
+  const mockStats = {
+    totalUsers: 1250,
+    activeUsers: 892,
+    totalAdmins: 5,
+    activeAdmins: 4,
+    totalExams: 45,
+    activeExams: 38,
+    totalRevenue: 0,
+    monthlyRevenue: 0
+  };
+
+  const mockOverview = {
+    totalUsers: 1250,
+    activeUsers: 892,
+    totalAdmins: 5,
+    activeAdmins: 4,
+    totalExams: 45,
+    activeExams: 38,
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    recentActivity: [
+      { id: 1, user: "John Doe", action: "Registered", time: "2 mins ago" },
+      { id: 2, user: "Jane Smith", action: "Subscribed", time: "5 mins ago" },
+      { id: 3, user: "Bob Johnson", action: "Completed Exam", time: "10 mins ago" },
+      { id: 4, user: "Alice Brown", action: "Asked Question", time: "15 mins ago" }
+    ],
+    systemHealth: {
+      adminService: "Healthy",
+      database: "Connected",
+      userService: "Connected",
+      examService: "Connected",
+      lastUpdated: "2024-02-17T12:00:00Z"
+    },
+    earningsData: [
+      { month: "Jan", earnings: 45000 },
+      { month: "Feb", earnings: 52000 },
+      { month: "Mar", earnings: 48000 },
+      { month: "Apr", earnings: 61000 },
+      { month: "May", earnings: 58000 },
+      { month: "Jun", earnings: 67000 }
+    ]
+  };
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Use only mock data for now - API disabled
+      console.log('🚫 Using mock data only - API disabled');
+      setStats(mockStats);
+      setOverview(mockOverview);
+      
+    } catch (err: any) {
+      setError('Failed to load dashboard data');
+      console.error('Dashboard error:', err);
+      setStats(mockStats);
+      setOverview(mockOverview);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [totalsData, overviewData] = await Promise.all([
-          getDashboardTotals(),
-          getDashboardOverview()
-        ]);
-        setStats(totalsData);
-        setOverview(overviewData);
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
 
-  const topCards = [
-    { 
-      number: stats?.totalUsers || stats?.data?.totalUsers || '12.5k', 
-      label: "Total Registered Users", 
+  // Top row cards (4 cards with white background and wave images on top)
+  const topRowCards = [
+    {
+      number: stats?.totalUsers?.toString() || mockStats.totalUsers.toString(),
+      label: "Total Users",
+      icon: usersIcon,
       isWhiteBackground: true,
-      topWaveImage: true
+      topWaveImage: vectorIcon
     },
-    { 
-      number: stats?.totalSubscribers || stats?.data?.totalSubscribers || '8,402', 
-      label: "Total Subscribers", 
+    {
+      number: stats?.activeUsers?.toString() || mockStats.activeUsers.toString(),
+      label: "Active Users", 
+      icon: activeSubscribersIcon,
       isWhiteBackground: true,
-      topWaveImage: true
+      topWaveImage: vector1Icon
     },
-    { 
-      number: stats?.activeSubscribers || stats?.data?.activeSubscribers || '156', 
-      label: "Active Subscribers", 
+    {
+      number: stats?.totalExams?.toString() || mockStats.totalExams.toString(),
+      label: "Total Exams",
+      icon: examsIcon,
       isWhiteBackground: true,
-      topWaveImage: true
+      topWaveImage: vector2Icon
     },
-    { 
-      number: stats?.expiringSoon || stats?.data?.expiringSoon || '283', 
-      label: "Subscriptions Expiring Soon", 
+    {
+      number: stats?.activeExams?.toString() || mockStats.activeExams.toString(),
+      label: "Active Exams",
+      icon: activeSubscribersIcon,
       isWhiteBackground: true,
-      topWaveImage: true
-    }
-  ];
-
-  const rightSideCards = [
-    { 
-      number: stats?.openTickets || stats?.data?.openTickets || '23', 
-      label: "Open Support Tickets", 
-      gradient: "linear-gradient(135deg,#D2588C,#FF3A74)",
-      bottomWaveImage: vector2Icon
-    },
-    { 
-      number: stats?.todayTransactions || stats?.data?.todayTransactions || '300', 
-      label: "Today's Transactions", 
-      gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)",
-      bottomWaveImage: vector3Icon
-    },
-    { 
-      number: stats?.totalQuestions || stats?.data?.totalQuestions || '4,100', 
-      label: "Total Questions", 
-      gradient: "linear-gradient(135deg,#AD7102,#FFBA43)",
-      bottomWaveImage: vector4Icon
-    },
-    { 
-      number: stats?.totalExams || stats?.data?.totalExams || '566', 
-      label: "Total Exams", 
-      gradient: "linear-gradient(135deg,#655FD9,#655FD9)",
-      bottomWaveImage: vector5Icon
+      topWaveImage: vector3Icon
     }
   ];
 
@@ -236,9 +257,42 @@ const DashboardPage: React.FC = () => {
         width: "100%",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        fontSize: 18,
+        color: "#4780CF"
       }}>
-        <p>Loading dashboard...</p>
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        background: "#E6F5FF",
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 18,
+        color: "#ef4444"
+      }}>
+        <div style={{ marginBottom: 20 }}>⚠️ {error}</div>
+        <button 
+          onClick={fetchDashboardData}
+          style={{
+            padding: "10px 20px",
+            background: "#4780CF",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer"
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -360,19 +414,13 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* TOP ROW - WHITE CARDS */}
-        <div
-          style={{
-            display: "flex",
-            gap: 40,
-            marginBottom: 30,
-            flexWrap: "wrap"
-          }}
-        >
-          {topCards.map((card, index) => (
+        <div style={{ display: "flex", gap: 40, marginBottom: 30 }}>
+          {topRowCards.map((card: any, index: number) => (
             <DashboardCard
               key={index}
               number={card.number}
               label={card.label}
+              icon={card.icon}
               isWhiteBackground={card.isWhiteBackground}
               topWaveImage={card.topWaveImage}
             />
@@ -383,16 +431,17 @@ const DashboardPage: React.FC = () => {
 
         {/* MAIN CONTENT AREA - CHART AND RIGHT SIDE CARDS */}
         <div style={{ display: "flex", gap: 40, marginBottom: 30 }}>
-          {/* EARNINGS CHART SECTION */}
+          {/* EARNINGS CHART SECTION - 3 CARDS WIDTH */}
           <div style={{
             background: "#fff",
             borderRadius: 13,
             padding: "20px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            width: "calc(3 * 265px + 2 * 40px + 20px)" // Width of first 3 cards + gaps + padding
+            width: "calc(3 * 270px + 2 * 40px)", // Width of first 3 cards + gaps
+            minHeight: 400
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Earnings</h3>
+              <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Earnings Overview</h3>
               <select style={{
                 padding: "8px 16px",
                 border: "1.5px solid #C0C0C0",
@@ -406,72 +455,64 @@ const DashboardPage: React.FC = () => {
               </select>
             </div>
             
-            {/* Chart Placeholder */}
-            <div style={{
-              height: 300,
-              background: "#f9fafb",
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#6b7280"
-            }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, marginBottom: 10 }}>📊 Earnings Chart</div>
-                <div>Monthly earnings data will be displayed here</div>
-              </div>
+            {/* Dynamic Chart with Recharts - Column Chart */}
+            <div style={{ height: 350, width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={overview?.earningsData || mockOverview.earningsData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6b7280"
+                    style={{ fontSize: 14 }}
+                  />
+                  <YAxis 
+                    stroke="#6b7280"
+                    style={{ fontSize: 14 }}
+                    tickFormatter={(value) => `₹${(value/1000).toFixed(0)}k`}
+                  />
+                  <Tooltip 
+                    formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Earnings']}
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend />
+                  <Bar 
+                    dataKey="earnings" 
+                    fill="#4780CF" 
+                    name="Monthly Earnings"
+                    radius={[8, 8, 0, 0]} // Rounded top corners
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* RIGHT SIDE CARDS */}
+          {/* RIGHT SIDE STATIC CARDS */}
           <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
-            {rightSideCards.map((card, index) => (
-              <DashboardCard
-                key={index}
-                number={card.number}
-                label={card.label}
-                gradient={card.gradient}
-                bottomWaveImage={card.bottomWaveImage}
-              />
-            ))}
+            <DashboardCard
+              number="0"
+              label="Total Revenue"
+              gradient="linear-gradient(135deg, #4780CF, #2B6AEC)"
+              bottomWaveImage={vector3Icon}
+            />
+            <DashboardCard
+              number="0"
+              label="Monthly Revenue"
+              gradient="linear-gradient(135deg, #F093FB, #F5576C)"
+              bottomWaveImage={vector2Icon}
+            />
+            <DashboardCard
+              number="0"
+              label="Pending Requests"
+              gradient="linear-gradient(135deg, #4FACFE, #00F2FE)"
+              bottomWaveImage={vector3Icon}
+            />
           </div>
         </div>
-
-        {/* RECENT ACTIVITY */}
-        {overview && (
-          <div style={{
-            background: "#fff",
-            borderRadius: 13,
-            padding: "20px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
-          }}>
-            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600, marginBottom: 20 }}>Recent Activity</h3>
-            <div>
-              {overview?.recentActivities?.slice(0, 5).map((activity: any, index: number) => (
-                <div key={index} style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px",
-                  background: "#f9fafb",
-                  borderRadius: 8,
-                  marginBottom: 8
-                }}>
-                  <span style={{ fontSize: 14, color: "#374151" }}>
-                    {activity?.description || 'Activity recorded'}
-                  </span>
-                  <span style={{ fontSize: 12, color: "#6b7280" }}>
-                    {new Date(activity?.timestamp || Date.now()).toLocaleTimeString()}
-                  </span>
-                </div>
-              )) || (
-                <p style={{ color: "#6b7280", textAlign: "center", padding: "20px" }}>
-                  No recent activity
-                </p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
