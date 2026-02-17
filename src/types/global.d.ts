@@ -3,7 +3,7 @@ declare module '*.jsx' {
   export default value;
 }
 
-declare module '../auth/AuthContext' {
+declare module '@/features/auth' {
   export function useAuth(): {
     auth: {
       token: string | null;

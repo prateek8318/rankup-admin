@@ -1,4 +1,4 @@
-declare module '../auth/AuthContext' {
+declare module '@/features/auth' {
   export function useAuth(): any;
 }
 

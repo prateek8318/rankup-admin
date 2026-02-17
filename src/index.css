@@ -1,51 +1,102 @@
 @tailwind base;
+
 @tailwind components;
+
 @tailwind utilities;
 
+
+
 /* ✅ Global reset to remove white border */
+
 @layer base {
+
   html, body, #root {
+
     height: 100%;
+
   }
+
+
 
   body {
+
     margin: 0;
+
     padding: 0;
+
   }
+
+
 
   * {
+
     box-sizing: border-box;
+
   }
+
 }
+
+
 
 /* Fully hide scrollbar, but keep scrolling */
+
 .sidebar-scroll {
+
   scrollbar-width: none; /* Firefox */
+
   -ms-overflow-style: none; /* IE 10+ */
+
 }
+
 .sidebar-scroll::-webkit-scrollbar {
+
   display: none; /* Chrome, Safari, Edge */
+
 }
+
+
 
 /* Carousel arrows */
+
 .carousel .control-arrow {
+
   background: rgba(0, 0, 0, 0.4);
+
   border-radius: 50%;
+
 }
+
+
 
 .carousel .control-arrow:hover {
+
   background: rgba(0, 0, 0, 0.6);
+
 }
+
+
 
 .carousel .control-next.control-arrow:before,
+
 .carousel .control-prev.control-arrow:before {
+
   color: white;
+
   font-size: 24px;
+
 }
 
+
+
 /* Custom gradient utility */
+
 @layer utilities {
+
   .bg-primary-gradient {
+
     @apply bg-gradient-to-r from-[#052B76] to-[#0950DC];
+
   }
+
 }
+
