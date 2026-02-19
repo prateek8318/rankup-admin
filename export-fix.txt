@@ -1,0 +1,22 @@
+// Fix for the export button section
+// Replace lines 557-579 in Users.tsx with this content:
+
+              {/* Export Button */}
+              <button
+                onClick={handleExport}
+                style={{
+                  padding: "8px 16px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "8px",
+                  background: "#fff",
+                  color: "#374151",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}
+              >
+                <img src={exportIcon} alt="Export" style={{ width: "16px", height: "16px" }} />
+                Export
+              </button>

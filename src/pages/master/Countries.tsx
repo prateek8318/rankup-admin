@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { countryApi, CountryDto, CreateCountryDto, UpdateCountryDto } from '@/core/api/masterApi';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
 
 const Countries = () => {
   const [countries, setCountries] = useState<CountryDto[]>([]);
@@ -74,22 +76,13 @@ const Countries = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this country?')) {
+    if (window.confirm('Are you sure you want to deactivate this country?')) {
       try {
-        await countryApi.delete(id);
+        await countryApi.updateStatus(id, false);
         fetchCountries();
       } catch (error) {
-        console.error('Error deleting country:', error);
+        console.error('Error deactivating country:', error);
       }
-    }
-  };
-
-  const handleToggleStatus = async (id: number, isActive: boolean) => {
-    try {
-      await countryApi.updateStatus(id, isActive);
-      fetchCountries();
-    } catch (error) {
-      console.error('Error updating country status:', error);
     }
   };
 
@@ -100,8 +93,9 @@ const Countries = () => {
   };
 
   const filteredCountries = countries.filter(country =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.code.toLowerCase().includes(searchTerm.toLowerCase())
+    country.isActive &&
+    (country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    country.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -206,24 +200,12 @@ const Countries = () => {
                           border: "none",
                           color: "#2563eb",
                           cursor: "pointer",
-                          fontSize: "14px",
-                          marginRight: "8px"
+                          marginRight: "8px",
+                          padding: "4px"
                         }}
+                        title="Edit"
                       >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleToggleStatus(country.id, !country.isActive)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: country.isActive ? "#f59e0b" : "#10b981",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          marginRight: "8px"
-                        }}
-                      >
-                        {country.isActive ? "Deactivate" : "Activate"}
+                        <img src={editIcon} alt="Edit" style={{ width: "16px", height: "16px" }} />
                       </button>
                       <button
                         onClick={() => handleDelete(country.id)}
@@ -232,10 +214,11 @@ const Countries = () => {
                           border: "none",
                           color: "#dc2626",
                           cursor: "pointer",
-                          fontSize: "14px"
+                          padding: "4px"
                         }}
+                        title="Deactivate"
                       >
-                        Delete
+                        <img src={deleteIcon} alt="Deactivate" style={{ width: "16px", height: "16px" }} />
                       </button>
                     </td>
                   </tr>

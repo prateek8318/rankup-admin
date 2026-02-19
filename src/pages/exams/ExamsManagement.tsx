@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { type ExamDto, type ExamListParams } from '@/core/api';
-import mockExamsApi from '@/core/api/mockExamsApi';
+import { getExamsList, getExamsCount, deleteExam, updateExamStatus } from '@/core/api/examsApi';
 import examsIcon from '@/assets/icons/exams.png';
 import totalExamsIcon from '@/assets/icons/total exams.png';
 import vectorIcon from '@/assets/icons/Vector (3).png';
-import vectorIcon2 from '@/assets/icons/Vector (4).png';
-import vectorIcon3 from '@/assets/icons/Vector (5).png';
-import vectorIcon4 from '@/assets/icons/Vector (6).png';
+import viewIcon from '@/assets/icons/view.png';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
 
 interface ExamCardProps {
   number: string;
@@ -93,10 +93,16 @@ const ExamCard: React.FC<ExamCardProps> = ({ number, label, gradient }) => {
 const ExamsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExams, setSelectedExams] = useState<string[]>([]);
+  const [allExams, setAllExams] = useState<ExamDto[]>([]); // Store all exams for pagination
   const [filters, setFilters] = useState({
-    examType: 'All Exams',
-    status: 'All Status',
-    category: 'All Categories'
+    sortBy: '',
+    category: 'All Categories',
+    course: '',
+    examType: '',
+    status: '',
+    dateRange: '',
+    all: '',
+    attempt: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalExams, setTotalExams] = useState(0);
@@ -121,43 +127,71 @@ const ExamsManagement = () => {
   const fetchExams = async () => {
     try {
       setLoading(true);
+      // Fetch exams with pagination for current page only
       const params: ExamListParams = {
         page: currentPage,
         limit: 10,
         search: searchTerm
       };
 
-      const response = await mockExamsApi.getExamsList(params);
+      console.log('Fetching exams with params:', params);
+      const response = await getExamsList(params);
 
       console.log('Exams API Response:', response);
 
       if (response.success && response.data) {
+        // Set exams for current page
         setExams(response.data);
-
-        // Update total exams from API response if available
+        
+        // Set total count from API response if available, otherwise use current total
         if (response.totalCount) {
           setTotalExams(response.totalCount);
+        } else {
+          // If API doesn't return totalCount, keep existing total or calculate from allExams
+          if (allExams.length === 0) {
+            // First time fetching, set total from current page data
+            setTotalExams(response.data.length);
+          }
         }
 
-        // Calculate stats from the current page data only
-        const total = response.data.length;
-        const active = response.data.filter((exam: ExamDto) => exam.isActive).length;
-        const totalQuestions = response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.totalMarks || 0), 0);
-        const avgDuration = Math.round(response.data.reduce((sum: number, exam: ExamDto) => sum + exam.durationInMinutes, 0) / total);
+        // Store all exams for stats calculation
+        if (allExams.length === 0) {
+          setAllExams(response.data);
+        }
 
-        console.log('Processed exams:', response.data);
+        // Calculate stats from current page data and use API total count
+        const total = totalExams || response.data.length;
+        const active = response.data.filter((exam: ExamDto) => exam.isActive).length;
+        const inactive = response.data.filter((exam: ExamDto) => !exam.isActive).length;
+        const totalQuestions = response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.totalMarks || 0), 0);
+        const avgDuration = response.data.length > 0 ? Math.round(response.data.reduce((sum: number, exam: ExamDto) => sum + exam.durationInMinutes, 0) / response.data.length) : 0;
+
+        console.log('Processed current page exams:', response.data);
+        console.log('Calculated stats:', { total, active, inactive, totalQuestions, avgDuration });
 
         setExamStats({
           totalExams: total,
           activeExams: active,
-          inactiveExams: total - active,
+          inactiveExams: inactive,
           totalQuestions: totalQuestions,
           avgDuration: avgDuration
         });
+      } else {
+        console.log('API response unsuccessful or no data:', response);
+        setExams([]);
+        setExamStats({
+          totalExams: 0,
+          activeExams: 0,
+          inactiveExams: 0,
+          totalQuestions: 0,
+          avgDuration: 0
+        });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching exams:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
       // Set fallback values
+      setExams([]);
       setExamStats({
         totalExams: 0,
         activeExams: 0,
@@ -172,7 +206,7 @@ const ExamsManagement = () => {
 
   const fetchTotalExamsCount = async () => {
     try {
-      const response = await mockExamsApi.getExamsCount();
+      const response = await getExamsCount();
       console.log('Exams Count Response:', response);
 
       if (response.success && response.data) {
@@ -232,9 +266,14 @@ const ExamsManagement = () => {
 
   const handleReset = () => {
     setFilters({
-      examType: 'All Exams',
-      status: 'All Status',
-      category: 'All Categories'
+      sortBy: '',
+      category: 'All Categories',
+      course: '',
+      examType: '',
+      status: '',
+      dateRange: '',
+      all: '',
+      attempt: ''
     });
     setSearchTerm('');
     setSelectedExams([]);
@@ -249,6 +288,11 @@ const ExamsManagement = () => {
     setCurrentPage(page);
   };
 
+  const handleViewExam = (exam: ExamDto) => {
+    console.log('View exam:', exam);
+    // TODO: Implement view functionality - open modal or navigate to view page
+  };
+
   const handleEditExam = (exam: ExamDto) => {
     console.log('Edit exam:', exam);
     // TODO: Implement edit functionality - open modal or navigate to edit page
@@ -257,15 +301,26 @@ const ExamsManagement = () => {
   const handleDeleteExam = async (exam: ExamDto) => {
     if (window.confirm(`Are you sure you want to delete "${exam.name}"?`)) {
       try {
-        await mockExamsApi.deleteExam(exam.id);
+        await deleteExam(exam.id);
         console.log('Exam deleted successfully');
         // Refresh the exams list
         fetchExams();
         fetchTotalExamsCount();
       } catch (error) {
         console.error('Error deleting exam:', error);
-        // TODO: Show error message to user
+        alert('Error deleting exam. Please try again.');
       }
+    }
+  };
+
+  const handleToggleStatus = async (exam: ExamDto) => {
+    try {
+      await updateExamStatus(exam.id, !exam.isActive);
+      fetchExams();
+      fetchTotalExamsCount();
+    } catch (error) {
+      console.error('Error updating exam status:', error);
+      alert('Error updating exam status. Please try again.');
     }
   };
 
@@ -301,60 +356,29 @@ const ExamsManagement = () => {
 
         {/* FILTER AND ACTION BAR */}
         <div style={{
-          background: "#fff",
-          borderRadius: 13,
+          
           padding: "20px",
-          marginBottom: 30,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
+          marginBottom: 4,
+         
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-              <label style={{
-                display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
-                background: "#fff",
-                fontSize: "16px"
-              }}>
-                <input
-                  type="checkbox"
-                  checked={selectedExams.length === exams.length}
-                  onChange={handleSelectAll}
-                  style={{ width: "16px", height: "16px" }}
-                />
-                <span style={{ fontSize: "16px" }}>Manage</span>
-              </label>
-
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
               <select
-                value={filters.examType}
-                onChange={(e) => setFilters(prev => ({ ...prev, examType: e.target.value }))}
+                value={filters.sortBy}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
                 style={{
                   padding: "8px 16px",
                   border: "1.5px solid #C0C0C0",
-                  borderRadius: "8px",
+                  borderRadius: "25px",
                   background: "#fff",
-                  fontSize: "16px"
+                  fontSize: "16px",
+                  minWidth: "120px"
                 }}
               >
-                <option>All Exams</option>
-                <option>Practice Tests</option>
-                <option>Mock Tests</option>
-              </select>
-
-              <select
-                value={filters.status}
-                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                style={{
-                  padding: "8px 16px",
-                  border: "1.5px solid #C0C0C0",
-                  borderRadius: "8px",
-                  background: "#fff",
-                  fontSize: "16px"
-                }}
-              >
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Inactive</option>
+                <option value="">Sort By</option>
+                <option value="name">Name</option>
+                <option value="date">Date</option>
+                <option value="marks">Marks</option>
               </select>
 
               <select
@@ -363,34 +387,118 @@ const ExamsManagement = () => {
                 style={{
                   padding: "8px 16px",
                   border: "1.5px solid #C0C0C0",
-                  borderRadius: "8px",
+                  borderRadius: "25px",
                   background: "#fff",
-                  fontSize: "16px"
+                  fontSize: "16px",
+                  minWidth: "140px"
                 }}
               >
-                <option>All Categories</option>
-                <option>Mathematics</option>
-                <option>Science</option>
-                <option>English</option>
-                <option>General Knowledge</option>
+                <option value="All Categories">All Categories</option>
+                <option value="Mock Test">Mock Test</option>
+                <option value="Practice Test">Practice Test</option>
+                <option value="Previous Year">Previous Year</option>
               </select>
 
-              <select style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
-                background: "#fff",
-                fontSize: "16px"
-              }}>
-                <option>Bulk Actions</option>
-                <option>Activate Selected</option>
-                <option>Deactivate Selected</option>
-                <option>Delete Selected</option>
-                <option>Export Selected</option>
+              <select
+                value={filters.course}
+                onChange={(e) => setFilters(prev => ({ ...prev, course: e.target.value }))}
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "120px"
+                }}
+              >
+                <option value="">Course</option>
+                <option value="JEE">JEE</option>
+                <option value="NEET">NEET</option>
+                <option value="UPSC">UPSC</option>
               </select>
-            </div>
 
-            <div style={{ display: "flex", gap: "10px" }}>
+              <select
+                value={filters.examType}
+                onChange={(e) => setFilters(prev => ({ ...prev, examType: e.target.value }))}
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "120px"
+                }}
+              >
+                <option value="">Exam Type</option>
+                <option value="International">International</option>
+                <option value="National">National</option>
+              </select>
+
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "100px"
+                }}
+              >
+                <option value="">Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+
+              <input
+                type="text"
+                value={filters.dateRange}
+                onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
+                placeholder="16 jan 2026 - 23 jan 2026"
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "200px"
+                }}
+              />
+
+              <select
+                value={filters.all}
+                onChange={(e) => setFilters(prev => ({ ...prev, all: e.target.value }))}
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "80px"
+                }}
+              >
+                <option value="">All</option>
+                <option value="paid">Paid</option>
+                <option value="free">Free</option>
+              </select>
+
+              <select
+                value={filters.attempt}
+                onChange={(e) => setFilters(prev => ({ ...prev, attempt: e.target.value }))}
+                style={{
+                  padding: "8px 16px",
+                  border: "1.5px solid #C0C0C0",
+                  borderRadius: "25px",
+                  background: "#fff",
+                  fontSize: "16px",
+                  minWidth: "100px"
+                }}
+              >
+                <option value="">Attempt</option>
+                <option value="single">Single</option>
+                <option value="multiple">Multiple</option>
+              </select>
               <button
                 onClick={handleApply}
                 style={{
@@ -406,6 +514,13 @@ const ExamsManagement = () => {
               >
                 Apply
               </button>
+            </div>
+
+            
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "10px",justifyContent: "flex-end",marginBottom: "10px" }}>
+              
 
               <button
                 onClick={handleReset}
@@ -431,20 +546,21 @@ const ExamsManagement = () => {
                   background: "#fff",
                   fontSize: "16px",
                   cursor: "pointer",
-                  fontWeight: "500"
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
                 }}
               >
-                Export
+                <span>↑</span> Export
               </button>
             </div>
-          </div>
-        </div>
 
         {/* EXAM TABLE */}
         <div style={{
           background: "#fff",
           borderRadius: 13,
-          padding: "20px",
+          padding: "18px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
         }}>
           {loading ? (
@@ -464,15 +580,24 @@ const ExamsManagement = () => {
                         style={{ width: "16px", height: "16px" }}
                       />
                     </th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam ID</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Type</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                      Test Category
+                      <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
+                    </th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Name</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subject</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Access</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Ques.</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Difficulty</th>
                     <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Marks</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Passing Marks</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Status</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Created On</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Actions</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Date</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Language</th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                      Status
+                      <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
+                    </th>
+                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -491,49 +616,139 @@ const ExamsManagement = () => {
                             style={{ width: "16px", height: "16px" }}
                           />
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{examId}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.name}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.isInternational ? 'International' : 'National'}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{duration}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.totalMarks}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.passingMarks}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>
                           <span style={{
-                            padding: "4px 8px",
-                            borderRadius: "12px",
+                            padding: "4px 12px",
+                            borderRadius: "20px",
                             fontSize: "12px",
                             fontWeight: "500",
-                            background: status === "Active" ? "#dcfce7" : "#fee2e2",
-                            color: status === "Active" ? "#166534" : "#991b1b"
+                            background: "#E9D5FF",
+                            color: "#7C3AED"
                           }}>
-                            {status}
+                            {(exam as any).category || "NA"}
                           </span>
                         </td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.name}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).subject || "NA"}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>
+                          {(exam as any).access ? (
+                            <div style={{
+                              width: "24px",
+                              height: "24px",
+                              borderRadius: "50%",
+                              background: (exam as any).access === "Paid" ? "#10b981" : "#f59e0b",
+                              color: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "12px",
+                              fontWeight: "bold"
+                            }}>
+                              {(exam as any).access === "Paid" ? "P" : "F"}
+                            </div>
+                          ) : "NA"}
+                        </td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).totalQuestions || "NA"}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).difficulty || "NA"}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.totalMarks}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{formatDate(exam.createdAt)}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{duration}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).language || "English"}</td>
                         <td style={{ padding: "12px" }}>
-                          <button 
-                            onClick={() => handleEditExam(exam)}
+                          <span 
+                            onClick={() => handleToggleStatus(exam)}
                             style={{
-                              background: "none",
-                              border: "none",
-                              color: "#2563eb",
+                              padding: "4px 8px",
+                              borderRadius: "12px",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              background: status === "Active" ? "#dcfce7" : "#fee2e2",
+                              color: status === "Active" ? "#166534" : "#991b1b",
                               cursor: "pointer",
-                              fontSize: "14px",
-                              marginRight: "8px"
-                            }}>
-                            Edit
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteExam(exam)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#dc2626",
-                              cursor: "pointer",
-                              fontSize: "14px"
-                            }}>
-                            Delete
-                          </button>
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px"
+                            }}
+                          >
+                            {status}
+                            <span style={{ fontSize: "10px" }}>▼</span>
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px" }}>
+                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <button 
+                              onClick={() => handleViewExam(exam)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                padding: "4px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              title="View"
+                            >
+                              <img 
+                                src={viewIcon} 
+                                alt="View" 
+                                style={{ width: "20px", height: "20px" }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling!.textContent = '👁️';
+                                }}
+                              />
+                              <span style={{ display: 'none', fontSize: '18px' }}>👁️</span>
+                            </button>
+                            <button 
+                              onClick={() => handleEditExam(exam)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                padding: "4px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              title="Edit"
+                            >
+                              <img 
+                                src={editIcon} 
+                                alt="Edit" 
+                                style={{ width: "20px", height: "20px" }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling!.textContent = '✏️';
+                                }}
+                              />
+                              <span style={{ display: 'none', fontSize: '18px' }}>✏️</span>
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteExam(exam)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                padding: "4px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              title="Delete"
+                            >
+                              <img 
+                                src={deleteIcon} 
+                                alt="Delete" 
+                                style={{ width: "20px", height: "20px" }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling!.textContent = '🗑️';
+                                }}
+                              />
+                              <span style={{ display: 'none', fontSize: '18px' }}>🗑️</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

@@ -271,7 +271,7 @@ const Users = () => {
 
   const getUserId = (user: User) => `USR${String(user.id).padStart(3, '0')}`;
   const getContact = (user: User) => user.phoneNumber; // phoneNumber already includes countryCode
-  const getPlan = (_user: User) => 'N/A'; // No subscription data in API response
+  const getPlan = (user: User) => 'N/A'; // No subscription data in API response
   const getSubsStatus = (user: User) => user.isActive ? 'Active' : 'Block';
   // Remove static data - these should come from API if available
   // const getDaysLeft = (user: User) => user.isNewUser ? 0 : Math.floor(Math.random() * 180) + 1;
@@ -319,6 +319,7 @@ const Users = () => {
     
     // Filter by time
     if (filters.time !== 'All Time') {
+      const now = new Date();
       if (filters.time === 'Last 7 days') {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -578,7 +579,7 @@ const Users = () => {
               </button>
             </div>
 
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div style={{ display: "flex", gap: "10px" }}
 
 
               <button
@@ -594,11 +595,12 @@ const Users = () => {
               >
                 Reset
               </button>
+
               <button
                 onClick={handleExport}
                 style={{
                   padding: "8px 24px",
-                  border: "1.5px solid #C0C0C0",
+                  border: "1.5  px solid #C0C0C0",
                   borderRadius: "8px",
                   background: "#fff",
                   fontSize: "16px",

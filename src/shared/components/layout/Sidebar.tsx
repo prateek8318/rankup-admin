@@ -19,7 +19,7 @@ const Sidebar = () => {
         gap: "14px",
         padding: "12px 18px",
         borderRadius: "8px",
-        fontSize: "15px",
+        fontSize: "18px",
         fontWeight: isActive(path) ? 600 : 400,
         color: isActive(path) ? "#2563EB" : "#2E2E2E",
         background: isActive(path) ? "#E8F0FE" : "transparent",
@@ -41,7 +41,7 @@ const Sidebar = () => {
         padding: "12px 18px",
         borderRadius: "8px",
         cursor: "pointer",
-        fontSize: "15px",
+        fontSize: "18px",
         color: "#2E2E2E",
       }}
     >
@@ -54,7 +54,7 @@ const Sidebar = () => {
   );
 
   const sectionTitle: React.CSSProperties = {
-    fontSize: "12px",
+    fontSize: "18px",
     fontWeight: 600,
     color: "#000",
     padding: "0 24px",
@@ -63,41 +63,67 @@ const Sidebar = () => {
   };
 
   return (
-    <div style={{ width: "260px", background: "#F9FAFB", minHeight: "100vh", borderRight: "1px solid #E5E7EB", padding: "20px 0" }}>
-      <div style={{ padding: "0 24px 30px" }}>
-        <img src="/src/assets/images/rankup-logo.png" alt="logo" style={{ width: "180px", margin: "auto" }} />
-      </div>
-      <div style={sectionTitle}>Main</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        {menuItem("/home", "Dashboard", "/src/assets/icons/dashboard.png")}
-        {menuItem("/home/users", "Users", "/src/assets/icons/users.png")}
-        {menuItem("/home/exams-management", "Exams Management", "/src/assets/icons/exams.png")}
-        {menuItem("/home/subscriptions", "Subscriptions", "/src/assets/icons/subscription.png")}
-        {menuItem("/home/coupon", "Coupon", "/src/assets/icons/coupon.png")}
-        {menuItem("/home/daily-video", "Daily Motivational Video", "/src/assets/icons/video.png")}
-      </div>
-      
-      {/* MASTER */}
-      <div style={sectionTitle}>Master</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        {dropdownItem("Master", "/src/assets/icons/dashboard.png", openMaster, setOpenMaster)}
-        {openMaster && (
-          <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
-            {menuItem("/home/master/languages", "Languages", "/src/assets/icons/dashboard.png")}
-            {menuItem("/home/master/states", "States", "/src/assets/icons/dashboard.png")}
-            {menuItem("/home/master/countries", "Countries", "/src/assets/icons/dashboard.png")}
-            {menuItem("/home/master/categories", "Categories", "/src/assets/icons/dashboard.png")}
-          </div>
-        )}
+    <div style={{ 
+      width: "310px", 
+      background: "#F9FAFB", 
+      height: "100vh", 
+      borderRight: "1px solid #E5E7EB", 
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden"
+    }}>
+      {/* Logo Section - Fixed at top */}
+      <div style={{ padding: "25px 15px 20px" }}>
+        <div style={{ padding: "0 24px 30px" }}>
+          <img src="/src/assets/images/rankup-logo.png" alt="logo" style={{ width: "180px", margin: "auto" }} />
+        </div>
       </div>
       
-      <div style={{ ...sectionTitle, marginTop: "30px" }}>Others</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        {menuItem("/home/support", "Support", "/src/assets/icons/support.png")}
-        {dropdownItem("Reports", "/src/assets/icons/reports.png", openReports, setOpenReports)}
-        {dropdownItem("Settings", "/src/assets/icons/settings.png", openSettings, setOpenSettings)}
-        {dropdownItem("CMS", "/src/assets/icons/cms.png", openCMS, setOpenCMS)}
-        {menuItem("/login", "Logout", "/src/assets/icons/logout.png")}
+      {/* Scrollable Content */}
+      <div style={{ 
+        flex: 1, 
+        overflowY: "auto", 
+        padding: "0 15px 25px",
+        scrollbarWidth: "thin",
+        scrollbarColor: "#E5E7EB transparent"
+      }}>
+        <div style={sectionTitle}>Main</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {menuItem("/home", "Dashboard", "/src/assets/icons/dashboard.png")}
+          {menuItem("/home/users", "Users", "/src/assets/icons/users.png")}
+          {menuItem("/home/exams-management", "Exams Management", "/src/assets/icons/exams.png")}
+          {menuItem("/home/subscriptions", "Subscriptions", "/src/assets/icons/subscription.png")}
+          {menuItem("/home/coupon", "Coupon", "/src/assets/icons/coupon.png")}
+          {/* {menuItem("/home/daily-video", "Daily Motivational Video", "/src/assets/icons/video.png")} */}
+        </div>
+        
+        {/* MASTER */}
+        <div style={sectionTitle}>Master</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          {dropdownItem("Master", "/src/assets/icons/dashboard.png", openMaster, setOpenMaster)}
+          {openMaster && (
+            <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
+              {menuItem("/home/master/languages", "Languages", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/states", "States", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/countries", "Countries", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/categories", "Categories", "/src/assets/icons/dashboard.png")}
+            </div>
+          )}
+        </div>
+        
+        <div style={{ ...sectionTitle, marginTop: "30px" }}>Others</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          {menuItem("/home/support", "Support", "/src/assets/icons/support.png")}
+          {dropdownItem("Reports", "/src/assets/icons/reports.png", openReports, setOpenReports)}
+          {dropdownItem("Settings", "/src/assets/icons/settings.png", openSettings, setOpenSettings)}
+          {dropdownItem("CMS", "/src/assets/icons/cms.png", openCMS, setOpenCMS)}
+          {openCMS && (
+            <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
+              {menuItem("/home/cms", "Content Management", "/src/assets/icons/cms.png")}
+            </div>
+          )}
+          {menuItem("/login", "Logout", "/src/assets/icons/logout.png")}
+        </div>
       </div>
     </div>
   );

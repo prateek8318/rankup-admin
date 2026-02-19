@@ -16,7 +16,8 @@ import DailyVideo from "@/pages/dailyVideo/DailyVideo";
 import Support from "@/pages/support/Support";
 import Reports from "@/pages/reports/Reports";
 import Settings from "@/pages/settings/Settings";
-import CMS from "@/pages/cms/CMS";
+import CMSManagement from "@/pages/cms/CMSManagement";
+import CMSDetailPage from "@/pages/cms/CMSDetailPage";
 import Master from "@/pages/master/Master";
 import Languages from "@/pages/master/Languages";
 import States from "@/pages/master/States";
@@ -76,7 +77,8 @@ export const router = createBrowserRouter([
       { path: "support", element: <Support /> },
       { path: "reports", element: <Reports /> },
       { path: "settings", element: <Settings /> },
-      { path: "cms", element: <CMS /> },
+      { path: "cms", element: <CMSManagement /> },
+      { path: "cms/:id", element: <CMSDetailPage /> },
       { 
         path: "master", 
         element: <Master />,

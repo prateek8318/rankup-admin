@@ -1,5 +1,4 @@
 import { appConfig } from '@/core/config/appConfig';
-import { apiEndpoints } from '@/core/api/apiEndpoints';
 import toast from "react-hot-toast";
 
 const BASE_URL = appConfig.apiBaseUrl;
@@ -118,14 +117,28 @@ export const getUsersCount = async () => {
         "Content-Type": "application/json",
       },
     });
-    const result = await res.json();
 
     if (!res.ok) {
-      const errorMessage = result.ErrorMessage || result.message || "Failed to fetch users count";
+      const errorText = await res.text();
+      let errorMessage = "Failed to fetch users count";
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.ErrorMessage || errorData.message || errorMessage;
+      } catch {
+        errorMessage = errorText || errorMessage;
+      }
       toast.error(errorMessage);
       throw new Error(errorMessage);
     }
 
+    const result = await res.json();
+    console.log('Users Count API Response:', result); // Debug log
+    
+    // Handle the actual API response structure: {success, data, message, timestamp}
+    if (result.success && result.data) {
+      return result.data; // Return the data object which contains totalUsers
+    }
+    
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
@@ -135,14 +148,16 @@ export const getUsersCount = async () => {
   }
 };
 
-export const getCMSList = async ({ page = 1, limit = 10, search = "" }: { page?: number; limit?: number; search?: string } = {}) => {
+export const getCMSList = async ({ page = 1, limit = 10, search = "", language = "", languages = "" }: { page?: number; limit?: number; search?: string; language?: string; languages?: string } = {}) => {
   const token = localStorage.getItem("token");
   try {
-    let url = 'https://localhost:5008/api/cms';
+    let url = 'http://192.168.1.21:5009/api/cms';
     const params = new URLSearchParams();
     if (page) params.append('page', page.toString());
     if (limit) params.append('limit', limit.toString());
     if (search) params.append('search', search);
+    if (language) params.append('language', language);
+    if (languages) params.append('languages', languages);
     if (params.toString()) url += `?${params.toString()}`;
 
     const res = await fetch(url, {
@@ -172,7 +187,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "" }: { page?:
 export const getCMSContent = async (key: string, language: string = "en") => {
   const token = localStorage.getItem("token");
   try {
-    const url = `https://localhost:5008/api/cms/${key}?language=${language}`;
+    const url = `http://192.168.1.21:5008/api/cms/${key}?language=${language}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -200,7 +215,7 @@ export const getCMSContent = async (key: string, language: string = "en") => {
 export const getCMSKeys = async () => {
   const token = localStorage.getItem("token");
   try {
-    const url = 'https://localhost:5008/api/cms/keys';
+    const url = 'http://192.168.1.21:5008/api/cms/keys';
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -228,7 +243,7 @@ export const getCMSKeys = async () => {
 export const createCMS = async (data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = 'https://localhost:5008/api/cms';
+    const url = 'http://192.168.1.21:5008/api/cms';
     const res = await fetch(url, {
       method: "POST",
       headers: {
@@ -258,7 +273,7 @@ export const createCMS = async (data: unknown) => {
 export const updateCMS = async (id: string, data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `https://localhost:5008/api/cms/${id}`;
+    const url = `http://192.168.1.21:5008/api/cms/${id}`;
     const res = await fetch(url, {
       method: "PUT",
       headers: {
@@ -288,7 +303,7 @@ export const updateCMS = async (id: string, data: unknown) => {
 export const deleteCMS = async (id: string) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `https://localhost:5008/api/cms/${id}`;
+    const url = `http://192.168.1.21:5008/api/cms/${id}`;
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -317,7 +332,7 @@ export const deleteCMS = async (id: string) => {
 export const updateCMSStatus = async (id: string, status: boolean) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `https://localhost:5008/api/cms/${id}/status`;
+    const url = `http://192.168.1.21:5008/api/cms/${id}/status`;
     const res = await fetch(url, {
       method: "PATCH",
       headers: {

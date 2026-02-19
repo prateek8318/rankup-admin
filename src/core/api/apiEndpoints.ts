@@ -12,8 +12,10 @@ export interface ApiEndpointsShape {
   };
   USERS: {
     GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
     COUNT: string;
     UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
     ENABLE_DISABLE: (id: string) => string;
     EXPORT: string;
   };
@@ -32,9 +34,16 @@ export interface ApiEndpointsShape {
   SUBSCRIPTIONS: {
     PLANS: {
       GET_ALL: string;
+      GET_BY_ID: (id: string) => string;
       CREATE: string;
       UPDATE: (id: string) => string;
       DELETE: (id: string) => string;
+      TOGGLE_POPULAR: (id: string) => string;
+      TOGGLE_RECOMMENDED: (id: string) => string;
+      TOGGLE_STATUS: (id: string) => string;
+      GET_STATS: string;
+      GET_FILTERED: string;
+      GET_ACTIVE: string;
     };
   };
   DASHBOARD: {
@@ -62,8 +71,10 @@ export const apiEndpoints = {
   },
   USERS: {
     GET_ALL: '/api/admin/users',
+    GET_BY_ID: (id: string) => `/api/admin/users/${id}`,
     COUNT: '/api/admin/users/count',
     UPDATE: (id: string) => `/api/admin/users/${id}`,
+    DELETE: (id: string) => `/api/admin/users/${id}`,
     ENABLE_DISABLE: (id: string) => `/api/admin/users/${id}/enable-disable`,
     EXPORT: '/api/admin/exports/users',
   },
@@ -73,7 +84,7 @@ export const apiEndpoints = {
     CREATE: '/api/exams',
     UPDATE: (id: string) => `/api/exams/${id}`,
     DELETE: (id: string) => `/api/exams/${id}`,
-    UPDATE_STATUS: (id: string) => `/api/exams/${id}/status`,
+    UPDATE_STATUS: (id: string) => `/api/exams/${id}/enable-disable`,
     UPLOAD_IMAGE: (id: string) => `/api/exams/${id}/upload-image`,
     GET_BY_QUALIFICATION: (qualificationId: string) => `/api/exams/by-qualification/${qualificationId}`,
     GET_FOR_USER: '/api/exams/for-user',
@@ -81,10 +92,17 @@ export const apiEndpoints = {
   },
   SUBSCRIPTIONS: {
     PLANS: {
-      GET_ALL: '/api/admin/subscriptions/plans',
-      CREATE: '/api/admin/subscriptions/plans',
-      UPDATE: (id: string) => `/api/admin/subscriptions/plans/${id}`,
-      DELETE: (id: string) => `/api/admin/subscriptions/plans/${id}`,
+      GET_ALL: '/api/admin/subscription-plans',
+      GET_BY_ID: (id: string) => `/api/admin/subscription-plans/${id}`,
+      CREATE: '/api/admin/subscription-plans',
+      UPDATE: (id: string) => `/api/admin/subscription-plans/${id}`,
+      DELETE: (id: string) => `/api/admin/subscription-plans/${id}`,
+      TOGGLE_POPULAR: (id: string) => `/api/admin/subscription-plans/${id}/toggle-popular`,
+      TOGGLE_RECOMMENDED: (id: string) => `/api/admin/subscription-plans/${id}/toggle-recommended`,
+      TOGGLE_STATUS: (id: string) => `/api/admin/subscription-plans/${id}/toggle-status`,
+      GET_STATS: '/api/admin/subscription-plans/stats',
+      GET_FILTERED: '/api/admin/subscription-plans/filtered',
+      GET_ACTIVE: '/api/admin/subscription-plans/active',
     },
   },
   DASHBOARD: {

@@ -76,10 +76,41 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
       ? `${apiEndpoints.EXAMS.GET_ALL}?${queryParams.toString()}`
       : apiEndpoints.EXAMS.GET_ALL;
 
+    console.log('Making API call to:', url);
     const response = await apiClient.get(url);
-    return response.data;
-  } catch (error) {
+    console.log('Raw API response:', response.data);
+    
+    // Handle the case where API returns data directly without wrapper
+    let apiResponse: ApiResponse<ExamDto[]>;
+    if (response.data.success !== undefined && response.data.data) {
+      // API returned wrapped response with success flag
+      apiResponse = response.data;
+    } else if (Array.isArray(response.data)) {
+      // API returned array directly, wrap it in expected format
+      apiResponse = {
+        success: true,
+        data: response.data,  
+        totalCount: response.data.length
+      };
+    } else if (response.data.data && Array.isArray(response.data.data)) {
+      // API returned { data: [...] }
+      apiResponse = {
+        success: true,
+        data: response.data.data,
+        totalCount: response.data.data.length
+      };
+    } else {
+      // Fallback
+      apiResponse = response.data;
+    }
+    
+    console.log('Processed API response:', apiResponse);
+    return apiResponse;
+  } catch (error: any) {
     console.error('Error fetching exams:', error);
+    console.error('Error response data:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    console.error('Error headers:', error.response?.headers);
     throw error;
   }
 };
@@ -103,7 +134,14 @@ export const getExamById = async (id: number): Promise<ApiResponse<ExamDto>> => 
 export const createExam = async (examData: CreateExamDto): Promise<ApiResponse<ExamDto>> => {
   try {
     const response = await apiClient.post(apiEndpoints.EXAMS.CREATE, examData);
-    return response.data;
+    // Handle both wrapped and direct responses
+    if (response.data.success !== undefined) {
+      return response.data;
+    }
+    return {
+      success: true,
+      data: response.data
+    };
   } catch (error) {
     console.error('Error creating exam:', error);
     throw error;
@@ -113,9 +151,17 @@ export const createExam = async (examData: CreateExamDto): Promise<ApiResponse<E
 /**
  * Update exam (Admin only)
  */
-export const updateExam = async (id: number, examData: UpdateExamDto): Promise<void> => {
+export const updateExam = async (id: number, examData: UpdateExamDto): Promise<ApiResponse<ExamDto>> => {
   try {
-    await apiClient.put(apiEndpoints.EXAMS.UPDATE(id.toString()), examData);
+    const response = await apiClient.put(apiEndpoints.EXAMS.UPDATE(id.toString()), examData);
+    // Handle both wrapped and direct responses
+    if (response.data.success !== undefined) {
+      return response.data;
+    }
+    return {
+      success: true,
+      data: response.data
+    };
   } catch (error) {
     console.error('Error updating exam:', error);
     throw error;
@@ -135,11 +181,15 @@ export const deleteExam = async (id: number): Promise<void> => {
 };
 
 /**
- * Update exam status (Admin only)
+ * Update exam status (Admin only) - Enable/Disable
  */
 export const updateExamStatus = async (id: number, isActive: boolean): Promise<void> => {
   try {
-    await apiClient.patch(apiEndpoints.EXAMS.UPDATE_STATUS(id.toString()), isActive);
+    await apiClient.patch(apiEndpoints.EXAMS.UPDATE_STATUS(id.toString()), isActive, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
     console.error('Error updating exam status:', error);
     throw error;
@@ -207,6 +257,7 @@ export const getExamsForUser = async (): Promise<ApiResponse<ExamDto[]>> => {
 export const getExams = getExamsList;
 export const getExamsCount = async (): Promise<ApiResponse<{ totalExams: number }>> => {
   try {
+    // Get all exams to count them
     const response = await getExamsList({ limit: 1 });
     return {
       success: true,

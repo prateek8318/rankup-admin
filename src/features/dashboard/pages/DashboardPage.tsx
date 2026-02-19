@@ -10,6 +10,13 @@ import vectorIcon from '@/assets/icons/Vector.png';
 import vector1Icon from '@/assets/icons/Vector (1).png';
 import vector2Icon from '@/assets/icons/Vector (2).png';
 import vector3Icon from '@/assets/icons/Vector (3).png';
+import vector4Icon from '@/assets/icons/Vector (4).png';
+import chartIcon from '@/assets/icons/chart.png';
+import exportIcon from '@/assets/icons/export.png';
+import supportIcon from '@/assets/icons/total exams.png';
+import transactionsIcon from '@/assets/icons/transactions.png';
+import totalQuestionsIcon from '@/assets/icons/total questions.png';
+import totalExamsIcon from '@/assets/icons/total exams.png';
 
 interface DashboardCardProps {
   number: string;
@@ -44,14 +51,14 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   return (
     <div
       style={{
-        width: 270,
+        width: 275,
         height: 140,
         background: isWhiteBackground ? "#fff" : gradient,
         borderRadius: 13,
         padding: 16,
         color: isWhiteBackground ? "#000" : "#fff",
         position: "relative",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
         boxSizing: "border-box",
         overflow: "hidden",
       }}
@@ -69,7 +76,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
               width: "100%",
               height: "auto",
               objectFit: "cover",
-              opacity: 0.7
+              opacity: 0.8
             }}
           />
           <img
@@ -82,7 +89,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
               width: "100%",
               height: "auto",
               objectFit: "cover",
-              opacity: 0.5
+              opacity: 0.9
             }}
           />
         </>
@@ -93,8 +100,8 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         position: "absolute",
         top: 26,
         right: 20,
-        width: 50,
-        height: 50,
+        width: 55,
+        height: 55,
         zIndex: 1
       }}>
         <img
@@ -220,29 +227,30 @@ const DashboardPage: React.FC = () => {
   // Top row cards (4 cards with white background and wave images on top)
   const topRowCards = [
     {
-      number: stats?.totalUsers?.toString() || mockStats.totalUsers.toString(),
-      label: "Total Users",
+      // number: stats?.totalUsers?.toString() || mockStats.totalUsers.toString(),
+      number: "12.5K",
+      label: "Total Registered Users",
       icon: usersIcon,
       isWhiteBackground: true,
       topWaveImage: vectorIcon
     },
     {
       number: stats?.activeUsers?.toString() || mockStats.activeUsers.toString(),
-      label: "Active Users", 
+      label: "Total Subscribers", 
       icon: activeSubscribersIcon,
       isWhiteBackground: true,
       topWaveImage: vector1Icon
     },
     {
       number: stats?.totalExams?.toString() || mockStats.totalExams.toString(),
-      label: "Total Exams",
+      label: "Active Subscribers",
       icon: examsIcon,
       isWhiteBackground: true,
       topWaveImage: vector2Icon
     },
     {
       number: stats?.activeExams?.toString() || mockStats.activeExams.toString(),
-      label: "Active Exams",
+      label: "Subscribers Expiring Soon",
       icon: activeSubscribersIcon,
       isWhiteBackground: true,
       topWaveImage: vector3Icon
@@ -253,7 +261,7 @@ const DashboardPage: React.FC = () => {
     return (
       <div style={{
         background: "#E6F5FF",
-        minHeight: "100vh",
+        
         width: "100%",
         display: "flex",
         alignItems: "center",
@@ -270,7 +278,7 @@ const DashboardPage: React.FC = () => {
     return (
       <div style={{
         background: "#E6F5FF",
-        minHeight: "100vh",
+        
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -308,8 +316,8 @@ const DashboardPage: React.FC = () => {
       <div
         style={{
           width: "100%",
-          padding: "30px 60px",
-          boxSizing: "border-box",
+          padding: "30px 50px",
+          
         }}
       >
         {/* HEADER */}
@@ -318,7 +326,7 @@ const DashboardPage: React.FC = () => {
             <div>
               <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Dashboard</h2>
               <p style={{ color: "#000", margin: 0, paddingTop: 20, fontSize: 18 }}>
-                View and manage all your dashboard analytics & insights
+                Overview of registered users, subscriptions, exam & revenue
               </p>
             </div>
 
@@ -328,8 +336,11 @@ const DashboardPage: React.FC = () => {
               <select style={{
                 padding: "8px 16px",
                 border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
+                borderRadius: "20px",
                 background: "#fff",
+                alignContent: "center",
+                alignItems: "center",
+                justifyContent: "center",
                 fontSize: "16px"
               }}>
                 <option>Filter by date</option>
@@ -340,9 +351,12 @@ const DashboardPage: React.FC = () => {
               <select style={{
                 padding: "8px 16px",
                 border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
+                borderRadius: "20px",
                 background: "#fff",
-                fontSize: "16px"
+                fontSize: "16px",
+                alignContent: "center",
+                alignItems: "center",
+                justifyContent: "center",
               }}>
                 <option>Select Exam</option>
                 <option>All Exams</option>
@@ -351,27 +365,17 @@ const DashboardPage: React.FC = () => {
               <select style={{
                 padding: "8px 16px",
                 border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
+                borderRadius: "20px",
                 background: "#fff",
-                fontSize: "16px"
+                fontSize: "16px",
+                alignContent: "center",
+                alignItems: "center",
+                justifyContent: "center",
               }}>
                 <option>All Users</option>
                 <option>Premium Users</option>
                 <option>Free Users</option>
               </select>
-            </div>
-            
-            
-          </div>
-           {/* FILTER AND ACTION BAR */}
-        <div style={{
-          borderRadius: 13,
-          padding: "20px",
-          marginBottom: 30,
-          
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
               <button style={{ 
                 padding: "8px 48px", 
                 border: "none", 
@@ -383,38 +387,48 @@ const DashboardPage: React.FC = () => {
                 fontWeight: "500"
               }}>
                 Apply
-              </button>     
-              <button
-                style={{
-                  padding: "8px 24px",
-                  border: "1.5px solid #C0C0C0",
-                  borderRadius: "8px",
-                  background: "#fff",
-                  fontSize: "16px",
-                  cursor: "pointer"
-                }}
-              >
-                Reset
-              </button>
-              <button
-                style={{
-                  padding: "8px 24px",
-                  border: "1.5px solid #C0C0C0",
-                  borderRadius: "8px",
-                  background: "#fff",
-                  fontSize: "16px",
-                  cursor: "pointer"
-                }}
-              >
-                Export
               </button>
             </div>
           </div>
-        </div>
+          
+          {/* SECOND ROW - RESET AND EXPORT BUTTONS */}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "15px", marginBottom: 20 }}>
+            <button
+              style={{
+                padding: "8px 24px",
+                border: "1.5px solid #C0C0C0",
+                borderRadius: "8px",
+                background: "#fff",
+                fontSize: "16px",
+                cursor: "pointer"
+              }}
+            >
+              Reset
+            </button>
+            <button
+              style={{
+                padding: "8px 24px",
+                border: "1.5px solid #C0C0C0",
+                borderRadius: "8px",
+                background: "#fff",
+                fontSize: "16px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                alignContent: "center",
+                
+                justifyContent: "center",
+              }}
+            >
+              <img src={exportIcon} alt="Export" style={{ width: "16px", height: "16px" }} />
+              Export
+            </button>
+          </div>
         </div>
 
         {/* TOP ROW - WHITE CARDS */}
-        <div style={{ display: "flex", gap: 40, marginBottom: 30 }}>
+        <div style={{ display: "flex", gap: 45, marginBottom: 30, marginLeft: 40 }}>
           {topRowCards.map((card: any, index: number) => (
             <DashboardCard
               key={index}
@@ -430,86 +444,55 @@ const DashboardPage: React.FC = () => {
        
 
         {/* MAIN CONTENT AREA - CHART AND RIGHT SIDE CARDS */}
-        <div style={{ display: "flex", gap: 40, marginBottom: 30 }}>
-          {/* EARNINGS CHART SECTION - 3 CARDS WIDTH */}
-          <div style={{
-            background: "#fff",
-            borderRadius: 13,
-            padding: "20px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            width: "calc(3 * 270px + 2 * 40px)", // Width of first 3 cards + gaps
-            minHeight: 400
+        <div style={{ display: "flex", gap: 60, marginBottom: 30 }}>
+          {/* EARNINGS CHART SECTION */}
+          <div style={{ 
+            width: "calc(3 * 290px + 2 * 44px)", // Width of first 3 cards + gaps
+            height: 700,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Earnings Overview</h3>
-              <select style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "8px",
-                background: "#fff",
-                fontSize: "16px"
-              }}>
-                <option>This Year</option>
-                <option>Last Year</option>
-                <option>All Time</option>
-              </select>
-            </div>
-            
-            {/* Dynamic Chart with Recharts - Column Chart */}
-            <div style={{ height: 350, width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={overview?.earningsData || mockOverview.earningsData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="#6b7280"
-                    style={{ fontSize: 14 }}
-                  />
-                  <YAxis 
-                    stroke="#6b7280"
-                    style={{ fontSize: 14 }}
-                    tickFormatter={(value) => `₹${(value/1000).toFixed(0)}k`}
-                  />
-                  <Tooltip 
-                    formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Earnings']}
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Legend />
-                  <Bar 
-                    dataKey="earnings" 
-                    fill="#4780CF" 
-                    name="Monthly Earnings"
-                    radius={[8, 8, 0, 0]} // Rounded top corners
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <img
+              src={chartIcon}
+              alt="Chart"
+              style={{
+                width: "100%",
+                height: "100%",
+                
+              }}
+            />
           </div>
 
           {/* RIGHT SIDE STATIC CARDS */}
           <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
             <DashboardCard
-              number="0"
-              label="Total Revenue"
+              number="23"
+              label="Open SUpport Tickets"
               gradient="linear-gradient(135deg, #4780CF, #2B6AEC)"
               bottomWaveImage={vector3Icon}
+              icon={supportIcon}
             />
             <DashboardCard
-              number="0"
-              label="Monthly Revenue"
+              number="300"
+              label="Todays Transactions"
               gradient="linear-gradient(135deg, #F093FB, #F5576C)"
               bottomWaveImage={vector2Icon}
+              icon={transactionsIcon}
             />
             <DashboardCard
-              number="0"
-              label="Pending Requests"
-              gradient="linear-gradient(135deg, #4FACFE, #00F2FE)"
+              number="4100"
+              label="Total Questions"
+              gradient="linear-gradient(135deg, #AD7102, #FFBA43)"
+              bottomWaveImage={vector4Icon}
+              icon={totalQuestionsIcon}
+            />
+            <DashboardCard
+              number="566"
+              label="Total Exams"
+              gradient="linear-gradient(135deg, #655FD9, #655FD9)"
               bottomWaveImage={vector3Icon}
+              icon={totalExamsIcon}
             />
           </div>
         </div>

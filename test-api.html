@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test User Count API</title>
+</head>
+<body>
+    <h1>Testing User Count APIs</h1>
+    <button onclick="testUserCount()">Test User Count</button>
+    <button onclick="testDailyActiveCount()">Test Daily Active Count</button>
+    <button onclick="testUsersList()">Test Users List</button>
+    
+    <div id="results"></div>
+
+    <script>
+        async function testUserCount() {
+            try {
+                const response = await fetch('http://localhost:5174/api/admin/users/count', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.text();
+                document.getElementById('results').innerHTML += '<h3>User Count Response:</h3><pre>' + result + '</pre>';
+            } catch (error) {
+                document.getElementById('results').innerHTML += '<h3>User Count Error:</h3><pre>' + error.message + '</pre>';
+            }
+        }
+
+        async function testDailyActiveCount() {
+            try {
+                const response = await fetch('http://localhost:5174/api/admin/users/daily-active-count', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.text();
+                document.getElementById('results').innerHTML += '<h3>Daily Active Count Response:</h3><pre>' + result + '</pre>';
+            } catch (error) {
+                document.getElementById('results').innerHTML += '<h3>Daily Active Count Error:</h3><pre>' + error.message + '</pre>';
+            }
+        }
+
+        async function testUsersList() {
+            try {
+                const response = await fetch('http://localhost:5174/api/admin/users?page=1&pageSize=10', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.text();
+                document.getElementById('results').innerHTML += '<h3>Users List Response:</h3><pre>' + result + '</pre>';
+            } catch (error) {
+                document.getElementById('results').innerHTML += '<h3>Users List Error:</h3><pre>' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

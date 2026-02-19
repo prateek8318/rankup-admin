@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/core/api/masterApi';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
 
 const Languages = () => {
   const [languages, setLanguages] = useState<LanguageDto[]>([]);
@@ -12,6 +14,92 @@ const Languages = () => {
     code: '',
     isActive: true
   });
+
+  // Predefined language codes with names and native script translations
+  const languageOptions = [
+     { name: 'Hindi', code: 'hi', nativeName: 'हिंदी' },
+  { name: 'Bengali', code: 'bn', nativeName: 'বাংলা' },
+  { name: 'Tamil', code: 'ta', nativeName: 'தமிழ்' },
+  { name: 'Telugu', code: 'te', nativeName: 'తెలుగు' },
+  { name: 'Marathi', code: 'mr', nativeName: 'मराठी' },
+  { name: 'Gujarati', code: 'gu', nativeName: 'ગુજરાતી' },
+  { name: 'Punjabi', code: 'pa', nativeName: 'ਪੰਜਾਬੀ' },
+  { name: 'Urdu', code: 'ur', nativeName: 'اردو' },
+  { name: 'Malayalam', code: 'ml', nativeName: 'മലയാളം' },
+  { name: 'Kannada', code: 'kn', nativeName: 'ಕನ್ನಡ' },
+  { name: 'Odia', code: 'or', nativeName: 'ଓଡ଼ିଆ' },
+  { name: 'Assamese', code: 'as', nativeName: 'অসমীয়া' },
+  { name: 'Nepali', code: 'ne', nativeName: 'नेपाली' },
+  { name: 'Sanskrit', code: 'sa', nativeName: 'संस्कृतम्' },
+  { name: 'Sindhi', code: 'sd', nativeName: 'سنڌي' },
+  { name: 'Konkani', code: 'kok', nativeName: 'कोंकणी' },
+  { name: 'Manipuri (Meitei)', code: 'mni', nativeName: 'ꯃꯩꯇꯩꯂꯣꯟ' },
+  { name: 'Bodo', code: 'brx', nativeName: 'बड़ो' },
+  { name: 'Dogri', code: 'doi', nativeName: 'डोगरी' },
+  { name: 'Maithili', code: 'mai', nativeName: 'मैथिली' },
+  { name: 'Santali', code: 'sat', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ' },
+  { name: 'Kashmiri', code: 'ks', nativeName: 'कश्मीरी / کشمیری' },
+
+  // Widely Spoken Regional Languages
+  { name: 'Tulu', code: 'tcy', nativeName: 'ತುಳು' },
+  { name: 'Bhojpuri', code: 'bho', nativeName: 'भोजपुरी' },
+  { name: 'Rajasthani', code: 'raj', nativeName: 'राजस्थानी' },
+  { name: 'Haryanvi', code: 'bgc', nativeName: 'हरियाणवी' },
+  { name: 'Chhattisgarhi', code: 'hne', nativeName: 'छत्तीसगढ़ी' },
+  { name: 'Garhwali', code: 'gbm', nativeName: 'गढ़वाली' },
+  { name: 'Kumaoni', code: 'kfy', nativeName: 'कुमाऊँनी' },
+  { name: 'Magahi', code: 'mag', nativeName: 'मगही' },
+  { name: 'Angika', code: 'anp', nativeName: 'अंगिका' },
+  { name: 'Awadhi', code: 'awa', nativeName: 'अवधी' },
+  { name: 'Bundeli', code: 'bns', nativeName: 'बुंदेली' },
+  { name: 'Bagheli', code: 'bfy', nativeName: 'बघेली' },
+  { name: 'Ladakhi', code: 'lbj', nativeName: 'ལ་དྭགས་སྐད་' },
+  { name: 'Gondi', code: 'gon', nativeName: 'गोंडी' },
+  { name: 'Bhili', code: 'bhb', nativeName: 'भीली' },
+  { name: 'Khasi', code: 'kha', nativeName: 'खासी' },
+  { name: 'Mizo (Lushai)', code: 'lus', nativeName: 'Mizo ṭawng' },
+  { name: 'Ao', code: 'njo', nativeName: 'Ao' },
+  { name: 'Nyishi', code: 'nyi', nativeName: 'Nyishi' },
+  { name: 'Lepcha', code: 'lep', nativeName: 'ᰛᰩᰵᰛᰵ' },
+  { name: 'Kokborok', code: 'trp', nativeName: 'Kokborok' },
+  { name: 'Ho', code: 'hoc', nativeName: 'ᱦᱳ' },
+  { name: 'Kurukh (Oraon)', code: 'kru', nativeName: 'कुड़ुख' },
+  { name: 'Mundari', code: 'unr', nativeName: 'मुंडारी' },
+  { name: 'Sora', code: 'srb', nativeName: 'ସୋରା' },
+  { name: 'Nicobarese', code: 'ncb', nativeName: 'Nicobarese' },
+  { name: 'Kodava', code: 'kfa', nativeName: 'ಕೊಡವ' },
+  { name: 'Badaga', code: 'bfq', nativeName: 'ಬಡಗ' },
+  { name: 'Pahari', code: 'phr', nativeName: 'पहाड़ी' },
+  { name: 'Marwari', code: 'mwr', nativeName: 'मारवाड़ी' },
+  { name: 'Mewari', code: 'mtr', nativeName: 'मेवाड़ी' },
+  { name: 'Dhundhari', code: 'dhd', nativeName: 'ढूंढाड़ी' },
+  { name: 'Khandeshi', code: 'khn', nativeName: 'खानदेशी' },
+  { name: 'Surjapuri', code: 'sjp', nativeName: 'सुरजापुरी' },
+  { name: 'Dimasa', code: 'dis', nativeName: 'Dimasa' },
+  { name: 'Karbi', code: 'mjw', nativeName: 'Karbi' },
+  { name: 'Garo', code: 'grt', nativeName: 'Garo' }
+  ];
+
+  // Filter out already used language codes (case-insensitive)
+  const availableLanguageOptions = languageOptions.filter(option => 
+    !languages.some(lang => lang.code.toLowerCase() === option.code.toLowerCase()) || 
+    (editingLanguage && editingLanguage.code.toLowerCase() === option.code.toLowerCase())
+  );
+
+  // For edit mode, include the current language being edited (case-insensitive)
+  const dropdownOptions = editingLanguage 
+    ? languageOptions.filter(option => 
+        !languages.some(lang => lang.code.toLowerCase() === option.code.toLowerCase() && lang.id !== editingLanguage.id) || 
+        editingLanguage.code.toLowerCase() === option.code.toLowerCase()
+      )
+    : availableLanguageOptions;
+
+  // Validate form submission
+  const isFormValid = () => {
+    if (!formData.name || !formData.code) return false;
+    if (isCustomMode && (formData.code === 'custom' || !isCustomCodeValid)) return false;
+    return true;
+  };
 
   const fetchLanguages = async () => {
     try {
@@ -50,6 +138,13 @@ const Languages = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!isFormValid()) {
+      alert('Please fill all required fields with valid data.');
+      return;
+    }
+
     try {
       if (editingLanguage) {
         await languageApi.update(editingLanguage.id, formData as UpdateLanguageDto);
@@ -73,23 +168,50 @@ const Languages = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this language?')) {
-      try {
-        await languageApi.delete(id);
-        fetchLanguages();
-      } catch (error) {
-        console.error('Error deleting language:', error);
+  // Handle language selection from dropdown
+  const handleLanguageSelect = (selectedCode: string) => {
+    console.log('Language selected:', selectedCode); // Debug log
+    if (selectedCode === 'custom') {
+      // Enable custom language input
+      setFormData({
+        ...formData,
+        name: '',
+        code: 'custom' // Set to 'custom' to trigger custom mode
+      });
+    } else {
+      const selectedLanguage = languageOptions.find(opt => opt.code === selectedCode);
+      if (selectedLanguage) {
+        // Auto-fill with bilingual name: "English / English" or "Gujarati / ગુજરાતી"
+        const bilingualName = `${selectedLanguage.name} / ${selectedLanguage.nativeName}`;
+        setFormData({
+          ...formData,
+          name: bilingualName,
+          code: selectedLanguage.code
+        });
       }
     }
   };
 
-  const handleToggleStatus = async (id: number, isActive: boolean) => {
-    try {
-      await languageApi.updateStatus(id, isActive);
-      fetchLanguages();
-    } catch (error) {
-      console.error('Error updating language status:', error);
+  // Validate custom language code (case-insensitive)
+  const isCustomCodeValid = formData.code && 
+    formData.code !== 'custom' &&
+    !languageOptions.some(opt => opt.code.toLowerCase() === formData.code.toLowerCase()) &&
+    !languages.some(lang => lang.code.toLowerCase() === formData.code.toLowerCase());
+
+  // Check if form is in custom mode
+  const isCustomMode = formData.code === 'custom' || 
+    (formData.code && 
+     !languageOptions.some(opt => opt.code === formData.code) && 
+     !editingLanguage);
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to deactivate this language?')) {
+      try {
+        await languageApi.updateStatus(id, false);
+        fetchLanguages();
+      } catch (error) {
+        console.error('Error deactivating language:', error);
+      }
     }
   };
 
@@ -100,8 +222,9 @@ const Languages = () => {
   };
 
   const filteredLanguages = languages.filter(lang =>
-    lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lang.code.toLowerCase().includes(searchTerm.toLowerCase())
+    lang.isActive &&
+    (lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    lang.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -206,24 +329,12 @@ const Languages = () => {
                           border: "none",
                           color: "#2563eb",
                           cursor: "pointer",
-                          fontSize: "14px",
-                          marginRight: "8px"
+                          marginRight: "8px",
+                          padding: "4px"
                         }}
+                        title="Edit"
                       >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleToggleStatus(language.id, !language.isActive)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: language.isActive ? "#f59e0b" : "#10b981",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          marginRight: "8px"
-                        }}
-                      >
-                        {language.isActive ? "Deactivate" : "Activate"}
+                        <img src={editIcon} alt="Edit" style={{ width: "16px", height: "16px" }} />
                       </button>
                       <button
                         onClick={() => handleDelete(language.id)}
@@ -232,10 +343,11 @@ const Languages = () => {
                           border: "none",
                           color: "#dc2626",
                           cursor: "pointer",
-                          fontSize: "14px"
+                          padding: "4px"
                         }}
+                        title="Deactivate"
                       >
-                        Delete
+                        <img src={deleteIcon} alt="Deactivate" style={{ width: "16px", height: "16px" }} />
                       </button>
                     </td>
                   </tr>
@@ -274,40 +386,102 @@ const Languages = () => {
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Name *
+                  Select Language *
+                </label>
+                <select
+                  value={isCustomMode ? 'custom' : formData.code}
+                  onChange={(e) => handleLanguageSelect(e.target.value)}
+                  required
+                  disabled={!!editingLanguage}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    backgroundColor: editingLanguage ? "#f3f4f6" : "#fff",
+                    color: editingLanguage ? "#6b7280" : "#000"
+                  }}
+                >
+                  <option value="">Choose a language...</option>
+                  {dropdownOptions.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {option.name} ({option.code})
+                    </option>
+                  ))}
+                  {!editingLanguage && (
+                    <option value="custom">+ Add Custom Language</option>
+                  )}
+                </select>
+                <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                  {editingLanguage 
+                    ? "Language selection is disabled in edit mode to maintain code consistency."
+                    : "Select from predefined languages or choose 'Add Custom Language' for new languages. Native script names will be auto-filled."
+                  }
+                </p>
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+                  Language Name *
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={isCustomMode ? "Enter custom language name (e.g., 'Bhojpuri / भोजपुरी')..." : "Language name (auto-filled with native script)"}
+                  readOnly={!isCustomMode && !editingLanguage}
                   style={{
                     width: "100%",
                     padding: "10px",
                     border: "1px solid #e5e7eb",
                     borderRadius: "8px",
-                    fontSize: "14px"
+                    fontSize: "14px",
+                    backgroundColor: (!isCustomMode && !editingLanguage) ? "#f3f4f6" : "#fff",
+                    color: (!isCustomMode && !editingLanguage) ? "#6b7280" : "#000"
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Code *
+                  Language Code *
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase() })}
+                  placeholder={isCustomMode ? "Enter custom language code (e.g., 'bho' for Bhojpuri)..." : ""}
+                  readOnly={!isCustomMode && !editingLanguage}
                   style={{
                     width: "100%",
                     padding: "10px",
-                    border: "1px solid #e5e7eb",
+                    border: isCustomMode && !isCustomCodeValid ? "1px solid #ef4444" : "1px solid #e5e7eb",
                     borderRadius: "8px",
-                    fontSize: "14px"
+                    fontSize: "14px",
+                    backgroundColor: (!isCustomMode && !editingLanguage) ? "#f3f4f6" : "#fff",
+                    color: (!isCustomMode && !editingLanguage) ? "#6b7280" : "#000"
                   }}
                 />
+                {isCustomMode && (
+                  <p style={{ 
+                    fontSize: "12px", 
+                    color: isCustomCodeValid ? "#059669" : "#ef4444", 
+                    marginTop: "4px" 
+                  }}>
+                    {isCustomCodeValid 
+                      ? "✓ Custom code is available"
+                      : "✗ This code already exists (case-insensitive check)"
+                    }
+                  </p>
+                )}
+                {!isCustomMode && !editingLanguage && (
+                  <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                    Code is auto-generated from language selection above.
+                  </p>
+                )}
               </div>
 
               <div style={{ marginBottom: "20px" }}>
@@ -339,14 +513,17 @@ const Languages = () => {
                 </button>
                 <button
                   type="submit"
+                  disabled={!isFormValid()}
                   style={{
                     padding: "10px 20px",
                     border: "none",
                     borderRadius: "8px",
-                    background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-                    color: "#fff",
+                    background: isFormValid() 
+                      ? "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)" 
+                      : "#d1d5db",
+                    color: isFormValid() ? "#fff" : "#9ca3af",
                     fontSize: "14px",
-                    cursor: "pointer"
+                    cursor: isFormValid() ? "pointer" : "not-allowed"
                   }}
                 >
                   {editingLanguage ? "Update" : "Create"}
