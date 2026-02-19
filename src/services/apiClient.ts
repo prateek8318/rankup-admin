@@ -1,7 +1,7 @@
 /**
  * Axios instance with auth interceptors (use this for authenticated API calls)
  */
-import { axiosBase } from '@/core/lib/axios';
+import { axiosBase } from '@/services/axios';
 
 const apiClient = axiosBase;
 

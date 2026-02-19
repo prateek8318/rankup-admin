@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { LoginForm } from '../components/LoginForm';
+import { LoginForm } from '../../features/auth/components/LoginForm';
 import loginIllustration from '@/assets/images/login-illustration.png';
 import rankupLogo from '@/assets/images/rankup-logo.png';
 

@@ -2,7 +2,7 @@
  * Base Axios instance (no auth interceptors - use apiClient for that)
  */
 import axios from 'axios';
-import { appConfig } from '@/core/config/appConfig';
+import { appConfig } from '@/services/appConfig';
 
 export const axiosBase = axios.create({
   baseURL: appConfig.apiBaseUrl,

@@ -1,5 +1,5 @@
-import BaseApiService from '@/core/api/baseApi';
-import API_CONFIG from '@/core/api/apiConfig';
+import BaseApiService from '@/services/baseApi';
+import API_CONFIG from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 
 interface LoginCredentials {

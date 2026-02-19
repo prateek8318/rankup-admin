@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getCMSList, updateCMS, deleteCMS } from '@/core/api/dashboardApi';
+import { getCMSList, updateCMS, deleteCMS } from '@/services/dashboardApi';
 import { FiEdit, FiTrash2, FiArrowLeft, FiGlobe } from 'react-icons/fi';
 import MDEditor from '@uiw/react-md-editor';
 

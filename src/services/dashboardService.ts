@@ -1,5 +1,5 @@
-import BaseApiService from '@/core/api/baseApi';
-import API_CONFIG from '@/core/api/apiConfig';
+import BaseApiService from '@/services/baseApi';
+import API_CONFIG from '@/services/apiConfig';
 
 class DashboardService extends BaseApiService {
   async getOverview() {

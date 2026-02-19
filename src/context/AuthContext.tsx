@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import apiClient from "@/core/api/apiClient";
-import { apiEndpoints } from "@/core/api/apiEndpoints";
-import { appConfig } from "@/core/config/appConfig";
+import apiClient from "@/services/apiClient";
+import { apiEndpoints } from "@/services/apiEndpoints";
+import { appConfig } from "@/services/appConfig";
 import type { AuthState, TwoFactorData } from "@/types";
 
 interface AuthContextType {

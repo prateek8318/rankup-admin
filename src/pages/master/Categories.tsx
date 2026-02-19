@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { categoryApi, CategoryDto, CreateCategoryDto } from '@/core/api/masterApi';
+import { categoryApi, CategoryDto, CreateCategoryDto } from '@/services/masterApi';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 

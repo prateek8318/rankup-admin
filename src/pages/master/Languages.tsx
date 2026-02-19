@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/core/api/masterApi';
+import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/services/masterApi';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 

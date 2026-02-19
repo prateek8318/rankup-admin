@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { type ExamDto, type ExamListParams } from '@/core/api';
-import { getExamsList, getExamsCount, deleteExam, updateExamStatus } from '@/core/api/examsApi';
+import { type ExamDto, type ExamListParams } from '@/services';
+import { getExamsList, getExamsCount, deleteExam, updateExamStatus } from '@/services/examsApi';
 import examsIcon from '@/assets/icons/exams.png';
 import totalExamsIcon from '@/assets/icons/total exams.png';
 import vectorIcon from '@/assets/icons/Vector (3).png';

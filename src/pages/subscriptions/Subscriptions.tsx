@@ -12,8 +12,8 @@ import {
   type SubscriptionPlanDto,
   type CreateSubscriptionPlanDto,
   type UpdateSubscriptionPlanDto,
-} from '@/core/api/subscriptionPlansApi';
-import { categoryApi } from '@/core/api/masterApi';
+} from '@/services/subscriptionPlansApi';
+import { categoryApi } from '@/services/masterApi';
 import Vector from '@/assets/icons/Vector.png';
 
 // Color theme options matching the Figma design

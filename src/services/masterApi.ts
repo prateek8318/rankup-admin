@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { appConfig } from '@/core/config/appConfig';
+import { appConfig } from '@/services/appConfig';
 
 // Separate axios instance for Master Service (without credentials to avoid CORS issues)
 const masterApiClient = axios.create({

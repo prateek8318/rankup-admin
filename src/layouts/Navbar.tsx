@@ -1,6 +1,6 @@
 import React from 'react';
-import ProfileLogo from '../ui/ProfileLogo';
-import { useAuth } from '@/features/auth';
+import ProfileLogo from '../components/ui/ProfileLogo';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const { auth } = useAuth();

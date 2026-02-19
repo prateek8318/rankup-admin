@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getUsersList, type UserDto } from '@/core/api/usersApi';
-import { getUsersCount } from '@/core/api/dashboardApi';
+import { getUsersList, type UserDto } from '@/services/usersApi';
+import { getUsersCount } from '@/services/dashboardApi';
 import usersIcon from '@/assets/icons/user.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
 import subscribersIcon from '@/assets/icons/subscribers.png';
@@ -146,30 +146,76 @@ const Users = () => {
       console.log('API Response:', response); // Debug log
 
       if (response.items) {
-        // Filter by search term if provided
+        // Apply client-side filtering for search and filters
         let filteredItems = response.items;
+        
+        // Filter by search term if provided
         if (searchTerm) {
-          filteredItems = response.items.filter((user: User) =>
+          filteredItems = filteredItems.filter((user: User) =>
             user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.phoneNumber.includes(searchTerm)
           );
         }
-
+        
+        // Apply filters
+        if (filters.userType !== 'All Users') {
+          if (filters.userType === 'Active Users') {
+            filteredItems = filteredItems.filter(user => user.isActive);
+          } else if (filters.userType === 'Blocked Users') {
+            filteredItems = filteredItems.filter(user => !user.isActive);
+          }
+        }
+        
+        if (filters.status !== 'All Status') {
+          if (filters.status === 'Active') {
+            filteredItems = filteredItems.filter(user => user.isActive);
+          } else if (filters.status === 'Blocked') {
+            filteredItems = filteredItems.filter(user => !user.isActive);
+          }
+        }
+        
+        if (filters.time !== 'All Time') {
+          if (filters.time === 'Last 7 days') {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            filteredItems = filteredItems.filter(user => {
+              const createdAt = new Date(user.createdAt);
+              return createdAt > sevenDaysAgo;
+            });
+          } else if (filters.time === 'Last 30 days') {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            filteredItems = filteredItems.filter(user => {
+              const createdAt = new Date(user.createdAt);
+              return createdAt > thirtyDaysAgo;
+            });
+          }
+        }
+        
         setUsers(filteredItems);
-        setTotalUsers(response.totalCount);
-        setTotalPages(Math.ceil(response.totalCount / 10)); // 10 items per page
+        
+        // For filtered results, recalculate pagination
+        const filteredTotal = filteredItems.length;
+        const itemsPerPage = 10;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = filteredItems.slice(startIndex, endIndex);
+        
+        setUsers(paginatedItems);
+        setTotalUsers(filteredTotal);
+        setTotalPages(Math.ceil(filteredTotal / itemsPerPage));
 
-        // Calculate stats from all users
-        const total = response.totalCount || filteredItems.length;
-        const active = filteredItems.filter((user: User) => user.isActive).length;
-        const newUsers = filteredItems.filter((user: User) => {
+        // Calculate stats from all users (not filtered)
+        const total = response.totalCount || response.items.length;
+        const active = response.items.filter((user: User) => user.isActive).length;
+        const newUsers = response.items.filter((user: User) => {
           const createdAt = new Date(user.createdAt);
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
           return createdAt > sevenDaysAgo;
         }).length;
-        const noActivity = filteredItems.filter((user: User) => {
+        const noActivity = response.items.filter((user: User) => {
           if (!user.lastLoginAt) return true;
           const lastLogin = new Date(user.lastLoginAt);
           const thirtyDaysAgo = new Date();
@@ -177,7 +223,7 @@ const Users = () => {
           return lastLogin < thirtyDaysAgo;
         }).length;
 
-        console.log('Processed users:', filteredItems); // Debug log
+        console.log('Processed users:', response.items); // Debug log
 
         setUserStats({
           totalUsers: total,
@@ -270,7 +316,6 @@ const Users = () => {
   };
 
   const getUserId = (user: User) => `USR${String(user.id).padStart(3, '0')}`;
-  const getContact = (user: User) => user.phoneNumber; // phoneNumber already includes countryCode
   const getPlan = (_user: User) => 'N/A'; // No subscription data in API response
   const getSubsStatus = (user: User) => user.isActive ? 'Active' : 'Block';
   // Remove static data - these should come from API if available
@@ -296,7 +341,9 @@ const Users = () => {
 
   const handleApply = () => {
     console.log('Applying filters:', filters);
-    // Apply filters to the users list
+    // Reset to page 1 when applying filters
+    setCurrentPage(1);
+    // Apply filters to users list
     let filteredUsers = users;
     
     // Filter by user type
@@ -353,7 +400,7 @@ const Users = () => {
   const handleExport = async () => {
     try {
       console.log('Exporting user data...');
-      const { exportToExcel } = await import('@/shared/utils/excelUtils');
+      const { exportToExcel } = await import('@/utils/excelUtils');
 
       const dataToExport = users.map(user => ({
         'User ID': `USR${String(user.id).padStart(3, '0')}`,
@@ -651,7 +698,6 @@ const Users = () => {
                 <tbody>
                   {users.map((user: User) => {
                     const userId = getUserId(user);
-                    const contact = getContact(user);
                     const joinedOn = formatDate(user.createdAt);
                     const plan = getPlan(user);
                     const lastActive = formatLastActive(user.lastLoginAt);
@@ -673,7 +719,10 @@ const Users = () => {
                         </td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{userId}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{user.name}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{contact}</td>
+                        <td style={{ padding: "12px", fontSize: "14px" }}>
+                        <div style={{ marginBottom: '2px' }}>{user.email || 'N/A'}</div>
+                        <div style={{ color: '#6b7280' }}>{user.phoneNumber || 'N/A'}</div>
+                      </td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{joinedOn}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{plan}</td>
                         <td style={{ padding: "12px", fontSize: "14px" }}>{lastActive}</td>

@@ -1,4 +1,4 @@
-import { appConfig } from '@/core/config/appConfig';
+import { appConfig } from '@/services/appConfig';
 import toast from "react-hot-toast";
 
 const BASE_URL = appConfig.apiBaseUrl;

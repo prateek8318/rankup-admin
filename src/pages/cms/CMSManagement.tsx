@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCMSList, createCMS, deleteCMS, updateCMSStatus } from '@/core/api/dashboardApi';
-import { languageApi } from '@/core/api/masterApi';
+import { getCMSList, createCMS, deleteCMS, updateCMSStatus } from '@/services/dashboardApi';
+import { languageApi } from '@/services/masterApi';
 import { FiPlus, FiFilter } from 'react-icons/fi';
 import MDEditor from '@uiw/react-md-editor';
 import viewIcon from '@/assets/icons/view.png';
