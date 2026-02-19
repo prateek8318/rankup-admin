@@ -82,7 +82,7 @@ export default defineConfig({
       },
       // User count endpoints
       '/api/admin/users/count': {
-        target: 'http://192.168.1.19:5002',
+        target: 'http://192.168.1.21:5002',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -98,7 +98,7 @@ export default defineConfig({
         }
       },
       '/api/admin/users/daily-active-count': {
-        target: 'http://192.168.1.19:5002',
+        target: 'http://192.168.1.21:5002',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -115,7 +115,7 @@ export default defineConfig({
       },
       // Admin Exams service
       '/api/exams': {
-        target: 'http://localhost:5003', // Correct port where ExamService is running
+        target: 'http://192.168.1.21:5000', // Correct port where ExamService is running
         changeOrigin: true,
         secure: false, // HTTP for local development
         configure: (proxy, options) => {

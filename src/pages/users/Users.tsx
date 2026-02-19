@@ -502,7 +502,7 @@ const Users = () => {
 
           borderRadius: 13,
           padding: "20px",
-          marginBottom: 30,
+          
 
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
@@ -527,7 +527,7 @@ const Users = () => {
                 value={filters.userType}
                 onChange={(e) => setFilters(prev => ({ ...prev, userType: e.target.value }))}
                 style={{
-                  padding: "8px 16px",
+                  padding: "8px 20px",
                   border: "1.5px solid #C0C0C0",
                   borderRadius: "8px",
                   background: "#fff",
@@ -543,7 +543,7 @@ const Users = () => {
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
                 style={{
-                  padding: "8px 16px",
+                  padding: "8px 20px",
                   border: "1.5px solid #C0C0C0",
                   borderRadius: "8px",
                   background: "#fff",
@@ -559,7 +559,7 @@ const Users = () => {
                 value={filters.time}
                 onChange={(e) => setFilters(prev => ({ ...prev, time: e.target.value }))}
                 style={{
-                  padding: "8px 16px",
+                  padding: "8px 20px",
                   border: "1.5px solid #C0C0C0",
                   borderRadius: "8px",
                   background: "#fff",
@@ -573,7 +573,7 @@ const Users = () => {
               </select>
 
               <select style={{
-                padding: "8px 16px",
+                padding: "8px 20px",
                 border: "1.5px solid #C0C0C0",
                 borderRadius: "8px",
                 background: "#fff",
@@ -601,28 +601,7 @@ const Users = () => {
               </button>
 
               {/* Export Button */}
-              <button
-                onClick={handleExport}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "8px",
-                  background: "#fff",
-                  color: "#374151",
-                  fontSize: "16px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                <img 
-                  src={exportIcon} 
-                  alt="Export" 
-                  style={{ width: "16px", height: "16px" }}
-                />
-                Export
-              </button>
+              
             </div>
 
             <div style={{ display: "flex", gap: "10px" }}>
@@ -644,14 +623,23 @@ const Users = () => {
               <button
                 onClick={handleExport}
                 style={{
-                  padding: "8px 24px",
-                  border: "1.5px solid #C0C0C0",
+                  padding: "8px 20px",
+                  border: "1px solid #d1d5db",
                   borderRadius: "8px",
                   background: "#fff",
+                  color: "#374151",
                   fontSize: "16px",
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
                 }}
               >
+                <img 
+                  src={exportIcon} 
+                  alt="Export" 
+                  style={{ width: "16px", height: "16px" }}
+                />
                 Export
               </button>
             </div>
@@ -660,10 +648,11 @@ const Users = () => {
 
         {/* USER TABLE */}
         <div style={{
-          background: "#fff",
-          borderRadius: 13,
+          
+          
           padding: "20px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
+          
+          overflow: "hidden"
         }}>
           {loading ? (
             <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
@@ -671,10 +660,24 @@ const Users = () => {
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table style={{ 
+                width: "100%", 
+                borderCollapse: "separate",
+                borderSpacing: "0 8px"
+              }}>
                 <thead>
-                  <tr style={{ background: "#1e40af" }}>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                  <tr style={{ 
+                    background: "linear-gradient(135deg, #1e3a8a, #1e40af)",
+                    borderWidth:"1px",borderColor:"#C0C0C0"
+                  }}>
+                    <th style={{ 
+                      padding: "16px", 
+                      textAlign: "left", 
+                      color: "#fff", 
+                      fontSize: "14px", 
+                      fontWeight: "600",
+                      
+                    }}>
                       <input
                         type="checkbox"
                         checked={selectedUsers.length === users.length}
@@ -682,17 +685,24 @@ const Users = () => {
                         style={{ width: "16px", height: "16px" }}
                       />
                     </th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>User ID</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Contact</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Joined On</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Plan</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Last Active</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subs. Status</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Days Left</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exams Attempted</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Actions</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>User ID</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Contact</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Joined On</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Plan</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Last Active</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subs. Status</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Days Left</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exams Attempted</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total</th>
+                    <th style={{ 
+                      padding: "16px", 
+                      textAlign: "left", 
+                      color: "#fff", 
+                      fontSize: "14px", 
+                      fontWeight: "600",
+                      
+                    }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -708,8 +718,13 @@ const Users = () => {
                     const total = 'N/A';
 
                     return (
-                      <tr key={user.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
-                        <td style={{ padding: "12px" }}>
+                      <tr key={user.id} style={{ 
+                        background: "#f8fafc",
+                        borderColor:"#C0C0C0",
+                        borderWidth:"1.5px",
+                       
+                      }}>
+                        <td style={{ padding: "16px", }}>
                           <input
                             type="checkbox"
                             checked={selectedUsers.includes(userId)}
@@ -717,38 +732,39 @@ const Users = () => {
                             style={{ width: "16px", height: "16px" }}
                           />
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{userId}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{user.name}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>
-                        <div style={{ marginBottom: '2px' }}>{user.email || 'N/A'}</div>
-                        <div style={{ color: '#6b7280' }}>{user.phoneNumber || 'N/A'}</div>
+                        <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>{userId}</td>
+                        <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>{user.name}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
+                        <div style={{ marginBottom: '2px', fontWeight: "500" }}>{user.email || 'N/A'}</div>
+                        <div style={{ color: '#6b7280', fontSize: '13px' }}>{user.phoneNumber || 'N/A'}</div>
                       </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{joinedOn}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{plan}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{lastActive}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{joinedOn}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{plan}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{lastActive}</td>
+                        <td style={{ padding: "16px" }}>
                           <span style={{
-                            padding: "4px 8px",
-                            borderRadius: "12px",
+                            padding: "6px 12px",
+                            borderRadius: "20px",
                             fontSize: "12px",
-                            fontWeight: "500",
+                            fontWeight: "600",
                             background: subsStatus === "Active" ? "#dcfce7" : "#fee2e2",
                             color: subsStatus === "Active" ? "#166534" : "#991b1b"
                           }}>
                             {subsStatus}
                           </span>
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{daysLeft}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{examsAttempted}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{total}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{daysLeft}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{examsAttempted}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{total}</td>
+                        <td style={{ padding: "16px", borderWidth:"1px",borderColor:"#C0C0C0" }}>
                           <button style={{
                             background: "none",
                             border: "none",
                             color: "#2563eb",
                             cursor: "pointer",
                             fontSize: "14px",
-                            marginRight: "8px"
+                            marginRight: "8px",
+                            fontWeight: "500"
                           }}>
                             Edit
                           </button>
@@ -757,7 +773,8 @@ const Users = () => {
                             border: "none",
                             color: "#dc2626",
                             cursor: "pointer",
-                            fontSize: "14px"
+                            fontSize: "14px",
+                            fontWeight: "500"
                           }}>
                             Delete
                           </button>

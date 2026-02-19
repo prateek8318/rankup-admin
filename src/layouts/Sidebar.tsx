@@ -74,8 +74,8 @@ const Sidebar = () => {
     }}>
       {/* Logo Section - Fixed at top */}
       <div style={{ padding: "25px 15px 20px" }}>
-        <div style={{ padding: "0 24px 30px" }}>
-          <img src="/src/assets/images/rankup-logo.png" alt="logo" style={{ width: "180px", margin: "auto" }} />
+        <div style={{ padding: "0 24px 30px", borderBottom: "2px solid #DCDCDC" }}>
+          <img src="/src/assets/images/rankup-logo.png" alt="logo" style={{ width: "180px", margin: "auto", alignContent: "center", alignItems: "center" }} />
         </div>
       </div>
       
