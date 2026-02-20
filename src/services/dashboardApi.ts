@@ -187,7 +187,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
 export const getCMSContent = async (key: string, language: string = "en") => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.21:5008/api/cms/${key}?language=${language}`;
+    const url = `http://192.168.1.17:5008/api/cms/${key}?language=${language}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -215,7 +215,7 @@ export const getCMSContent = async (key: string, language: string = "en") => {
 export const getCMSKeys = async () => {
   const token = localStorage.getItem("token");
   try {
-    const url = 'http://192.168.1.21:5008/api/cms/keys';
+    const url = 'http://192.168.1.17:5008/api/cms/keys';
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -243,7 +243,7 @@ export const getCMSKeys = async () => {
 export const createCMS = async (data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = 'http://192.168.1.21:5008/api/cms';
+    const url = 'http://192.168.1.17:5008/api/cms';
     const res = await fetch(url, {
       method: "POST",
       headers: {
@@ -273,7 +273,7 @@ export const createCMS = async (data: unknown) => {
 export const updateCMS = async (id: string, data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.21:5008/api/cms/${id}`;
+    const url = `http://192.168.1.17:5008/api/cms/${id}`;
     const res = await fetch(url, {
       method: "PUT",
       headers: {
@@ -303,7 +303,7 @@ export const updateCMS = async (id: string, data: unknown) => {
 export const deleteCMS = async (id: string) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.21:5008/api/cms/${id}`;
+    const url = `http://192.168.1.17:5008/api/cms/${id}`;
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -332,7 +332,7 @@ export const deleteCMS = async (id: string) => {
 export const updateCMSStatus = async (id: string, status: boolean) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.21:5008/api/cms/${id}/status`;
+    const url = `http://192.168.1.17:5008/api/cms/${id}/status`;
     const res = await fetch(url, {
       method: "PATCH",
       headers: {

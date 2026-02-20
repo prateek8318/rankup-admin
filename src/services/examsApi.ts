@@ -2,29 +2,37 @@ import { apiEndpoints } from './apiEndpoints';
 import apiClient from './apiClient';
 
 // TypeScript interfaces based on the API specification
+export interface ExamName {
+  languageId: number;
+  name: string;
+  description: string;
+}
+
 export interface ExamDto {
   id: number;
   name: string;
   description: string;
-  durationInMinutes: number;
-  totalMarks: number;
-  passingMarks: number;
+  countryCode: string;
+  minAge: number;
+  maxAge: number;
+  imageUrl?: string;
   isActive: boolean;
   createdAt: string;
-  imageUrl?: string;
-  isInternational: boolean;
+  names: ExamName[];
   qualificationIds: number[];
   streamIds: number[];
+  qualifications?: { id: number; name: string }[];
+  streams?: { id: number; name: string }[];
 }
 
 export interface CreateExamDto {
   name: string;
   description: string;
-  durationInMinutes: number;
-  totalMarks: number;
-  passingMarks: number;
+  countryCode: string;
+  minAge: number;
+  maxAge: number;
   imageUrl?: string;
-  isInternational: boolean;
+  names: ExamName[];
   qualificationIds: number[];
   streamIds: number[];
 }
@@ -33,21 +41,24 @@ export interface UpdateExamDto {
   id: number;
   name: string;
   description: string;
-  durationInMinutes: number;
-  totalMarks: number;
-  passingMarks: number;
+  countryCode: string;
+  minAge: number;
+  maxAge: number;
   imageUrl?: string;
-  isInternational: boolean;
+  names: ExamName[];
   qualificationIds: number[];
   streamIds: number[];
 }
 
 export interface ExamListParams {
-  page?: number;
-  limit?: number;
+  languageId?: number;
+  countryCode?: string;
   qualificationId?: number;
   streamId?: number;
-  isInternational?: boolean;
+  minAge?: number;
+  maxAge?: number;
+  page?: number;
+  limit?: number;
   search?: string;
 }
 
@@ -65,11 +76,14 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
   try {
     const queryParams = new URLSearchParams();
     
-    if (params.page) queryParams.append('page', params.page.toString());
-    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.languageId) queryParams.append('languageId', params.languageId.toString());
+    if (params.countryCode) queryParams.append('countryCode', params.countryCode);
     if (params.qualificationId) queryParams.append('qualificationId', params.qualificationId.toString());
     if (params.streamId) queryParams.append('streamId', params.streamId.toString());
-    if (params.isInternational !== undefined) queryParams.append('isInternational', params.isInternational.toString());
+    if (params.minAge) queryParams.append('minAge', params.minAge.toString());
+    if (params.maxAge) queryParams.append('maxAge', params.maxAge.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
     if (params.search) queryParams.append('search', params.search);
 
     const url = queryParams.toString() 
@@ -225,11 +239,16 @@ export const uploadExamImage = async (id: number, file: File): Promise<{ imageUr
  */
 export const getExamsByQualification = async (
   qualificationId: number,
-  streamId?: number
+  languageId?: number,
+  countryCode?: string
 ): Promise<ApiResponse<ExamDto[]>> => {
   try {
-    const url = streamId
-      ? `${apiEndpoints.EXAMS.GET_BY_QUALIFICATION(qualificationId.toString())}?streamId=${streamId}`
+    const queryParams = new URLSearchParams();
+    if (languageId) queryParams.append('languageId', languageId.toString());
+    if (countryCode) queryParams.append('countryCode', countryCode);
+    
+    const url = queryParams.toString()
+      ? `${apiEndpoints.EXAMS.GET_BY_QUALIFICATION(qualificationId.toString())}?${queryParams.toString()}`
       : apiEndpoints.EXAMS.GET_BY_QUALIFICATION(qualificationId.toString());
 
     const response = await apiClient.get(url);

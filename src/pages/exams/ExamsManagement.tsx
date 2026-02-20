@@ -558,10 +558,10 @@ const ExamsManagement = () => {
 
         {/* EXAM TABLE */}
         <div style={{
-          background: "#fff",
-          borderRadius: 13,
-          padding: "18px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
+         
+          
+          padding: "1px",
+          
         }}>
           {loading ? (
             <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
@@ -569,10 +569,17 @@ const ExamsManagement = () => {
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table style={{ 
+                width: "100%", 
+                borderCollapse: "separate",
+                borderSpacing: "0 8px"
+              }}>
                 <thead>
-                  <tr style={{ background: "#1e40af" }}>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                  <tr style={{ 
+                    background: "linear-gradient(135deg, #1e3a8a, #1e40af)",
+                    borderWidth:"1px",borderColor:"#C0C0C0"
+                  }}>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
                       <input
                         type="checkbox"
                         checked={selectedExams.length === exams.length}
@@ -580,24 +587,24 @@ const ExamsManagement = () => {
                         style={{ width: "16px", height: "16px" }}
                       />
                     </th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
                       Test Category
                       <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
                     </th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Name</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subject</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Access</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Ques.</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Difficulty</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Marks</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Date</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Language</th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Name</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subject</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Access</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Ques.</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Difficulty</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Marks</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Date</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Language</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
                       Status
                       <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
                     </th>
-                    <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Action</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -607,8 +614,8 @@ const ExamsManagement = () => {
                     const duration = formatDuration(exam.durationInMinutes);
 
                     return (
-                      <tr key={exam.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
-                        <td style={{ padding: "12px" }}>
+                      <tr key={exam.id} style={{ background: "#f8fafc", borderColor: "#C0C0C0", borderWidth: "1.5px" }}>
+                        <td style={{ padding: "16px" }}>
                           <input
                             type="checkbox"
                             checked={selectedExams.includes(examId)}
@@ -616,21 +623,21 @@ const ExamsManagement = () => {
                             style={{ width: "16px", height: "16px" }}
                           />
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>
+                        <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>
                           <span style={{
-                            padding: "4px 12px",
+                            padding: "6px 14px",
                             borderRadius: "20px",
                             fontSize: "12px",
-                            fontWeight: "500",
+                            fontWeight: "600",
                             background: "#E9D5FF",
                             color: "#7C3AED"
                           }}>
                             {(exam as any).category || "NA"}
                           </span>
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.name}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).subject || "NA"}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>
+                        <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>{exam.name}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).subject || "NA"}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
                           {(exam as any).access ? (
                             <div style={{
                               width: "24px",
@@ -648,107 +655,59 @@ const ExamsManagement = () => {
                             </div>
                           ) : "NA"}
                         </td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).totalQuestions || "NA"}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).difficulty || "NA"}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{exam.totalMarks}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{formatDate(exam.createdAt)}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{duration}</td>
-                        <td style={{ padding: "12px", fontSize: "14px" }}>{(exam as any).language || "English"}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).totalQuestions || "NA"}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).difficulty || "NA"}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{exam.totalMarks}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{formatDate(exam.createdAt)}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{duration}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).language || "English"}</td>
+                        <td style={{ padding: "16px" }}>
                           <span 
                             onClick={() => handleToggleStatus(exam)}
                             style={{
-                              padding: "4px 8px",
-                              borderRadius: "12px",
+                              padding: "6px 12px",
+                              borderRadius: "20px",
                               fontSize: "12px",
-                              fontWeight: "500",
+                              fontWeight: "600",
                               background: status === "Active" ? "#dcfce7" : "#fee2e2",
                               color: status === "Active" ? "#166534" : "#991b1b",
                               cursor: "pointer",
                               display: "inline-flex",
                               alignItems: "center",
-                              gap: "4px"
+                              gap: "6px"
                             }}
                           >
                             {status}
-                            <span style={{ fontSize: "10px" }}>▼</span>
+                            <span style={{ fontSize: "12px" }}>▼</span>
                           </span>
                         </td>
-                        <td style={{ padding: "12px" }}>
-                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                            <button 
-                              onClick={() => handleViewExam(exam)}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                padding: "4px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                              title="View"
-                            >
-                              <img 
-                                src={viewIcon} 
-                                alt="View" 
-                                style={{ width: "20px", height: "20px" }}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  e.currentTarget.nextElementSibling!.textContent = '👁️';
-                                }}
-                              />
-                              <span style={{ display: 'none', fontSize: '18px' }}>👁️</span>
-                            </button>
-                            <button 
-                              onClick={() => handleEditExam(exam)}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                padding: "4px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                              title="Edit"
-                            >
-                              <img 
-                                src={editIcon} 
-                                alt="Edit" 
-                                style={{ width: "20px", height: "20px" }}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  e.currentTarget.nextElementSibling!.textContent = '✏️';
-                                }}
-                              />
-                              <span style={{ display: 'none', fontSize: '18px' }}>✏️</span>
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteExam(exam)}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                padding: "4px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                              title="Delete"
-                            >
-                              <img 
-                                src={deleteIcon} 
-                                alt="Delete" 
-                                style={{ width: "20px", height: "20px" }}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  e.currentTarget.nextElementSibling!.textContent = '🗑️';
-                                }}
-                              />
-                              <span style={{ display: 'none', fontSize: '18px' }}>🗑️</span>
-                            </button>
-                          </div>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
+                          <button style={{
+                            background: "none",
+                            border: "none",
+                            color: "#2563eb",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            marginRight: "8px",
+                            fontWeight: "500"
+                          }} onClick={() => handleViewExam(exam)}>View</button>
+                          <button style={{
+                            background: "none",
+                            border: "none",
+                            color: "#2563eb",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            marginRight: "8px",
+                            fontWeight: "500"
+                          }} onClick={() => handleEditExam(exam)}>Edit</button>
+                          <button style={{
+                            background: "none",
+                            border: "none",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "500"
+                          }} onClick={() => handleDeleteExam(exam)}>Delete</button>
                         </td>
                       </tr>
                     );

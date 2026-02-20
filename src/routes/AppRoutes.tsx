@@ -26,6 +26,8 @@ import Countries from "@/pages/master/Countries";
 import Categories from "@/pages/master/Categories";
 import Qualifications from "@/pages/master/Qualifications";
 import Streams from "@/pages/master/Streams";
+import ErrorFallback from '@/components/ErrorFallback';
+import Exams from "@/pages/master/Exams";
 
 export const router = createBrowserRouter([
   {
@@ -87,6 +89,7 @@ export const router = createBrowserRouter([
         <AdminLayout />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorFallback />,
     children: [
       { index: true, element: <Dashboard /> },
       { path: "users", element: <Users /> },
@@ -107,6 +110,7 @@ export const router = createBrowserRouter([
           { path: "states", element: <States /> },
           { path: "countries", element: <Countries /> },
           { path: "categories", element: <Categories /> },
+          { path: "exams", element: <Exams /> },
           { path: "qualifications", element: <Qualifications /> },
           { path: "streams", element: <Streams /> }
         ]

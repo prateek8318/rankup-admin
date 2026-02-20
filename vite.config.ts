@@ -115,7 +115,7 @@ export default defineConfig({
       },
       // Admin Exams service
       '/api/exams': {
-        target: 'http://192.168.1.17:5000', // Correct port where ExamService is running
+        target: 'http://192.168.1.17:5009', // Correct port where ExamService is running
         changeOrigin: true,
         secure: false, // HTTP for local development
         configure: (proxy, options) => {

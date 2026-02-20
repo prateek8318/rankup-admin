@@ -2,12 +2,12 @@ import {
   createBrowserRouter,
   Navigate,
 } from "react-router-dom";
-import Layout from "@/shared/components/layout/Layout";
+import Layout from "@/layouts/Layout";
 import { DashboardPage } from "@/features/dashboard";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
-import LoginPage from "@/features/auth/pages/LoginPage";
-import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
-import TwoStepVerificationPage from "@/features/auth/pages/TwoStepVerificationPage";
+import LoginPage from "@/pages/Auth/LoginPage";
+import ForgotPasswordPage from "@/pages/Auth/ForgotPasswordPage";
+import TwoStepVerificationPage from "@/pages/Auth/TwoStepVerificationPage";
 import Users from "@/pages/users/Users";
 import ExamsManagement from "@/pages/exams/ExamsManagement";
 import Subscriptions from "@/pages/subscriptions/Subscriptions";
@@ -25,6 +25,7 @@ import Countries from "@/pages/master/Countries";
 import Categories from "@/pages/master/Categories";
 import Qualifications from "@/pages/master/Qualifications";
 import Streams from "@/pages/master/Streams";
+import Exams from "@/pages/master/Exams";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -90,7 +91,8 @@ export const router = createBrowserRouter([
           { path: "countries", element: <Countries /> },
           { path: "categories", element: <Categories /> },
           { path: "qualifications", element: <Qualifications /> },
-          { path: "streams", element: <Streams /> }
+          { path: "streams", element: <Streams /> },
+          { path: "exams", element: <Exams /> }
         ]
       },
     ],

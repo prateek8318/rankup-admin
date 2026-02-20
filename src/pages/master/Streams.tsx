@@ -52,6 +52,8 @@ const Streams = () => {
   const [streams, setStreams] = useState<StreamDto[]>([]);
   const [qualifications, setQualifications] = useState<QualificationDto[]>([]);
   const [languages, setLanguages] = useState<LanguageDto[]>([]);
+  const [selectedLanguageIdFilter, setSelectedLanguageIdFilter] = useState<number | undefined>(undefined);
+  const [showLanguageFilter, setShowLanguageFilter] = useState(false);
   const [loading, setLoading] = useState(true);
   const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,14 +74,16 @@ const Streams = () => {
   useEffect(() => {
     fetchData();
     fetchLanguages();
-  }, []);
+  }, [selectedLanguageIdFilter]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      const params: any = {};
+      if (selectedLanguageIdFilter) params.languageId = selectedLanguageIdFilter;
       const [streamsData, qualificationsData] = await Promise.all([
-        qualificationApi.getAllStreams(),
-        qualificationApi.getAllQualifications()
+        qualificationApi.getAllStreams(params),
+        qualificationApi.getAllQualifications(params)
       ]);
       setStreams(streamsData);
       setQualifications(qualificationsData);
@@ -294,6 +298,107 @@ const Streams = () => {
               outline: "none"
             }}
           />
+          {/* Language Filter Button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowLanguageFilter(!showLanguageFilter)}
+              style={{
+                padding: '10px 16px',
+                minWidth: '200px',
+                textAlign: 'left',
+                border: selectedLanguageIdFilter ? '2px solid #2563eb' : '1px solid #d1d5db',
+                borderRadius: '10px',
+                background: selectedLanguageIdFilter ? '#eff6ff' : '#fff',
+                color: selectedLanguageIdFilter ? '#2563eb' : '#374151',
+                fontSize: '15px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <span style={{ fontWeight: 600 }}>Language</span>
+              <span style={{ opacity: 0.8, fontSize: '13px' }}>{selectedLanguageIdFilter ? `(${languages.find(l => l.id === selectedLanguageIdFilter)?.name})` : 'All'}</span>
+            </button>
+
+            {showLanguageFilter && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                background: '#fff',
+                border: '1px solid #e6eef8',
+                borderRadius: '10px',
+                padding: '8px',
+                marginTop: '8px',
+                boxShadow: '0 8px 24px rgba(14,30,37,0.08)',
+                zIndex: 1000,
+                maxHeight: '260px',
+                overflowY: 'auto'
+              }}>
+                <div style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>
+                  Select Language (Single)
+                </div>
+                {languages.map((lang) => {
+                  const isSelected = selectedLanguageIdFilter === lang.id;
+                  return (
+                    <div
+                      key={lang.id}
+                      onClick={() => { setSelectedLanguageIdFilter(prev => prev === lang.id ? undefined : lang.id); setShowLanguageFilter(false); }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 12px',
+                        marginBottom: '6px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: isSelected ? '#eef6ff' : '#fbfdff',
+                        border: isSelected ? '1px solid #c7e0ff' : '1px solid transparent'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 6,
+                          background: isSelected ? '#2563eb' : '#eef2ff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: isSelected ? '#fff' : '#2563eb',
+                          fontSize: 12,
+                          fontWeight: 700
+                        }}>{lang.code.toUpperCase()}</div>
+                        <div style={{ fontSize: '14px', color: '#0f172a' }}>{lang.name}</div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>{lang.nativeName}</div>
+                    </div>
+                  );
+                })}
+                {selectedLanguageIdFilter && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setSelectedLanguageIdFilter(undefined)}
+                      style={{
+                        marginTop: '6px',
+                        padding: '8px 12px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        background: '#ef4444',
+                        color: '#fff',
+                        fontSize: '13px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
