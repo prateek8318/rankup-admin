@@ -24,6 +24,8 @@ import Languages from "@/pages/master/Languages";
 import States from "@/pages/master/States";
 import Countries from "@/pages/master/Countries";
 import Categories from "@/pages/master/Categories";
+import Qualifications from "@/pages/master/Qualifications";
+import Streams from "@/pages/master/Streams";
 
 export const router = createBrowserRouter([
   {
@@ -104,7 +106,9 @@ export const router = createBrowserRouter([
           { path: "languages", element: <Languages /> },
           { path: "states", element: <States /> },
           { path: "countries", element: <Countries /> },
-          { path: "categories", element: <Categories /> }
+          { path: "categories", element: <Categories /> },
+          { path: "qualifications", element: <Qualifications /> },
+          { path: "streams", element: <Streams /> }
         ]
       },
     ],

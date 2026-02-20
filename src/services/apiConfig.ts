@@ -1,7 +1,7 @@
 /**
  * Legacy API config - re-exports from apiEndpoints + apiClient for backward compatibility
  */
-import { appConfig } from '@/core/config/appConfig';
+import { appConfig } from '@/services/appConfig';
 import { apiEndpoints } from './apiEndpoints';
 import apiClient from './apiClient';
 

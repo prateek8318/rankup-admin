@@ -107,6 +107,8 @@ const Sidebar = () => {
               {menuItem("/home/master/states", "States", "/src/assets/icons/dashboard.png")}
               {menuItem("/home/master/countries", "Countries", "/src/assets/icons/dashboard.png")}
               {menuItem("/home/master/categories", "Categories", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/qualifications", "Qualifications", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/streams", "Streams", "/src/assets/icons/dashboard.png")}
             </div>
           )}
         </div>

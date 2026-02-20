@@ -151,7 +151,7 @@ export const getUsersCount = async () => {
 export const getCMSList = async ({ page = 1, limit = 10, search = "", language = "", languages = "" }: { page?: number; limit?: number; search?: string; language?: string; languages?: string } = {}) => {
   const token = localStorage.getItem("token");
   try {
-    let url = 'http://192.168.1.21:5009/api/cms';
+    let url = 'http://192.168.1.17:5009/api/cms';
     const params = new URLSearchParams();
     if (page) params.append('page', page.toString());
     if (limit) params.append('limit', limit.toString());

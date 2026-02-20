@@ -8,6 +8,42 @@ import viewIcon from '@/assets/icons/view.png';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 
+// Translation function using Google Translate API (free tier)
+const translateText = async (text: string, targetLanguage: string): Promise<string> => {
+  try {
+    // Map language codes to Google Translate language codes
+    const languageMap: { [key: string]: string } = {
+      'hi': 'hi',
+      'gu': 'gu',
+      'en': 'en',
+      'mr': 'mr',
+      'bn': 'bn',
+      'te': 'te',
+      'ta': 'ta',
+      'kn': 'kn',
+      'ml': 'ml',
+      'pa': 'pa',
+      'or': 'or',
+      'as': 'as'
+    };
+
+    const targetLang = languageMap[targetLanguage] || targetLanguage;
+
+    // Using Google Translate API (you might need to set up API key)
+    const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    
+    if (!response.ok) {
+      throw new Error('Translation failed');
+    }
+
+    const data = await response.json();
+    return data[0][0][0];
+  } catch (error) {
+    console.error('Translation error:', error);
+    return text; // Return original text if translation fails
+  }
+};
+
 interface CMSItem {
   id: string;
   key: string;
@@ -112,12 +148,14 @@ const CMSManagement = () => {
   const handleTranslate = async () => {
     if (!formData.content) return;
     
-    const translations: { [key: string]: string } = {
-      'hi': 'यह एक नमूना अनुवाद है। ' + formData.content,
-      'gu': 'આ એક નમૂનો અનુવાદ છે. ' + formData.content
-    };
-    
-    setTranslatedContent(translations[selectedLanguage] || formData.content);
+    try {
+      const translated = await translateText(formData.content, selectedLanguage);
+      setTranslatedContent(translated);
+    } catch (error) {
+      console.error('Translation failed:', error);
+      // Fallback to original content if translation fails
+      setTranslatedContent(formData.content);
+    }
   };
 
   const handleRowClick = (id: string) => {

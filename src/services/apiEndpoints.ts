@@ -59,6 +59,23 @@ export interface ApiEndpointsShape {
     EXAMS: string;
     SUBSCRIPTIONS: string;
   };
+  QUALIFICATIONS: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    TOGGLE_STATUS: (id: string) => string;
+  };
+  STREAMS: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    TOGGLE_STATUS: (id: string) => string;
+    GET_BY_QUALIFICATION: (qualificationId: string) => string;
+  };
 }
 
 export const apiEndpoints = {
@@ -117,5 +134,22 @@ export const apiEndpoints = {
     USERS: '/api/admin/exports/users',
     EXAMS: '/api/admin/exports/exams',
     SUBSCRIPTIONS: '/api/admin/exports/subscriptions',
+  },
+  QUALIFICATIONS: {
+    GET_ALL: '/api/qualifications',
+    GET_BY_ID: (id: string) => `/api/qualifications/${id}`,
+    CREATE: '/api/qualifications',
+    UPDATE: (id: string) => `/api/qualifications/${id}`,
+    DELETE: (id: string) => `/api/qualifications/${id}`,
+    TOGGLE_STATUS: (id: string) => `/api/qualifications/${id}/status`,
+  },
+  STREAMS: {
+    GET_ALL: '/api/streams',
+    GET_BY_ID: (id: string) => `/api/streams/${id}`,
+    CREATE: '/api/streams',
+    UPDATE: (id: string) => `/api/streams/${id}`,
+    DELETE: (id: string) => `/api/streams/${id}`,
+    TOGGLE_STATUS: (id: string) => `/api/streams/${id}/status`,
+    GET_BY_QUALIFICATION: (qualificationId: string) => `/api/streams?qualificationId=${qualificationId}`,
   },
 } as const satisfies ApiEndpointsShape;
