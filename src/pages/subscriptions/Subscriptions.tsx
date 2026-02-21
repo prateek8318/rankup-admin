@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
   getSubscriptionPlansList,
-  createSubscriptionPlan,
-  updateSubscriptionPlan,
-  deleteSubscriptionPlan,
+  getSubscriptionPlanStats,
+  getFilteredSubscriptionPlans,
   togglePopularStatus,
   toggleRecommendedStatus,
   toggleActiveStatus,
-  getSubscriptionPlanStats,
-  getFilteredSubscriptionPlans,
   type SubscriptionPlanDto,
-  type CreateSubscriptionPlanDto,
 } from '@/services/subscriptionPlansApi';
-import { categoryApi } from '@/services/masterApi';
+import CreateSubscriptionPlan from '@/components/CreateSubscriptionPlan';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import examsIcon from '@/assets/icons/exams.png';
 import totalExamsIcon from '@/assets/icons/total exams.png';
-import vectorIcon from '@/assets/icons/Vector (3).png';
-import viewIcon from '@/assets/icons/view.png';
-import editIcon from '@/assets/icons/edit.png';
-import deleteIcon from '@/assets/icons/delete.png';
+import vector1Icon from '@/assets/icons/Vector (3).png';
+import vector2Icon from '@/assets/icons/Vector (6).png';
+import vector3Icon from '@/assets/icons/Vector (2).png';
+import vector4Icon from '@/assets/icons/Vector (8).png';
 
-const COLOR_THEMES = [
-  '#3B82F6', '#A78BFA', '#34D399', '#FCD34D', '#F472B6', '#FDE047'
-];
 
 interface PlanCardProps {
   number: string | number;
@@ -37,6 +31,15 @@ const PlanCard: React.FC<PlanCardProps> = ({ number, label, gradient }) => {
     return examsIcon;
   };
 
+  // Get appropriate vector based on gradient color
+  const getVectorImage = () => {
+    if (gradient.includes("#8B5CF6") || gradient.includes("#7C3AED")) return vector1Icon; // Purple gradient
+    if (gradient.includes("#FF8C42") || gradient.includes("#FF6B1A")) return vector2Icon; // Orange gradient
+    if (gradient.includes("#EC4899") || gradient.includes("#DB2777")) return vector3Icon; // Pink gradient
+    if (gradient.includes("#4780CF") || gradient.includes("#2B6AEC")) return vector1Icon; // Blue gradient
+    return vector1Icon; // Default vector
+  };
+
   return (
     <div style={{
       width: 240,
@@ -49,13 +52,49 @@ const PlanCard: React.FC<PlanCardProps> = ({ number, label, gradient }) => {
       boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
       overflow: "hidden",
     }}>
-      <div style={{ position: "absolute", top: 16, right: 16, width: 44, height: 44 }}>
-        <img src={getIcon()} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      {/* Top right icon */}
+      <div style={{
+        position: "absolute",
+        top: 16,
+        right: 16,
+        width: 44,
+        height: 44,
+      }}>
+        <img
+          src={getIcon()}
+          alt={label}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
       </div>
+
       <div style={{ fontSize: 26, fontWeight: 700 }}>{number}</div>
       <div style={{ fontSize: 18, paddingTop: 10 }}>{label}</div>
-      <div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 160, overflow: "hidden" }}>
-        <img src={vectorIcon} alt="" style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+
+      {/* Bottom left vector image - different for each card based on gradient */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        width: "100%",
+        height: 160,
+        overflow: "hidden",
+      }}>
+        <img
+          src={getVectorImage()}
+          alt="Vector"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
       </div>
     </div>
   );
@@ -69,24 +108,104 @@ const Subscriptions = () => {
   const [popular, setPopular] = useState('');
   const [recommended, setRecommended] = useState('');
   const [price, setPrice] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
   const [totalPlans, setTotalPlans] = useState(0);
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [stats, setStats] = useState({
     totalPlans: 0,
     activePlans: 0,
     popularPlans: 0,
     recommendedPlans: 0,
+    expiringSoon: 0,
+    newSubscribers: 0,
     avgPrice: 0
   });
 
+  const handleTogglePopular = async (planId: number) => {
+    try {
+      await togglePopularStatus(planId);
+      // Refresh plans to get updated status
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const params: any = { page: currentPage, pageSize: 10 };
+          if (examType) params.examCategory = examType;
+          if (popular !== '') params.isPopular = popular === 'true';
+          if (recommended !== '') params.isRecommended = recommended === 'true';
+          const response = await getFilteredSubscriptionPlans(params);
+          setPlans(response.data || []);
+          setTotalPlans(response.pagination?.totalCount || 0);
+        } catch (error) {
+          console.error('Error fetching subscription plans:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling popular status:', error);
+    }
+  };
+
+  const handleToggleRecommended = async (planId: number) => {
+    try {
+      await toggleRecommendedStatus(planId);
+      // Refresh plans to get updated status
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const params: any = { page: currentPage, pageSize: 10 };
+          if (examType) params.examCategory = examType;
+          if (popular !== '') params.isPopular = popular === 'true';
+          if (recommended !== '') params.isRecommended = recommended === 'true';
+          const response = await getFilteredSubscriptionPlans(params);
+          setPlans(response.data || []);
+          setTotalPlans(response.pagination?.totalCount || 0);
+        } catch (error) {
+          console.error('Error fetching subscription plans:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling recommended status:', error);
+    }
+  };
+
+  const handleToggleActive = async (planId: number) => {
+    try {
+      await toggleActiveStatus(planId);
+      // Refresh plans to get updated status
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const params: any = { page: currentPage, pageSize: 10 };
+          if (examType) params.examCategory = examType;
+          if (popular !== '') params.isPopular = popular === 'true';
+          if (recommended !== '') params.isRecommended = recommended === 'true';
+          const response = await getFilteredSubscriptionPlans(params);
+          setPlans(response.data || []);
+          setTotalPlans(response.pagination?.totalCount || 0);
+        } catch (error) {
+          console.error('Error fetching subscription plans:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling active status:', error);
+    }
+  };
+
   const planCards = [
-    { number: stats.totalPlans, label: "Total Plans", gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)" },
-    { number: stats.activePlans, label: "Active Plans", gradient: "linear-gradient(135deg,#FF8C42,#FF6B1A)" },
-    { number: stats.popularPlans, label: "Popular Plans", gradient: "linear-gradient(135deg,#8B5CF6,#7C3AED)" },
-    { number: stats.recommendedPlans, label: "Recommended", gradient: "linear-gradient(135deg,#EC4899,#DB2777)" },
-    { number: `₹${stats.avgPrice}`, label: "Avg Price", gradient: "linear-gradient(135deg,#F59E0B,#D97706)" }
+    { number: plans.length, label: "Active Plans", gradient: "linear-gradient(135deg,#8B5CF6,#7C3AED)" },
+    { number: `₹${stats.avgPrice.toFixed(0)}`, label: "Monthly Revenue", gradient: "linear-gradient(135deg,#FF8C42,#FF6B1A)" },
+    { number: stats.expiringSoon, label: "Expiring Soon", gradient: "linear-gradient(135deg,#EC4899,#DB2777)" },
+    { number: stats.newSubscribers, label: "New Subscribers", gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)" }
   ];
 
   useEffect(() => {
@@ -107,7 +226,7 @@ const Subscriptions = () => {
           if (searchTerm) {
             filtered = filtered.filter(p =>
               p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              p.examCategory?.toLowerCase().includes(searchTerm.toLowerCase())
+              p.examType?.toLowerCase().includes(searchTerm.toLowerCase())
             );
           }
           setPlans(filtered);
@@ -121,6 +240,8 @@ const Subscriptions = () => {
           activePlans: s.activePlans || 0,
           popularPlans: s.popularPlans || 0,
           recommendedPlans: s.recommendedPlans || 0,
+          expiringSoon: s.expiringSoon || 0,
+          newSubscribers: s.newSubscribers || 0,
           avgPrice: s.avgPrice || 0
         });
       } catch (err) {
@@ -148,8 +269,30 @@ const Subscriptions = () => {
       <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
 
         <div style={{ marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#1e293b" }}>Subscription Management</h1>
-          <p style={{ fontSize: "16px", color: "#64748b" }}>Manage subscription plans and pricing</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
+            <div>
+              <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#1e293b", margin: 0 }}>Subscription Management</h1>
+              <p style={{ fontSize: "16px", color: "#64748b", margin: "4px 0 0 0" }}>Manage subscription plans and pricing</p>
+            </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              style={{
+                padding: "10px 20px",
+                background: "linear-gradient(to right, #2B5DBC, #073081)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "20px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "500",
+                display: "flex",
+                alignItems: "center",
+                gap: "5px"
+              }}
+            >
+              + Create Plan
+            </button>
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: "20px", marginBottom: "30px", flexWrap: "wrap" }}>
@@ -219,7 +362,7 @@ const Subscriptions = () => {
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Price</th>
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
-                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Category</th>
+                    <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Type</th>
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Popular</th>
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Recommended</th>
                     <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Status</th>
@@ -242,20 +385,24 @@ const Subscriptions = () => {
                         <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>{p.name}</td>
                         <td style={{ padding: "16px", fontSize: "14px" }}>₹{p.price}</td>
                         <td style={{ padding: "16px", fontSize: "14px" }}>{p.duration} {p.durationType}</td>
-                        <td style={{ padding: "16px", fontSize: "14px" }}>{p.examCategory || 'All'}</td>
-                        <td style={{ padding: "16px", fontSize: "14px" }}>{p.isPopular ? 'Yes' : 'No'}</td>
-                        <td style={{ padding: "16px", fontSize: "14px" }}>{p.isRecommended ? 'Yes' : 'No'}</td>
-                        <td style={{ padding: "16px" }}>
-                          <span style={{
-                            padding: "6px 12px",
-                            borderRadius: "20px",
-                            fontSize: "12px",
-                            fontWeight: "600",
-                            background: p.isActive ? "#dcfce7" : "#fee2e2",
-                            color: p.isActive ? "#166534" : "#991b1b"
-                          }}>
-                            {p.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>{p.examType || 'All Exams'}</td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
+                          <ToggleSwitch 
+                            isOn={p.isPopular} 
+                            onToggle={() => handleTogglePopular(p.id)} 
+                          />
+                        </td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
+                          <ToggleSwitch 
+                            isOn={p.isRecommended} 
+                            onToggle={() => handleToggleRecommended(p.id)} 
+                          />
+                        </td>
+                        <td style={{ padding: "16px", fontSize: "14px" }}>
+                          <ToggleSwitch 
+                            isOn={p.isActive} 
+                            onToggle={() => handleToggleActive(p.id)} 
+                          />
                         </td>
                         <td style={{ padding: "16px", fontSize: "14px" }}>
                           <button style={{
@@ -312,6 +459,32 @@ const Subscriptions = () => {
           </div>
         </div>
       </div>
+      {showCreateModal && (
+        <CreateSubscriptionPlan
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            // Refresh data
+            const fetchData = async () => {
+              setLoading(true);
+              try {
+                const params: any = { page: currentPage, pageSize: 10 };
+                if (examType) params.examCategory = examType;
+                if (popular !== '') params.isPopular = popular === 'true';
+                if (recommended !== '') params.isRecommended = recommended === 'true';
+                const response = await getFilteredSubscriptionPlans(params);
+                setPlans(response.data || []);
+                setTotalPlans(response.pagination?.totalCount || 0);
+              } catch (error) {
+                console.error('Error fetching subscription plans:', error);
+              } finally {
+                setLoading(false);
+              }
+            };
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 };

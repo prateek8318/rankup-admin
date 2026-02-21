@@ -4,12 +4,11 @@ import apiClient from './apiClient';
 // TypeScript interfaces based on the API specification
 export interface SubscriptionPlanDto {
   id: number;
-  planName?: string;
-  name?: string;
+  name: string;
   description: string;
-  type?: number;
+  type?: string;
+  examId?: number;
   examType?: string;
-  examCategory?: string;
   price: number;
   currency: string;
   testPapersCount: number;
@@ -22,7 +21,6 @@ export interface SubscriptionPlanDto {
   isPopular: boolean;
   isRecommended: boolean;
   cardColorTheme?: string;
-  colorCode?: string;
   sortOrder?: number;
   isActive: boolean;
   createdAt: string;
@@ -31,23 +29,24 @@ export interface SubscriptionPlanDto {
 }
 
 export interface CreateSubscriptionPlanDto {
-  name: string;
-  description: string;
-  type: number;
-  price: number;
-  currency: string;
-  testPapersCount: number;
-  discount: number;
-  duration: number;
-  durationType: string;
-  validityDays: number;
-  examCategory: string;
-  features: string[];
-  imageUrl: string | null;
-  isPopular: boolean;
-  isRecommended: boolean;
-  cardColorTheme: string;
-  sortOrder: number;
+  name: string;           // Required, max 200 chars
+  description: string;   // Required
+  type: string;          // Required: "Monthly", "Yearly", "ExamSpecific"
+  price: number;         // Required, >= 0
+  currency: string;      // Required, default "INR"
+  duration: number;      // Required, >= 1
+  durationType: string;  // Optional, default "Monthly"
+  testPapersCount?: number;
+  discount?: number;
+  validityDays?: number;
+  examId?: number;
+  examType: string;
+  features?: string[];
+  imageUrl?: string | null;
+  isPopular?: boolean;
+  isRecommended?: boolean;
+  isActive?: boolean;
+  cardColorTheme?: string;
   translations?: SubscriptionPlanTranslationDto[];
 }
 
@@ -88,7 +87,7 @@ export interface SubscriptionPlanListParams {
   page?: number;
   pageSize?: number;
   language?: string;
-  examType?: string;
+  examCategory?: string;
   isActive?: boolean;
   isPopular?: boolean;
   isRecommended?: boolean;
@@ -110,6 +109,9 @@ export interface SubscriptionPlanStats {
   inactivePlans: number;
   popularPlans: number;
   recommendedPlans: number;
+  expiringSoon: number;
+  newSubscribers: number;
+  avgPrice: number;
 }
 
 export interface ApiResponse<T> {
@@ -239,7 +241,12 @@ export const togglePopularStatus = async (id: number): Promise<ApiResponse<Parti
     return response.data;
   } catch (error) {
     console.error('Error toggling popular status:', error);
-    throw error;
+    // Return mock response to prevent crash
+    return {
+      success: false,
+      data: {},
+      message: 'Failed to toggle popular status'
+    };
   }
 };
 
@@ -252,7 +259,12 @@ export const toggleRecommendedStatus = async (id: number): Promise<ApiResponse<P
     return response.data;
   } catch (error) {
     console.error('Error toggling recommended status:', error);
-    throw error;
+    // Return mock response to prevent crash
+    return {
+      success: false,
+      data: {},
+      message: 'Failed to toggle recommended status'
+    };
   }
 };
 
@@ -265,7 +277,12 @@ export const toggleActiveStatus = async (id: number): Promise<ApiResponse<Partia
     return response.data;
   } catch (error) {
     console.error('Error toggling active status:', error);
-    throw error;
+    // Return mock response to prevent crash
+    return {
+      success: false,
+      data: {},
+      message: 'Failed to toggle active status'
+    };
   }
 };
 
@@ -275,10 +292,26 @@ export const toggleActiveStatus = async (id: number): Promise<ApiResponse<Partia
 export const getSubscriptionPlanStats = async (): Promise<SubscriptionPlanStats> => {
   try {
     const response = await apiClient.get(apiEndpoints.SUBSCRIPTIONS.PLANS.GET_STATS);
-    return response.data;
+    
+    // Handle wrapped response
+    if (response.data.success !== undefined) {
+      return response.data.data;
+    } else {
+      return response.data;
+    }
   } catch (error) {
     console.error('Error fetching subscription plan stats:', error);
-    throw error;
+    // Return default values when API fails
+    return {
+      totalPlans: 0,
+      activePlans: 0,
+      inactivePlans: 0,
+      popularPlans: 0,
+      recommendedPlans: 0,
+      expiringSoon: 0,
+      newSubscribers: 0,
+      avgPrice: 0
+    };
   }
 };
 
@@ -291,7 +324,7 @@ export const getFilteredSubscriptionPlans = async (
   try {
     const queryParams = new URLSearchParams();
     
-    if (params.examType) queryParams.append('examType', params.examType);
+    if (params.examCategory) queryParams.append('examCategory', params.examCategory);
     if (params.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
     if (params.isPopular !== undefined) queryParams.append('isPopular', params.isPopular.toString());
     if (params.isRecommended !== undefined) queryParams.append('isRecommended', params.isRecommended.toString());
@@ -322,7 +355,7 @@ export const getActiveSubscriptionPlans = async (
     if (params.page) queryParams.append('page', params.page.toString());
     if (params.pageSize) queryParams.append('pageSize', params.pageSize.toString());
     if (params.language) queryParams.append('language', params.language);
-    if (params.examType) queryParams.append('examType', params.examType);
+    if (params.examCategory) queryParams.append('examCategory', params.examCategory);
     if (params.isPopular !== undefined) queryParams.append('isPopular', params.isPopular.toString());
     if (params.isRecommended !== undefined) queryParams.append('isRecommended', params.isRecommended.toString());
 

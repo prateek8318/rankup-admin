@@ -14,7 +14,7 @@ export default defineConfig({
     proxy: {
       // Auth service
       '/api/admin/auth': {
-        target: 'http://192.168.1.17:56924',
+        target: 'http://192.168.1.41:56924',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -31,7 +31,7 @@ export default defineConfig({
       },
       // Main dashboard service
       '/api/admin/dashboard': {
-        target: 'http://192.168.1.17:56924',
+        target: 'http://192.168.1.41:56924',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -48,7 +48,7 @@ export default defineConfig({
       },
       // Admin Subscription Plans service
       '/api/admin/subscription-plans': {
-        target: 'http://192.168.1.17:56926',
+        target: 'http://192.168.1.41:56925',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -65,7 +65,7 @@ export default defineConfig({
       },
       // Admin Users service
       '/api/admin/users': {
-        target: 'http://192.168.1.17:5002', // User Service port
+        target: 'http://192.168.1.41:5002', // User Service port
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -82,7 +82,7 @@ export default defineConfig({
       },
       // User count endpoints
       '/api/admin/users/count': {
-        target: 'http://192.168.1.17:5002',
+        target: 'http://192.168.1.41:5002',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -98,7 +98,7 @@ export default defineConfig({
         }
       },
       '/api/admin/users/daily-active-count': {
-        target: 'http://192.168.1.17:5002',
+        target: 'http://192.168.1.41:5002',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -115,7 +115,7 @@ export default defineConfig({
       },
       // Admin Exams service
       '/api/exams': {
-        target: 'http://192.168.1.17:5009', // Correct port where ExamService is running
+        target: 'http://192.168.1.41:5009', // Correct port where ExamService is running
         changeOrigin: true,
         secure: false, // HTTP for local development
         configure: (proxy, options) => {
@@ -143,7 +143,7 @@ export default defineConfig({
       },
       // Categories service (exam-categories, qualifications, streams)
       '/api/categories': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -160,7 +160,7 @@ export default defineConfig({
       },
       // Master service (languages, states, countries)
       '/api/languages': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -176,7 +176,7 @@ export default defineConfig({
         }
       },
       '/api/states': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -192,7 +192,7 @@ export default defineConfig({
         }
       },
       '/api/countries': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -208,7 +208,7 @@ export default defineConfig({
         }
       },
       '/api/qualifications': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -224,7 +224,7 @@ export default defineConfig({
         }
       },
       '/api/streams': {
-        target: 'http://192.168.1.17:5009',
+        target: 'http://192.168.1.41:5009',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {

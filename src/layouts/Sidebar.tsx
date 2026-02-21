@@ -103,12 +103,12 @@ const Sidebar = () => {
           {dropdownItem("Master", "/src/assets/icons/dashboard.png", openMaster, setOpenMaster)}
           {openMaster && (
             <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              {menuItem("/home/master/languages", "Languages", "/src/assets/icons/dashboard.png")}
-              {menuItem("/home/master/states", "States", "/src/assets/icons/dashboard.png")}
-              {menuItem("/home/master/countries", "Countries", "/src/assets/icons/dashboard.png")}
-              {menuItem("/home/master/categories", "Categories", "/src/assets/icons/dashboard.png")}
-              {menuItem("/home/master/qualifications", "Qualifications", "/src/assets/icons/dashboard.png")}
-              {menuItem("/home/master/streams", "Streams", "/src/assets/icons/dashboard.png")}
+              {menuItem("/home/master/languages", "Languages", "/src/assets/icons/language.png")}
+              {menuItem("/home/master/states", "States", "/src/assets/icons/state.png")}
+              {menuItem("/home/master/countries", "Countries", "/src/assets/icons/globe.png")}
+              {menuItem("/home/master/categories", "Categories", "/src/assets/icons/category.png")}
+              {menuItem("/home/master/qualifications", "Qualifications", "/src/assets/icons/category.png")}
+              {menuItem("/home/master/streams", "Streams", "/src/assets/icons/exams.png")}
               {menuItem("/home/master/exams", "Exams", "/src/assets/icons/exams.png")}
             </div>
           )}

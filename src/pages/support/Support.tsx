@@ -1,84 +1,236 @@
+import React, { useState } from 'react';
+
 const Support = () => {
+  const [category, setCategory] = useState('');
+  const [status, setStatus] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+
+  // Static ticket data
+  const tickets = [
+    {
+      id: '026854',
+      category: 'Mock Test',
+      remark: 'Question answer was not here in the options provided',
+      date: '20-Dec-2025',
+      status: 'Active'
+    },
+    {
+      id: '026855',
+      category: 'Payment',
+      remark: 'Payment failed but amount deducted from account',
+      date: '20-Dec-2025',
+      status: 'Active'
+    },
+    {
+      id: '026856',
+      category: 'Technical',
+      remark: 'Unable to access previous test results',
+      date: '19-Dec-2025',
+      status: 'Pending'
+    },
+    {
+      id: '026857',
+      category: 'Account',
+      remark: 'Profile picture not uploading correctly',
+      date: '19-Dec-2025',
+      status: 'Active'
+    },
+    {
+      id: '026858',
+      category: 'Mock Test',
+      remark: 'Timer stopped working during exam',
+      date: '18-Dec-2025',
+      status: 'Closed'
+    },
+    {
+      id: '026859',
+      category: 'Subscription',
+      remark: 'Want to upgrade my subscription plan',
+      date: '18-Dec-2025',
+      status: 'Pending'
+    },
+    {
+      id: '026860',
+      category: 'Technical',
+      remark: 'App crashes when opening study materials',
+      date: '17-Dec-2025',
+      status: 'Active'
+    },
+    {
+      id: '026861',
+      category: 'Payment',
+      remark: 'Refund not received for cancelled subscription',
+      date: '17-Dec-2025',
+      status: 'Closed'
+    }
+  ];
+
+  const handleSelect = (id: string) => {
+    setSelectedTickets(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedTickets.length === tickets.length) setSelectedTickets([]);
+    else setSelectedTickets(tickets.map(t => t.id));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'Active':
+        return { backgroundColor: '#10b981', color: '#fff' };
+      case 'Pending':
+        return { backgroundColor: '#f59e0b', color: '#fff' };
+      case 'Closed':
+        return { backgroundColor: '#3b82f6', color: '#fff' };
+      default:
+        return { backgroundColor: '#6b7280', color: '#fff' };
+    }
+  };
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">Support Management</h1>
-        <p className="text-gray-600">Manage user support tickets and queries</p>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Stats Cards */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between">
+    <div style={{ minHeight: "100vh", background: "#E6F5FF", padding: "20px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+
+        <div style={{ marginBottom: "30px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
             <div>
-              <p className="text-sm text-gray-600">Open Tickets</p>
-              <p className="text-2xl font-bold text-gray-800">23</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              📧
+              <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#1e293b", margin: 0 }}>Ticket Management</h1>
+              <p style={{ fontSize: "16px", color: "#64748b", margin: "4px 0 0 0" }}>Manage user support tickets and queries</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">In Progress</p>
-              <p className="text-2xl font-bold text-gray-800">15</p>
+
+        <div style={{ padding: "20px", marginBottom: 4, background: "#fff", borderRadius: 13 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+              <select value={category} onChange={e => setCategory(e.target.value)} style={{ padding: "8px 16px", border: "1.5px solid #C0C0C0", borderRadius: "25px", background: "#fff", minWidth: "140px" }}>
+                <option value="">All Category</option>
+                <option value="Mock Test">Mock Test</option>
+                <option value="Payment">Payment</option>
+                <option value="Technical">Technical</option>
+                <option value="Account">Account</option>
+                <option value="Subscription">Subscription</option>
+              </select>
+              <select value={status} onChange={e => setStatus(e.target.value)} style={{ padding: "8px 16px", border: "1.5px solid #C0C0C0", borderRadius: "25px", background: "#fff", minWidth: "120px" }}>
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Closed">Closed</option>
+              </select>
+              <input
+                type="date"
+                placeholder="From"
+                value={fromDate}
+                onChange={e => setFromDate(e.target.value)}
+                style={{ padding: "8px 16px", border: "1.5px solid #C0C0C0", borderRadius: "25px", background: "#fff", minWidth: "140px" }}
+              />
+              <input
+                type="date"
+                placeholder="To"
+                value={toDate}
+                onChange={e => setToDate(e.target.value)}
+                style={{ padding: "8px 16px", border: "1.5px solid #C0C0C0", borderRadius: "25px", background: "#fff", minWidth: "140px" }}
+              />
+              <button style={{ padding: "8px 48px", border: "none", borderRadius: "20px", background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)", color: "#fff", fontSize: "18px" }}>
+                Apply
+              </button>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              ⏳
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ color: "#6b7280", fontSize: "14px" }}>Total Ticket - {tickets.length}</span>
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Resolved Today</p>
-              <p className="text-2xl font-bold text-gray-800">8</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              ✅
-            </div>
+
+        <div style={{ background: "#fff", borderRadius: 13, padding: "18px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ 
+              width: "100%", 
+              borderCollapse: "separate",
+              borderSpacing: "0 8px"
+            }}>
+              <thead>
+                <tr style={{ 
+                  background: "linear-gradient(135deg, #1e3a8a, #1e40af)",
+                  borderWidth: "1px",
+                  borderColor: "#C0C0C0"
+                }}>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                    <input type="checkbox" checked={selectedTickets.length === tickets.length} onChange={handleSelectAll} style={{ width: "16px", height: "16px" }} />
+                  </th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Ticket ID</th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Category</th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Remark</th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Date</th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Status</th>
+                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tickets.map(ticket => (
+                  <tr key={ticket.id} style={{ 
+                    background: "#f8fafc",
+                    borderColor: "#C0C0C0",
+                    borderWidth: "1.5px"
+                  }}>
+                    <td style={{ padding: "16px" }}>
+                      <input type="checkbox" checked={selectedTickets.includes(ticket.id)} onChange={() => handleSelect(ticket.id)} style={{ width: "16px", height: "16px" }} />
+                    </td>
+                    <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500", fontFamily: 'monospace' }}>{ticket.id}</td>
+                    <td style={{ padding: "16px", fontSize: "14px" }}>{ticket.category}</td>
+                    <td style={{ padding: "16px", fontSize: "14px", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={ticket.remark}>
+                      {ticket.remark}
+                    </td>
+                    <td style={{ padding: "16px", fontSize: "14px" }}>{ticket.date}</td>
+                    <td style={{ padding: "16px", fontSize: "14px" }}>
+                      <span style={{
+                        padding: "4px 12px",
+                        borderRadius: "20px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        ...getStatusBadge(ticket.status)
+                      }}>
+                        {ticket.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px", fontSize: "14px" }}>
+                      <button style={{
+                        background: "none",
+                        border: "none",
+                        color: "#2563eb",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        marginRight: "12px",
+                        fontWeight: "500"
+                      }} title="Reply">
+                        💬
+                      </button>
+                      <button style={{
+                        background: "none",
+                        border: "none",
+                        color: "#2563eb",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        fontWeight: "500"
+                      }} title="View Details">
+                        👁️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-      </div>
-      
-      {/* Support Tickets */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">Recent Support Tickets</h2>
-          <div className="flex gap-4">
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option>All Status</option>
-              <option>Open</option>
-              <option>In Progress</option>
-              <option>Resolved</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="border rounded-lg p-4 hover:bg-gray-50">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="font-medium">Login Issue</h3>
-                <p className="text-sm text-gray-600">John Doe • john@example.com</p>
-              </div>
-              <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm">High</span>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #f3f4f6" }}>
+            <div style={{ color: "#6b7280" }}>
+              Showing 1 to {tickets.length} of {tickets.length} tickets
             </div>
-            <p className="text-sm text-gray-700 mb-3">Unable to login with my credentials. Getting invalid password error.</p>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-500">2 hours ago</span>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                  Respond
-                </button>
-                <button className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">
-                  Resolve
-                </button>
-              </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button disabled style={{ padding: "6px 12px", border: "1px solid #d1d5db", borderRadius: "6px" }}>&lt; Prev</button>
+              <button style={{ padding: "6px 12px", border: "1px solid #d1d5db", borderRadius: "6px", background: "#2563eb", color: "#fff" }}>1</button>
+              <button disabled style={{ padding: "6px 12px", border: "1px solid #d1d5db", borderRadius: "6px" }}>Next &gt;</button>
             </div>
           </div>
         </div>
