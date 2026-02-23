@@ -205,7 +205,7 @@ const Exams = () => {
     }
   };
 
-  const handleLanguageToggle = (languageId: number) => {
+  const handleLanguageToggle = async (languageId: number) => {
     const names = formData.names || [];
     const isSelected = selectedLanguages.includes(languageId);
     if (isSelected) {
@@ -213,17 +213,17 @@ const Exams = () => {
       setFormData({ ...formData, names: names.filter(n => n.languageId !== languageId) });
     } else {
       setSelectedLanguages(prev => [...prev, languageId]);
-      const add = async () => {
-        setIsTranslating(true);
-        try {
-          const lang = languages.find(l => l.id === languageId);
-          const translatedName = lang && (lang as any).code !== 'en' ? await translateText(formData.name || '', (lang as any).code) : formData.name || '';
-          const translatedDesc = lang && (lang as any).code !== 'en' ? await translateText(formData.description || '', (lang as any).code) : formData.description || '';
-          setFormData({ ...formData, names: [...names, { languageId, name: translatedName, description: translatedDesc }] });
-        } finally { setIsTranslating(false); }
-      };
-      if (formData.name) add();
-      else setFormData({ ...formData, names: [...names, { languageId, name: formData.name || '', description: formData.description || '' }] });
+      setIsTranslating(true);
+      try {
+        const lang = languages.find(l => l.id === languageId);
+        const translatedName = lang && (lang as any).code !== 'en' ? await translateText(formData.name || '', (lang as any).code) : formData.name || '';
+        const translatedDesc = lang && (lang as any).code !== 'en' ? await translateText(formData.description || '', (lang as any).code) : formData.description || '';
+        setFormData({ ...formData, names: [...names, { languageId, name: translatedName, description: translatedDesc }] });
+      } catch (err) {
+        console.error('Translation error:', err);
+      } finally { 
+        setIsTranslating(false); 
+      }
     }
   };
 
@@ -251,9 +251,9 @@ const Exams = () => {
 
   const filteredExams = exams.filter(ex => {
     const matchesSearch = (ex.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (ex.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLang = !filterLanguageId || (ex.names || []).some(n => n.languageId === filterLanguageId);
     const matchesRegion = regionFilter === 'all' || (regionFilter === 'india' && ex.countryCode === 'IN') || (regionFilter === 'international' && ex.countryCode !== 'IN');
-    return matchesSearch && matchesLang && matchesRegion;
+    // Language filter: show all exams (language is just for viewing translations, not filtering)
+    return matchesSearch && matchesRegion;
   });
 
   return (
@@ -377,7 +377,7 @@ const Exams = () => {
                 <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Country *</label>
-                    <select required={!isInternationalFlag} disabled={isInternationalFlag} value={formData.countryCode} onChange={e => setFormData({ ...formData, countryCode: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: '14px' }}>
+                    <select required={!isInternationalFlag} value={formData.countryCode} onChange={e => setFormData({ ...formData, countryCode: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: '14px' }}>
                       <option value="">Select country</option>
                       {countries.filter(c => !(isInternationalFlag && c.code === 'IN')).map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                     </select>
@@ -430,7 +430,7 @@ const Exams = () => {
                     <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10, maxHeight: 120, overflowY: 'auto' }}>
                       {languages.map(lang => (
                         <label key={lang.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
-                          <input type="checkbox" checked={selectedLanguages.includes(lang.id)} onChange={() => handleLanguageToggle(lang.id)} style={{ width: '16px', height: '16px' }} />
+                          <input type="checkbox" checked={selectedLanguages.includes(lang.id)} onChange={() => handleLanguageToggle(lang.id)} disabled={isTranslating} style={{ width: '16px', height: '16px' }} />
                           <span style={{ fontSize: '14px' }}>{lang.name} ({lang.code})</span>
                         </label>
                       ))}
@@ -438,9 +438,32 @@ const Exams = () => {
                   )}
                 </div>
 
+                {/* Display Translated Languages */}
+                {(formData.names || []).length > 0 && (
+                  <div style={{ marginBottom: 16, padding: 12, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>Translated Content:</h4>
+                    {(formData.names || []).map((name, idx) => {
+                      const lang = languages.find(l => l.id === name.languageId);
+                      return (
+                        <div key={idx} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #bfdbfe' }}>
+                          <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#1e40af' }}>
+                            {lang?.name} ({lang?.code})
+                          </p>
+                          <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#374151' }}>
+                            <strong>Name:</strong> {name.name}
+                          </p>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>
+                            <strong>Description:</strong> {name.description}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={isInternationalFlag} disabled={formData.countryCode === 'IN'} onChange={e => { setIsInternationalFlag(e.target.checked); if (e.target.checked) setFormData({ ...formData, countryCode: '' }); else if (!formData.countryCode) setFormData({ ...formData, countryCode: 'IN' }); }} style={{ width: '16px', height: '16px' }} />
+                    <input type="checkbox" checked={isInternationalFlag} disabled={formData.countryCode === 'IN'} onChange={e => setIsInternationalFlag(e.target.checked)} style={{ width: '16px', height: '16px' }} />
                     <span style={{ fontSize: '14px' }}>International Exam</span>
                   </label>
                 </div>

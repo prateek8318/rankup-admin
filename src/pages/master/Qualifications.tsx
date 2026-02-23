@@ -235,22 +235,58 @@ const Qualifications = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this qualification?')) {
       try {
-        await qualificationApi.deleteQualification(id.toString());
+        const response = await qualificationApi.deleteQualification(id.toString());
+        console.log('Delete response:', response);
+        
+        // Show success message
+        alert('Qualification deleted successfully');
+        
+        // Refresh the list
         fetchQualifications();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete qualification:', error);
-        alert('Failed to delete qualification');
+        
+        // Provide more detailed error feedback
+        if (error.response) {
+          if (error.response.status === 500) {
+            alert('Server error while deleting qualification. Please try again later.');
+          } else if (error.response.status === 404) {
+            alert('Qualification not found.');
+          } else if (error.response.status === 409) {
+            alert('Cannot delete this qualification. It may be in use by other entities.');
+          } else {
+            alert(`Error: ${error.response.data?.message || 'Failed to delete qualification'}`);
+          }
+        } else if (error.message) {
+          alert(`Error: ${error.message}`);
+        } else {
+          alert('Failed to delete qualification. Please try again.');
+        }
       }
     }
   };
 
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      await qualificationApi.toggleQualificationStatus(id.toString(), !currentStatus);
+      const response = await qualificationApi.toggleQualificationStatus(id.toString(), !currentStatus);
+      console.log('Toggle status response:', response);
       fetchQualifications();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to toggle status:', error);
-      alert('Failed to toggle status');
+      
+      if (error.response) {
+        if (error.response.status === 500) {
+          alert('Server error while toggling status. Please try again later.');
+        } else if (error.response.status === 404) {
+          alert('Qualification not found.');
+        } else {
+          alert(`Error: ${error.response.data?.message || 'Failed to toggle status'}`);
+        }
+      } else if (error.message) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert('Failed to toggle status. Please try again.');
+      }
     }
   };
 

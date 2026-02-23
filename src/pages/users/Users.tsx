@@ -126,6 +126,7 @@ const Users = () => {
     newUsers: 0,
     noActivity: 0
   });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const userCards = [
     { number: userStats.totalUsers.toLocaleString(), label: "Total Users", gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)" },
@@ -293,6 +294,15 @@ const Users = () => {
     fetchUserStats();
   }, [currentPage, searchTerm]);
 
+  // Update current time every 30 seconds to make "Last Active" more dynamic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -306,13 +316,16 @@ const Users = () => {
   const formatLastActive = (dateString?: string) => {
     if (!dateString) return 'Never';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const now = currentTime;
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 1) return 'Just now';
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
     if (diffInHours < 24) return `${diffInHours} hours ago`;
-    if (diffInHours < 48) return '1 day ago';
-    return `${Math.floor(diffInHours / 24)} days ago`;
+    if (diffInDays < 2) return '1 day ago';
+    return `${diffInDays} days ago`;
   };
 
   const getUserId = (user: User) => `USR${String(user.id).padStart(3, '0')}`;

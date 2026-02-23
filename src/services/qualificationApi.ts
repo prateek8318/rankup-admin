@@ -40,12 +40,34 @@ export const qualificationApi = {
     return response.data;
   },
 
-  deleteQualification: async (id: string): Promise<void> => {
-    await apiClient.delete(apiEndpoints.QUALIFICATIONS.DELETE(id));
+  deleteQualification: async (id: string): Promise<any> => {
+    try {
+      const response = await apiClient.delete(apiEndpoints.QUALIFICATIONS.DELETE(id));
+      return response.data;
+    } catch (error: any) {
+      console.error('Delete API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      throw error;
+    }
   },
 
-  toggleQualificationStatus: async (id: string, isActive: boolean): Promise<void> => {
-    await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), isActive);
+  toggleQualificationStatus: async (id: string, isActive: boolean): Promise<any> => {
+    try {
+      const response = await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), { isActive });
+      return response.data;
+    } catch (error: any) {
+      console.error('Toggle Status API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      throw error;
+    }
   },
 
   // Stream endpoints
@@ -76,12 +98,34 @@ export const qualificationApi = {
     return response.data;
   },
 
-  deleteStream: async (id: string): Promise<void> => {
-    await apiClient.delete(apiEndpoints.STREAMS.DELETE(id));
+  deleteStream: async (id: string): Promise<any> => {
+    try {
+      const response = await apiClient.delete(apiEndpoints.STREAMS.DELETE(id));
+      return response.data;
+    } catch (error: any) {
+      console.error('Delete Stream API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      throw error;
+    }
   },
 
-  toggleStreamStatus: async (id: string, isActive: boolean): Promise<void> => {
-    await apiClient.patch(apiEndpoints.STREAMS.TOGGLE_STATUS(id), isActive);
+  toggleStreamStatus: async (id: string, isActive: boolean): Promise<any> => {
+    try {
+      const response = await apiClient.patch(apiEndpoints.STREAMS.TOGGLE_STATUS(id), { isActive });
+      return response.data;
+    } catch (error: any) {
+      console.error('Toggle Stream Status API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      throw error;
+    }
   },
 
   getStreamsByQualification: async (qualificationId: string, languageId?: number): Promise<StreamDto[]> => {
