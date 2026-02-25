@@ -214,7 +214,6 @@ const States = () => {
   };
 
   const filteredStates = states.filter(state =>
-    state.isActive &&
     (getStateDisplayName(state).toLowerCase().includes(searchTerm.toLowerCase()) ||
     state.countryCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
     state.code.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -383,7 +382,11 @@ const States = () => {
               </thead>
               <tbody>
                 {filteredStates.map((state) => (
-                  <tr key={state.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={state.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: state.isActive ? "transparent" : "#f3f4f6",
+                    opacity: state.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{state.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{getStateDisplayName(state)}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{state.code}</td>

@@ -222,7 +222,6 @@ const Languages = () => {
   };
 
   const filteredLanguages = languages.filter(lang =>
-    lang.isActive &&
     (lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lang.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -302,7 +301,11 @@ const Languages = () => {
               </thead>
               <tbody>
                 {filteredLanguages.map((language) => (
-                  <tr key={language.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={language.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: language.isActive ? "transparent" : "#f3f4f6",
+                    opacity: language.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.name}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.code}</td>

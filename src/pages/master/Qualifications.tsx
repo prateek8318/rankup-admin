@@ -228,35 +228,12 @@ const Qualifications = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this qualification?')) {
+    if (window.confirm('Are you sure you want to deactivate this qualification?')) {
       try {
-        const response = await qualificationApi.deleteQualification(id.toString());
-        console.log('Delete response:', response);
-        
-        // Show success message
-        alert('Qualification deleted successfully');
-        
-        // Refresh the list
+        await qualificationApi.toggleQualificationStatus(id.toString(), false);
         fetchQualifications();
-      } catch (error: any) {
-        console.error('Failed to delete qualification:', error);
-        
-        // Provide more detailed error feedback
-        if (error.response) {
-          if (error.response.status === 500) {
-            alert('Server error while deleting qualification. Please try again later.');
-          } else if (error.response.status === 404) {
-            alert('Qualification not found.');
-          } else if (error.response.status === 409) {
-            alert('Cannot delete this qualification. It may be in use by other entities.');
-          } else {
-            alert(`Error: ${error.response.data?.message || 'Failed to delete qualification'}`);
-          }
-        } else if (error.message) {
-          alert(`Error: ${error.message}`);
-        } else {
-          alert('Failed to delete qualification. Please try again.');
-        }
+      } catch (error) {
+        console.error('Error deactivating qualification:', error);
       }
     }
   };
@@ -473,7 +450,11 @@ const Qualifications = () => {
               </thead>
               <tbody>
                 {filteredQualifications.map((qualification) => (
-                  <tr key={qualification.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={qualification.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: qualification.isActive ? "transparent" : "#f3f4f6",
+                    opacity: qualification.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{qualification.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{qualification.name}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{qualification.description}</td>

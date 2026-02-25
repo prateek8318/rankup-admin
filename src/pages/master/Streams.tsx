@@ -234,13 +234,13 @@ const Streams = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this stream?')) {
+    if (window.confirm('Are you sure you want to deactivate this stream?')) {
       try {
-        await qualificationApi.deleteStream(id.toString());
+        await qualificationApi.toggleStreamStatus(id.toString(), false);
         fetchData();
       } catch (error) {
-        console.error('Failed to delete stream:', error);
-        alert('Failed to delete stream');
+        console.error('Failed to deactivate stream:', error);
+        alert('Failed to deactivate stream');
       }
     }
   };
@@ -449,7 +449,11 @@ const Streams = () => {
               </thead>
               <tbody>
                 {filteredStreams.map((stream) => (
-                  <tr key={stream.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={stream.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: stream.isActive ? "transparent" : "#f3f4f6",
+                    opacity: stream.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{stream.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{stream.name}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{stream.description}</td>

@@ -93,7 +93,7 @@ export const languageApi = {
     masterApiClient.delete(`/languages/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/languages/${id}/status`, isActive)
+    masterApiClient.patch(`/languages/${id}/status`, { isActive })
 };
 
 export const stateApi = {
@@ -122,7 +122,7 @@ export const stateApi = {
     masterApiClient.delete(`/states/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/states/${id}/status`, isActive),
+    masterApiClient.patch(`/states/${id}/status`, { isActive }),
   
   seedLanguages: () => 
     masterApiClient.post('/states/seed-languages'),
@@ -163,7 +163,7 @@ export const countryApi = {
     masterApiClient.delete(`/countries/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/countries/${id}/status`, isActive)
+    masterApiClient.patch(`/countries/${id}/status`, { isActive })
 };
 
 export const categoryApi = {
@@ -226,7 +226,7 @@ export const categoryApi = {
     masterApiClient.delete(`/categories/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/categories/${id}/status`, isActive)
+    masterApiClient.patch(`/categories/${id}/status`, { isActive })
 };
 
 export interface CreateLanguageDto {
@@ -483,7 +483,7 @@ export const subjectApi = {
     masterApiClient.delete(`/subjects/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/subjects/${id}`, { isActive })
+    masterApiClient.patch(`/subjects/${id}/status`, { isActive })
 };
 
 export interface CreateSubjectDto {

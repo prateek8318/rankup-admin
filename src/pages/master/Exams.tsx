@@ -140,13 +140,13 @@ const Exams = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this exam?')) return;
+    if (!confirm('Are you sure you want to deactivate this exam?')) return;
     try {
-      await deleteExam(id);
+      await updateExamStatus(id, false);
       await fetchData();
     } catch (err) {
       console.error('deleteExam error', err);
-      alert('Failed to delete exam');
+      alert('Failed to deactivate exam');
     }
   };
 
@@ -293,7 +293,11 @@ const Exams = () => {
               </thead>
               <tbody>
                 {filteredExams.map(exam => (
-                  <tr key={exam.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr key={exam.id} style={{ 
+                    borderBottom: '1px solid #f3f4f6',
+                    backgroundColor: exam.isActive ? 'transparent' : '#f3f4f6',
+                    opacity: exam.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: 12 }}>{exam.id}</td>
                     <td style={{ padding: 12 }}>{exam.name}</td>
                     <td style={{ padding: 12 }}>{exam.countryCode}</td>

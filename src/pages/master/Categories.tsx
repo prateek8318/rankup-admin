@@ -112,7 +112,6 @@ const Categories = () => {
   };
 
   const filteredCategories = Array.isArray(categories) ? categories.filter(category =>
-    category.isActive &&
     (getCategoryDisplayName(category).toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.type.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -214,7 +213,11 @@ const Categories = () => {
               </thead>
               <tbody>
                 {filteredCategories.map((category) => (
-                  <tr key={category.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={category.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: category.isActive ? "transparent" : "#f3f4f6",
+                    opacity: category.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{category.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>
                       <div>
@@ -320,7 +323,7 @@ const Categories = () => {
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  English Name *
+                  Category Name *
                 </label>
                 <input
                   type="text"
@@ -339,7 +342,7 @@ const Categories = () => {
 
               <div style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Hindi Name
+                  Category Name (Hindi)
                 </label>
                 <input
                   type="text"

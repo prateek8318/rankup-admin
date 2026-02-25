@@ -93,7 +93,6 @@ const Countries = () => {
   };
 
   const filteredCountries = countries.filter(country =>
-    country.isActive &&
     (country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     country.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -173,7 +172,11 @@ const Countries = () => {
               </thead>
               <tbody>
                 {filteredCountries.map((country) => (
-                  <tr key={country.id} style={{ borderBottom: "1.5px solid #C0C0C0" }}>
+                  <tr key={country.id} style={{ 
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: country.isActive ? "transparent" : "#f3f4f6",
+                    opacity: country.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{country.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{country.name}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{country.code}</td>
