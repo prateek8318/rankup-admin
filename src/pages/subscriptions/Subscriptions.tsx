@@ -31,7 +31,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ number, label, gradient }) => {
     return examsIcon;
   };
 
-  // Get appropriate vector based on gradient color
   const getVectorImage = () => {
     if (gradient.includes("#8B5CF6") || gradient.includes("#7C3AED")) return vector1Icon; // Purple gradient
     if (gradient.includes("#FF8C42") || gradient.includes("#FF6B1A")) return vector2Icon; // Orange gradient
@@ -125,9 +124,8 @@ const Subscriptions = () => {
 
   const handleTogglePopular = async (planId: number) => {
     try {
-      await togglePopularStatus(planId);
-      // Refresh plans to get updated status
-      const fetchData = async () => {
+    await togglePopularStatus(planId);
+    const fetchData = async () => {
         setLoading(true);
         try {
           const params: any = { page: currentPage, pageSize: 10 };
@@ -152,7 +150,6 @@ const Subscriptions = () => {
   const handleToggleRecommended = async (planId: number) => {
     try {
       await toggleRecommendedStatus(planId);
-      // Refresh plans to get updated status
       const fetchData = async () => {
         setLoading(true);
         try {
@@ -178,7 +175,6 @@ const Subscriptions = () => {
   const handleToggleActive = async (planId: number) => {
     try {
       await toggleActiveStatus(planId);
-      // Refresh plans to get updated status
       const fetchData = async () => {
         setLoading(true);
         try {
@@ -233,7 +229,6 @@ const Subscriptions = () => {
           setTotalPlans(res.pagination?.totalCount || filtered.length);
         }
 
-        // Stats
         const s = await getSubscriptionPlanStats();
         setStats({
           totalPlans: s.totalPlans || 0,
@@ -464,7 +459,6 @@ const Subscriptions = () => {
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
-            // Refresh data
             const fetchData = async () => {
               setLoading(true);
               try {

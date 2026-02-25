@@ -1,7 +1,6 @@
 import { apiEndpoints } from './apiEndpoints';
 import apiClient from './apiClient';
 
-// TypeScript interfaces based on the API specification
 export interface ExamName {
   languageId: number;
   name: string;

@@ -28,6 +28,7 @@ import Qualifications from "@/pages/master/Qualifications";
 import Streams from "@/pages/master/Streams";
 import ErrorFallback from '@/components/ErrorFallback';
 import Exams from "@/pages/master/Exams";
+import Subjects from "@/pages/master/Subjects";
 
 export const router = createBrowserRouter([
   {
@@ -112,7 +113,8 @@ export const router = createBrowserRouter([
           { path: "categories", element: <Categories /> },
           { path: "exams", element: <Exams /> },
           { path: "qualifications", element: <Qualifications /> },
-          { path: "streams", element: <Streams /> }
+          { path: "streams", element: <Streams /> },
+          { path: "subjects", element: <Subjects /> }
         ]
       },
     ],

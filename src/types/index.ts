@@ -1,6 +1,3 @@
-// Global Types for RankUp Admin
-
-// User & Auth Types
 export interface User {
   id: string;
   name: string;
@@ -34,7 +31,6 @@ export interface TwoFactorData {
   message: string;
 }
 
-// Dashboard Types
 export interface DashboardStats {
   totalUsers: number;
   totalActiveUsers: number;
@@ -62,7 +58,6 @@ export interface DashboardStats {
   currentMonthWalletRechargeAmount: number;
 }
 
-// API Types
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -80,7 +75,6 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   };
 }
 
-// Form Types
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -94,7 +88,6 @@ export interface ForgotPasswordData {
   email: string;
 }
 
-// Component Props Types
 export interface StatCardProps {
   title: string;
   value: string | number;
@@ -135,7 +128,6 @@ export interface TableProps<T> {
   };
 }
 
-// Filter Types
 export interface DateRangeFilter {
   startDate: string;
   endDate: string;
@@ -149,7 +141,6 @@ export interface SearchFilter {
   query: string;
 }
 
-// Navigation Types
 export interface MenuItem {
   name: string;
   link?: string;
@@ -158,14 +149,12 @@ export interface MenuItem {
   children?: MenuItem[];
 }
 
-// Toast Types
 export interface ToastConfig {
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
   duration?: number;
 }
 
-// Form Validation Types
 export interface ValidationRule {
   required?: boolean;
   minLength?: number;
@@ -183,7 +172,6 @@ export interface FormField {
   placeholder?: string;
 }
 
-// Chart Types
 export interface ChartData {
   labels: string[];
   datasets: {
@@ -194,24 +182,20 @@ export interface ChartData {
   }[];
 }
 
-// Export Types
 export interface ExportOptions {
   format: 'csv' | 'excel' | 'pdf';
   dateRange?: DateRangeFilter;
   filters?: Record<string, any>;
 }
 
-// Utility Types
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
-// Event Types
 export interface DataTableEvent {
   type: 'sort' | 'filter' | 'pageChange' | 'rowSelection';
   payload: any;
 }
 
-// Error Types
 export interface AppError {
   code: string;
   message: string;
@@ -219,14 +203,13 @@ export interface AppError {
   timestamp: string;
 }
 
-// Theme Types
 export interface ThemeConfig {
   mode: 'light' | 'dark';
   primaryColor: string;
   accentColor: string;
 }
 
-// Notification Types
+
 export interface Notification {
   id: string;
   title: string;

@@ -11,6 +11,10 @@ import deleteIcon from '@/assets/icons/delete.png';
 // Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
+    console.log('=== TRANSLATING TEXT ===');
+    console.log('Original text:', text);
+    console.log('Target language:', targetLanguage);
+    
     // Map language codes to Google Translate language codes
     const languageMap: { [key: string]: string } = {
       'hi': 'hi',
@@ -28,16 +32,30 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     };
 
     const targetLang = languageMap[targetLanguage] || targetLanguage;
+    console.log('Mapped language code:', targetLang);
 
     // Using Google Translate API (you might need to set up API key)
-    const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+    console.log('Translation URL:', url);
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
+      console.error('Translation API response not OK:', response.status, response.statusText);
       throw new Error('Translation failed');
     }
 
     const data = await response.json();
-    return data[0][0][0];
+    console.log('Translation API response:', data);
+    
+    if (data && data[0] && data[0][0] && data[0][0][0]) {
+      const translatedText = data[0][0][0];
+      console.log('Translated text:', translatedText);
+      return translatedText;
+    } else {
+      console.error('Invalid translation response structure:', data);
+      return text; // Return original text if translation fails
+    }
   } catch (error) {
     console.error('Translation error:', error);
     return text; // Return original text if translation fails
@@ -69,6 +87,8 @@ const CMSManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguagesForModal, setSelectedLanguagesForModal] = useState<string[]>(['en']); // Multi-select for modal
+  const [showModalLanguageDropdown, setShowModalLanguageDropdown] = useState(false); // Dropdown visibility
   const [translatedContent, setTranslatedContent] = useState('');
   const [availableLanguages, setAvailableLanguages] = useState<{ code: string; name: string }[]>([]);
   const [selectedLanguagesFilter, setSelectedLanguagesFilter] = useState<string[]>([]);
@@ -81,8 +101,7 @@ const CMSManagement = () => {
       const params: any = { page: currentPage, limit: 10 };
       if (searchTerm) params.search = searchTerm;
       
-      // Handle language filtering - if only one language selected, use language parameter
-      // if multiple selected, use languages parameter
+      
       if (selectedLanguagesFilter.length === 1) {
         params.language = selectedLanguagesFilter[0];
       } else if (selectedLanguagesFilter.length > 1) {
@@ -125,15 +144,50 @@ const CMSManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Create translations array for selected languages
+      const translations = [];
+      
+      // Auto-translate for all selected languages
+      for (const langCode of selectedLanguagesForModal) {
+        try {
+          if (langCode === 'en') {
+            // Add English (base) translation
+            translations.push({
+              languageCode: 'en',
+              title: formData.title,
+              content: formData.content
+            });
+          } else {
+            // Translate to other languages
+            const translatedTitle = await translateText(formData.title, langCode);
+            const translatedContent = await translateText(formData.content, langCode);
+            
+            translations.push({
+              languageCode: langCode,
+              title: translatedTitle,
+              content: translatedContent
+            });
+          }
+        } catch (error) {
+          console.error(`Translation failed for ${langCode}:`, error);
+          // Add fallback with original content
+          translations.push({
+            languageCode: langCode,
+            title: formData.title,
+            content: formData.content
+          });
+        }
+      }
+      
       await createCMS({
         key: formData.key,
-        title: formData.title,
-        content: translatedContent || formData.content,
-        language: selectedLanguage
+        translations: translations
       });
+      
       setIsModalOpen(false);
       setFormData({ key: '', title: '', content: '', language: 'en' });
       setTranslatedContent('');
+      setSelectedLanguagesForModal(['en']); // Reset to English only
       fetchCMSItems();
     } catch (error) {
       console.error('Error saving CMS item:', error);
@@ -273,7 +327,7 @@ const CMSManagement = () => {
                   gap: "8px"
                 }}
               >
-                <FiFilter /> Language {selectedLanguagesFilter.length > 0 && `(${languages.find(l => l.code === selectedLanguagesFilter[0])?.name})`}
+                <FiFilter /> Language {selectedLanguagesFilter.length > 0 && `(${selectedLanguagesFilter.length} selected)`}
               </button>
               
               {showLanguageFilter && (
@@ -293,14 +347,13 @@ const CMSManagement = () => {
                   overflowY: "auto"
                 }}>
                   <div style={{ marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
-                    Select Language (Single Selection):
+                    Select Languages (Multiple Selection):
                   </div>
                   {languages.map((lang) => (
                     <div key={lang.code} style={{ display: "flex", alignItems: "center", marginBottom: "6px" }}>
                       <input
-                        type="radio"
+                        type="checkbox"
                         id={`lang-${lang.code}`}
-                        name="language-filter"
                         checked={selectedLanguagesFilter.includes(lang.code)}
                         onChange={() => handleLanguageFilterToggle(lang.code)}
                         style={{ marginRight: "8px" }}
@@ -637,41 +690,90 @@ const CMSManagement = () => {
                 
                 <div style={{ marginBottom: "20px" }}>
                   <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                    Language
+                    Languages (Select multiple for auto-translation)
                   </label>
-                  <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => setSelectedLanguage(lang.code)}
-                        style={{
-                          padding: "6px 12px",
-                          border: selectedLanguage === lang.code ? "2px solid #2563eb" : "1px solid #d1d5db",
-                          borderRadius: "6px",
-                          background: selectedLanguage === lang.code ? "#eff6ff" : "#fff",
-                          color: selectedLanguage === lang.code ? "#2563eb" : "#374151",
-                          cursor: "pointer",
-                          fontSize: "14px"
-                        }}
-                      >
-                        {lang.name}
-                      </button>
-                    ))}
+                  <div style={{ position: "relative" }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowModalLanguageDropdown(!showModalLanguageDropdown)}
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        border: selectedLanguagesForModal.length > 0 ? "2px solid #2563eb" : "1.5px solid #C0C0C0",
+                        borderRadius: "8px",
+                        background: "#fff",
+                        color: selectedLanguagesForModal.length > 0 ? "#2563eb" : "#374151",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        textAlign: "left"
+                      }}
+                    >
+                      <span>
+                        {selectedLanguagesForModal.length === 0 
+                          ? "Select languages..." 
+                          : `${selectedLanguagesForModal.length} language(s) selected`
+                        }
+                      </span>
+                      <span style={{ fontSize: "12px" }}>▼</span>
+                    </button>
+                    
+                    {showModalLanguageDropdown && (
+                      <div style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        background: "#fff",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "8px",
+                        padding: "12px",
+                        marginTop: "4px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        zIndex: 1000,
+                        maxHeight: "200px",
+                        overflowY: "auto"
+                      }}>
+                        {languages.map((lang) => (
+                          <div key={lang.code} style={{ display: "flex", alignItems: "center", marginBottom: "6px" }}>
+                            <input
+                              type="checkbox"
+                              id={`modal-lang-${lang.code}`}
+                              checked={selectedLanguagesForModal.includes(lang.code)}
+                              onChange={() => {
+                                setSelectedLanguagesForModal(prev => {
+                                  if (prev.includes(lang.code)) {
+                                    return prev.filter(code => code !== lang.code);
+                                  } else {
+                                    return [...prev, lang.code];
+                                  }
+                                });
+                              }}
+                              style={{ marginRight: "8px" }}
+                            />
+                            <label htmlFor={`modal-lang-${lang.code}`} style={{ 
+                              fontSize: "14px", 
+                              cursor: "pointer",
+                              color: selectedLanguagesForModal.includes(lang.code) ? "#2563eb" : "#374151"
+                            }}>
+                              {lang.name}
+                            </label>
+                          </div>
+                        ))}
+                        <div style={{ 
+                          marginTop: "8px", 
+                          paddingTop: "8px", 
+                          borderTop: "1px solid #e5e7eb",
+                          fontSize: "12px", 
+                          color: "#6b7280" 
+                        }}>
+                          {selectedLanguagesForModal.length} language(s) selected
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <button
-                    onClick={handleTranslate}
-                    style={{
-                      padding: "6px 12px",
-                      border: "none",
-                      borderRadius: "6px",
-                      background: "#10b981",
-                      color: "#fff",
-                      cursor: "pointer",
-                      fontSize: "14px"
-                    }}
-                  >
-                    Auto Translate
-                  </button>
                 </div>
                 
                 <div style={{ marginBottom: "20px" }}>

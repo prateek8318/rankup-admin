@@ -1,7 +1,6 @@
 import { apiEndpoints } from './apiEndpoints';
 import apiClient from './apiClient';
 
-// TypeScript interfaces based on the API specification
 export interface SubscriptionPlanDto {
   id: number;
   name: string;
@@ -59,7 +58,6 @@ export interface UpdateSubscriptionPlanDto {
   isPopular?: boolean;
   isRecommended?: boolean;
   isActive?: boolean;
-  // Full update fields
   name?: string;
   description?: string;
   type?: number;

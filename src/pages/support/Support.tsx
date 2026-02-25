@@ -7,7 +7,6 @@ const Support = () => {
   const [toDate, setToDate] = useState('');
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
 
-  // Static ticket data
   const tickets = [
     {
       id: '026854',

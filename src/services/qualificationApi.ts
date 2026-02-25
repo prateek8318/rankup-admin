@@ -12,7 +12,7 @@ import {
 } from '@/types/qualification';
 
 export const qualificationApi = {
-  // Qualification endpoints
+
   getAllQualifications: async (params?: { languageId?: number; countryCode?: string }): Promise<QualificationDto[]> => {
     const searchParams = new URLSearchParams();
     if (params?.languageId) searchParams.append('languageId', params.languageId.toString());
@@ -70,7 +70,6 @@ export const qualificationApi = {
     }
   },
 
-  // Stream endpoints
   getAllStreams: async (params?: { languageId?: number; qualificationId?: number }): Promise<StreamDto[]> => {
     const searchParams = new URLSearchParams();
     if (params?.languageId) searchParams.append('languageId', params.languageId.toString());
@@ -189,7 +188,6 @@ export const translateText = async (text: string, targetLanguage: string): Promi
     },
   };
 
-  // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
   return translations[text]?.[targetLanguage] || `[${targetLanguage.toUpperCase()}] ${text}`;

@@ -1,6 +1,3 @@
-/**
- * Dashboard feature - main dashboard page component
- */
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import usersIcon from '@/assets/icons/user.png';
@@ -156,7 +153,6 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for development
   const mockStats = {
     totalUsers: 1250,
     activeUsers: 892,
@@ -205,7 +201,6 @@ const DashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Use only mock data for now - API disabled
       console.log('🚫 Using mock data only - API disabled');
       setStats(mockStats);
       setOverview(mockOverview);
@@ -224,10 +219,8 @@ const DashboardPage: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  // Top row cards (4 cards with white background and wave images on top)
   const topRowCards = [
     {
-      // number: stats?.totalUsers?.toString() || mockStats.totalUsers.toString(),
       number: "12.5K",
       label: "Total Registered Users",
       icon: usersIcon,

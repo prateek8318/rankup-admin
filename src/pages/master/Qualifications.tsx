@@ -15,10 +15,8 @@ import {
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 
-// Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
-    // Map language codes to Google Translate language codes
     const languageMap: { [key: string]: string } = {
       'en': 'en',
       'hi': 'hi',
@@ -123,14 +121,12 @@ const Qualifications = () => {
     const isCurrentlySelected = selectedLanguages.includes(languageId);
     
     if (isCurrentlySelected) {
-      // Remove language
       setSelectedLanguages(prev => prev.filter(id => id !== languageId));
       setFormData({ 
         ...formData, 
         names: names.filter(n => n.languageId !== languageId)
       });
     } else {
-      // Add language and auto-translate if autoTranslate is enabled
       setSelectedLanguages(prev => [...prev, languageId]);
       
       const addLanguageWithTranslation = async () => {
@@ -162,7 +158,6 @@ const Qualifications = () => {
       if (autoTranslate && formData.name && formData.description) {
         addLanguageWithTranslation();
       } else {
-        // Just add the language without translation
         setFormData({ 
           ...formData, 
           names: [...names, { 

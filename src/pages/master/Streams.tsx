@@ -17,7 +17,6 @@ import deleteIcon from '@/assets/icons/delete.png';
 // Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
-    // Map language codes to Google Translate language codes
     const languageMap: { [key: string]: string } = {
       'en': 'en',
       'hi': 'hi',
@@ -126,7 +125,6 @@ const Streams = () => {
     const isCurrentlySelected = selectedLanguages.includes(languageId);
     
     if (isCurrentlySelected) {
-      // Remove language
       setSelectedLanguages(prev => prev.filter(id => id !== languageId));
       setFormData({ 
         ...formData, 

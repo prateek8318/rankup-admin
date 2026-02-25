@@ -1,6 +1,5 @@
 import { type ExamDto, type CreateExamDto, type UpdateExamDto, type ExamListParams, type ApiResponse } from './examsApi';
 
-// Mock data for testing
 const mockExams: ExamDto[] = [
   {
     id: 1,
@@ -51,12 +50,10 @@ const mockExams: ExamDto[] = [
  */
 export const mockExamsApi = {
   getExamsList: async (params: ExamListParams = {}): Promise<ApiResponse<ExamDto[]>> => {
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
     let filteredExams = [...mockExams];
     
-    // Apply filters
     if (params.isInternational !== undefined) {
       filteredExams = filteredExams.filter(exam => exam.isInternational === params.isInternational);
     }
@@ -77,7 +74,6 @@ export const mockExamsApi = {
       );
     }
     
-    // Apply pagination
     const page = params.page || 1;
     const limit = params.limit || 10;
     const startIndex = (page - 1) * limit;

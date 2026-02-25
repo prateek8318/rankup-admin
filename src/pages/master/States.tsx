@@ -3,10 +3,8 @@ import { stateApi, countryApi, languageApi, StateDto, CreateStateDto, UpdateStat
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 
-// Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
-    // Map language codes to Google Translate language codes
     const languageMap: { [key: string]: string } = {
       'en': 'en',
       'hi': 'hi',

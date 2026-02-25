@@ -110,6 +110,7 @@ const Sidebar = () => {
               {menuItem("/home/master/qualifications", "Qualifications", "/src/assets/icons/category.png")}
               {menuItem("/home/master/streams", "Streams", "/src/assets/icons/exams.png")}
               {menuItem("/home/master/exams", "Exams", "/src/assets/icons/exams.png")}
+              {menuItem("/home/master/subjects", "Subjects", "/src/assets/icons/category.png")}
             </div>
           )}
         </div>

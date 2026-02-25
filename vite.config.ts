@@ -238,6 +238,22 @@ export default defineConfig({
             console.log('Received Streams Response from the Target:', proxyRes.statusCode, req.url);
           });
         }
+      },
+      '/api/subjects': {
+        target: 'http://192.168.1.5:5009',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('subjects proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Sending Subjects Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Subjects Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        }
       }
     }
   }

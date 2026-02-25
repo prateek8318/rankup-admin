@@ -76,7 +76,6 @@ subscriptionApiClient.interceptors.response.use(
   }
 );
 
-// Language APIs
 export const languageApi = {
   getAll: (language?: string) => 
     masterApiClient.get(`/languages${language ? `?language=${language}` : ''}`),
@@ -97,7 +96,6 @@ export const languageApi = {
     masterApiClient.patch(`/languages/${id}/status`, isActive)
 };
 
-// State APIs
 export const stateApi = {
   getAll: (languageId?: number, countryCode?: string) => {
     const params = new URLSearchParams();
@@ -133,7 +131,6 @@ export const stateApi = {
     masterApiClient.delete('/states/empty-names')
 };
 
-// Country APIs
 export const countryApi = {
   getAll: (language?: string) => {
     const params = new URLSearchParams();
@@ -169,7 +166,6 @@ export const countryApi = {
     masterApiClient.patch(`/countries/${id}/status`, isActive)
 };
 
-// Category APIs
 export const categoryApi = {
   getCategories: (language?: string) => {
     const params = new URLSearchParams();
@@ -233,7 +229,6 @@ export const categoryApi = {
     masterApiClient.patch(`/categories/${id}/status`, isActive)
 };
 
-// DTO Types
 export interface CreateLanguageDto {
   name: string;
   code: string;
@@ -337,7 +332,6 @@ export interface CategoryDto {
   updatedAt?: string; // nullable
 }
 
-// Subscription APIs
 export const subscriptionApi = {
   // Admin APIs
   createPlan: (data: CreateSubscriptionPlanDto) => 
@@ -367,7 +361,6 @@ export const subscriptionApi = {
     subscriptionApiClient.get('/admin/subscription-plans'),
 };
 
-// DTO Types for Subscription
 export interface CreateSubscriptionPlanDto {
   name: string;
   description: string;
@@ -465,7 +458,66 @@ export interface SubscriptionPlanListDto {
   isActive: boolean;
 }
 
-// Common Response Types
+export const subjectApi = {
+  getAll: (languageId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/subjects${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  getById: (id: number, languageId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/subjects/${id}${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  create: (data: CreateSubjectDto) => 
+    masterApiClient.post('/subjects', data),
+  
+  update: (id: number, data: UpdateSubjectDto) => 
+    masterApiClient.put(`/subjects/${id}`, data),
+  
+  delete: (id: number) => 
+    masterApiClient.delete(`/subjects/${id}`),
+  
+  updateStatus: (id: number, isActive: boolean) => 
+    masterApiClient.patch(`/subjects/${id}`, { isActive })
+};
+
+export interface CreateSubjectDto {
+  name: string;
+  description?: string;
+  names?: SubjectNameDto[];
+  isActive?: boolean;
+}
+
+export interface UpdateSubjectDto {
+  name?: string;
+  description?: string;
+  names?: SubjectNameDto[];
+  isActive?: boolean;
+}
+
+export interface SubjectNameDto {
+  languageId: number;
+  languageCode?: string;
+  languageName?: string;
+  name: string;
+  description?: string;
+}
+
+export interface SubjectDto {
+  id: number;
+  name: string;
+  description?: string;
+  names: SubjectNameDto[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ApiResponseDto<T> {
   success: boolean;
   data?: T;

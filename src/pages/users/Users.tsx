@@ -8,6 +8,7 @@ import exportIcon from '@/assets/icons/export.png';
 import vectorIcon from '@/assets/icons/Vector.png';
 import vector1Icon from '@/assets/icons/Vector (3).png';
 import vector2Icon from '@/assets/icons/Vector (6).png';
+import Loader from '@/components/Loader';
 import vector3Icon from '@/assets/icons/Vector (3).png';
 import vector4Icon from '@/assets/icons/Vector (2).png';
 import vector5Icon from '@/assets/icons/Vector (8).png';

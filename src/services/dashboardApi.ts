@@ -187,7 +187,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
 export const getCMSContent = async (key: string, language: string = "en") => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.5:5008/api/cms/${key}?language=${language}`;
+    const url = `http://192.168.1.5:5009/api/cms/${key}?language=${language}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -243,7 +243,7 @@ export const getCMSKeys = async () => {
 export const createCMS = async (data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = 'http://192.168.1.5:5008/api/cms';
+    const url = 'http://192.168.1.5:5009/api/cms';
     const res = await fetch(url, {
       method: "POST",
       headers: {
@@ -273,7 +273,7 @@ export const createCMS = async (data: unknown) => {
 export const updateCMS = async (id: string, data: unknown) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.5:5008/api/cms/${id}`;
+    const url = `http://192.168.1.5:5009/api/cms/${id}`;
     const res = await fetch(url, {
       method: "PUT",
       headers: {
@@ -303,7 +303,7 @@ export const updateCMS = async (id: string, data: unknown) => {
 export const deleteCMS = async (id: string) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.5:5008/api/cms/${id}`;
+    const url = `http://192.168.1.5:5009/api/cms/${id}`;
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -311,10 +311,19 @@ export const deleteCMS = async (id: string) => {
         "Content-Type": "application/json",
       },
     });
-    const result = await res.json();
+
+    // Handle empty response (common for DELETE operations)
+    let result = null;
+    try {
+      const text = await res.text();
+      result = text ? JSON.parse(text) : { success: true };
+    } catch (jsonError) {
+      // If JSON parsing fails, assume success for DELETE operations
+      result = { success: true };
+    }
 
     if (!res.ok) {
-      const errorMessage = result.ErrorMessage || result.message || "Failed to delete CMS content";
+      const errorMessage = result?.ErrorMessage || result?.message || "Failed to delete CMS content";
       toast.error(errorMessage);
       throw new Error(errorMessage);
     }
@@ -332,7 +341,7 @@ export const deleteCMS = async (id: string) => {
 export const updateCMSStatus = async (id: string, status: boolean) => {
   const token = localStorage.getItem("token");
   try {
-    const url = `http://192.168.1.5:5008/api/cms/${id}/status`;
+    const url = `http://192.168.1.5:5009/api/cms/${id}/status`;
     const res = await fetch(url, {
       method: "PATCH",
       headers: {
