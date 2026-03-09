@@ -22,7 +22,6 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
 
     const targetLang = languageMap[targetLanguage] || targetLanguage;
 
-    // Using Google Translate API
     const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
     const data = await response.json();
 
@@ -30,23 +29,20 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
       return data[0][0][0];
     }
 
-    return text; // Fallback to original text if translation fails
+    return text;
   } catch (error) {
     console.error('Translation error:', error);
-    return text; // Fallback to original text
+    return text;
   }
 };
 
 const Countries = () => {
   const [countries, setCountries] = useState<CountryDto[]>([]);
   const [languages, setLanguages] = useState<LanguageDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi'>('en');
   const [showModal, setShowModal] = useState(false);
   const [editingCountry, setEditingCountry] = useState<CountryDto | null>(null);
-  const [selectedLanguages, setSelectedLanguages] = useState<number[]>([]);
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [formData, setFormData] = useState<CreateCountryDto>({
     name: '',
@@ -60,14 +56,9 @@ const Countries = () => {
 
   const fetchCountries = async (language?: string) => {
     try {
-      setLoading(true);
       const response = await countryApi.getAll(language);
-      console.log('Countries API Response:', response); // Debug log
-      // Handle different response structures
       if (response.data) {
-        // Check if response.data has success property (API response format)
         if (response.data.success && response.data.data) {
-          console.log('API response format detected, using response.data.data');
           setCountries(response.data.data);
         } else if (Array.isArray(response.data)) {
           setCountries(response.data);
@@ -84,14 +75,11 @@ const Countries = () => {
     } catch (error) {
       console.error('Error fetching countries:', error);
       setCountries([]);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchLanguages = async () => {
     try {
-      setLanguagesLoading(true);
       const response = await languageApi.getAll();
       if (response.data) {
         if (response.data.success && response.data.data) {
@@ -111,8 +99,6 @@ const Countries = () => {
     } catch (error) {
       console.error('Error fetching languages:', error);
       setLanguages([]);
-    } finally {
-      setLanguagesLoading(false);
     }
   };
 
@@ -125,7 +111,6 @@ const Countries = () => {
     e.preventDefault();
     try {
       if (editingCountry) {
-        // Construct UpdateCountryDto with all required fields
         const updateData: UpdateCountryDto = {
           id: editingCountry.id,
           nameEn: formData.nameEn || formData.name || '',
@@ -149,7 +134,7 @@ const Countries = () => {
   const handleEdit = (country: CountryDto) => {
     setEditingCountry(country);
     setFormData({
-      name: country.nameEn || country.name, // Use nameEn or fallback to main name
+      name: country.nameEn || country.name,
       nameEn: country.nameEn || country.name,
       nameHi: country.nameHi || '',
       code: country.code,
@@ -186,7 +171,6 @@ const Countries = () => {
   };
 
   const getCountryDisplayName = (country: CountryDto) => {
-    // Try nameHi first for Hindi, then fallback to nameEn, then main name
     if (selectedLanguage === 'hi') {
       return country.nameHi || country.nameEn || country.name;
     }
@@ -196,7 +180,7 @@ const Countries = () => {
   const handleNameEnChange = async (value: string) => {
     const updatedFormData = { 
       ...formData, 
-      name: value, // Set main name for backend
+      name: value,
       nameEn: value 
     };
     setFormData(updatedFormData);
@@ -207,20 +191,12 @@ const Countries = () => {
         setFormData(prev => ({ 
           ...prev, 
           nameHi: hindiTranslation,
-          name: value // Keep main name as English
+          name: value
         }));
       } catch (error) {
         console.error('Auto-translation failed:', error);
       }
     }
-  };
-
-  const handleLanguageToggle = (languageId: number) => {
-    setSelectedLanguages(prev => 
-      prev.includes(languageId) 
-        ? prev.filter(id => id !== languageId)
-        : [...prev, languageId]
-    );
   };
 
   const filteredCountries = countries.filter(country =>
@@ -301,7 +277,6 @@ const Countries = () => {
         loadingMessage="Loading countries..."
       />
 
-      {/* MODAL */}
       <MasterModal
         isOpen={showModal}
         title={editingCountry ? "Edit Country" : "Add Country"}

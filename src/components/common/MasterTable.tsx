@@ -27,7 +27,6 @@ const MasterTable: React.FC<MasterTableProps> = ({
   emptyMessage = "No data found.",
   loadingMessage = "Loading..."
 }) => {
-  
   const renderActions = (item: any) => (
     <td style={{ padding: 12 }}>
       <button

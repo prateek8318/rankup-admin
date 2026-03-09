@@ -49,7 +49,6 @@ const Subjects = () => {
       setSubjects(data.map((s: any) => ({ ...s, names: s.subjectLanguages || s.names || [] })));
     } catch (err) {
       console.error(err);
-      setSubjects([]);
     } finally {
       setLoading(false);
     }
@@ -64,7 +63,6 @@ const Subjects = () => {
       setLanguages(data);
     } catch (err) {
       console.error(err);
-      setLanguages([]);
     } finally {
       setLanguagesLoading(false);
     }
@@ -186,100 +184,95 @@ const Subjects = () => {
         loadingMessage="Loading subjects..."
       />
 
-        {/* Modal */}
-        <MasterModal
-          isOpen={showModal}
-          title={editingSubject ? 'Edit Subject' : 'Add Subject'}
-          width={600}
-        >
-          <form onSubmit={handleSubmit}>
-            {/* Name */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>Name *</label>
-              <input
-                value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                required
-                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb' }}
-              />
-            </div>
-
-            {/* Description */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>Description</label>
-              <textarea
-                value={formData.description}
-                onChange={e => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', resize: 'vertical' }}
-              />
-            </div>
-
-            {/* Auto translate toggle */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  type="checkbox"
-                  checked={autoTranslate}
-                  onChange={e => setAutoTranslate(e.target.checked)}
-                />
-                Auto-translate when name changes
-              </label>
-              {isTranslating && <small>Translating...</small>}
-            </div>
-
-            {/* Translations list */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <strong>Translations</strong>
-              </div>
-              {formData.names?.map((t, i) => (
-                <div key={i} style={{ marginBottom: 16, padding: 12, background: '#f9fafb', borderRadius: 8 }}>
-                  <select
-                    value={t.languageId}
-                    onChange={e => {
-                      const updated = [...(formData.names || [])];
-                      updated[i] = { ...t, languageId: Number(e.target.value) };
-                      setFormData({ ...formData, names: updated });
-                    }}
-                    style={{ marginBottom: 8, padding: 6, borderRadius: 6 }}
-                  >
-                    {languages.map(l => (
-                      <option key={l.id} value={l.id}>{l.name}</option>
-                    ))}
-                  </select>
-                  <input
-                    value={t.name}
-                    onChange={e => {
-                      const updated = [...(formData.names || [])];
-                      updated[i] = { ...t, name: e.target.value };
-                      setFormData({ ...formData, names: updated });
-                    }}
-                    placeholder="Translated name"
-                    style={{ display: 'block', width: '100%', marginBottom: 8, padding: 8, borderRadius: 6 }}
-                  />
-                  <textarea
-                    value={t.description || ''}
-                    onChange={e => {
-                      const updated = [...(formData.names || [])];
-                      updated[i] = { ...t, description: e.target.value };
-                      setFormData({ ...formData, names: updated });
-                    }}
-                    placeholder="Translated description"
-                    rows={2}
-                    style={{ width: '100%', padding: 8, borderRadius: 6 }}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <FormActions
-              onCancel={() => setShowModal(false)}
-              submitLabel={editingSubject ? 'Update' : 'Create'}
-              disabled={isTranslating}
+      <MasterModal
+        isOpen={showModal}
+        title={editingSubject ? 'Edit Subject' : 'Add Subject'}
+        width={600}
+      >
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>Name *</label>
+            <input
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              required
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb' }}
             />
-          </form>
-        </MasterModal>
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>Description</label>
+            <textarea
+              value={formData.description}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
+              rows={3}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', resize: 'vertical' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="checkbox"
+                checked={autoTranslate}
+                onChange={e => setAutoTranslate(e.target.checked)}
+              />
+              Auto-translate when name changes
+            </label>
+            {isTranslating && <small>Translating...</small>}
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <strong>Translations</strong>
+            </div>
+            {formData.names?.map((t, i) => (
+              <div key={i} style={{ marginBottom: 16, padding: 12, background: '#f9fafb', borderRadius: 8 }}>
+                <select
+                  value={t.languageId}
+                  onChange={e => {
+                    const updated = [...(formData.names || [])];
+                    updated[i] = { ...t, languageId: Number(e.target.value) };
+                    setFormData({ ...formData, names: updated });
+                  }}
+                  style={{ marginBottom: 8, padding: 6, borderRadius: 6 }}
+                >
+                  {languages.map(l => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
+                </select>
+                <input
+                  value={t.name}
+                  onChange={e => {
+                    const updated = [...(formData.names || [])];
+                    updated[i] = { ...t, name: e.target.value };
+                    setFormData({ ...formData, names: updated });
+                  }}
+                  placeholder="Translated name"
+                  style={{ display: 'block', width: '100%', marginBottom: 8, padding: 8, borderRadius: 6 }}
+                />
+                <textarea
+                  value={t.description || ''}
+                  onChange={e => {
+                    const updated = [...(formData.names || [])];
+                    updated[i] = { ...t, description: e.target.value };
+                    setFormData({ ...formData, names: updated });
+                  }}
+                  placeholder="Translated description"
+                  rows={2}
+                  style={{ width: '100%', padding: 8, borderRadius: 6 }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <FormActions
+            onCancel={() => setShowModal(false)}
+            submitLabel={editingSubject ? 'Update' : 'Create'}
+            disabled={isTranslating}
+          />
+        </form>
+      </MasterModal>
     </>
   );
 };

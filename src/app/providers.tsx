@@ -1,6 +1,4 @@
-/**
- * All global providers (Auth, Theme, Redux, etc.)
- */
+
 import React from "react";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/features/auth";

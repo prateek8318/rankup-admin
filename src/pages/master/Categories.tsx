@@ -22,36 +22,20 @@ const Categories = () => {
   const fetchCategories = async (language?: string) => {
     try {
       setLoading(true);
-      console.log('Fetching categories with language:', language);
       const response = await categoryApi.getCategories(language);
-      console.log('Categories API Response:', response);
-      console.log('Response.data:', response.data);
-      console.log('Response.data.success:', response.data?.success);
-      console.log('Response.data.data:', response.data?.data);
-      
       if (response.data) {
         if (response.data.success && response.data.data) {
-          console.log('API response format detected, using response.data.data');
-          console.log('Setting categories:', response.data.data);
           setCategories(response.data.data);
         } else if (Array.isArray(response.data)) {
-          console.log('Direct array response detected');
-          console.log('Setting categories:', response.data);
           setCategories(response.data);
         } else if (response.data.data && Array.isArray(response.data.data)) {
-          console.log('Nested data array response detected');
-          console.log('Setting categories:', response.data.data);
           setCategories(response.data.data);
         } else {
-          console.log('No valid data found, setting empty array');
           setCategories([]);
         }
       } else if (response && Array.isArray(response)) {
-        console.log('Direct response array detected');
-        console.log('Setting categories:', response);
         setCategories(response);
       } else {
-        console.log('No response data, setting empty array');
         setCategories([]);
       }
     } catch (error) {
@@ -118,10 +102,6 @@ const Categories = () => {
     category.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.type.toLowerCase().includes(searchTerm.toLowerCase()))
   ) : [];
-
-  console.log('Categories state:', categories);
-  console.log('Filtered categories:', filteredCategories);
-  console.log('Loading state:', loading);
 
   const columns: TableColumn[] = [
     { key: 'id', label: 'ID' },
@@ -212,7 +192,6 @@ const Categories = () => {
         loadingMessage="Loading categories..."
       />
 
-      {/* MODAL */}
       <MasterModal
         isOpen={showModal}
         title={editingCategory ? "Edit Category" : "Add Category"}
