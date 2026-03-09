@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { countryApi, CountryDto, CreateCountryDto, UpdateCountryDto, languageApi, LanguageDto } from '@/services/masterApi';
-import editIcon from '@/assets/icons/edit.png';
-import deleteIcon from '@/assets/icons/delete.png';
+import MasterHeader from '@/components/common/MasterHeader';
+import MasterTable, { TableColumn } from '@/components/common/MasterTable';
+import MasterModal from '@/components/common/MasterModal';
+import FormActions from '@/components/common/FormActions';
 
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
@@ -226,354 +228,172 @@ const Countries = () => {
     country.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  return (
-    <div>
-      {/* HEADER ACTIONS */}
-      <div style={{
-        background: "#fff",
-        borderRadius: 13,
-        padding: "20px",
-        marginBottom: 30,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: "20px"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <input
-            type="text"
-            placeholder="Search countries..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: "10px 20px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "20px",
-              background: "#fff",
-              fontSize: "16px",
-              width: "300px",
-              outline: "none"
-            }}
-          />
-          
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value as 'en' | 'hi')}
-            style={{
-              padding: "10px 15px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-              background: "#fff",
-              fontSize: "14px",
-              minWidth: "150px"
-            }}
-          >
-            <option value="en">English</option>
-            <option value="hi">हिन्दी</option>
-          </select>
+  const columns: TableColumn[] = [
+    { key: 'id', label: 'ID' },
+    {
+      key: 'name',
+      label: 'Name',
+      render: (country) => (
+        <div>
+          <div>{getCountryDisplayName(country)}</div>
+          {selectedLanguage === 'en' && country.nameHi && (
+            <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameHi}</div>
+          )}
+          {selectedLanguage === 'hi' && (
+            <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameEn}</div>
+          )}
         </div>
+      )
+    },
+    { key: 'code', label: 'Code' },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (country) => (
+        <span style={{
+          padding: "4px 8px",
+          borderRadius: "12px",
+          fontSize: "12px",
+          fontWeight: "500",
+          background: country.isActive ? "#dcfce7" : "#fee2e2",
+          color: country.isActive ? "#166534" : "#991b1b"
+        }}>
+          {country.isActive ? "Active" : "Inactive"}
+        </span>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      render: (country) => new Date(country.createdAt).toLocaleDateString()
+    },
+    { key: 'actions', label: 'Actions' }
+  ];
 
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            padding: "10px 24px",
-            border: "none",
-            borderRadius: "8px",
-            background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-            color: "#fff",
-            fontSize: "16px",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
-          Add Country
-        </button>
-      </div>
+  return (
+    <>
+      <MasterHeader
+        searchPlaceholder="Search countries..."
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        addButtonLabel="Add Country"
+        onAddClick={() => setShowModal(true)}
+        filters={[
+          {
+            key: 'language',
+            label: 'Language',
+            value: selectedLanguage,
+            options: [
+              { value: 'en', label: 'English' },
+              { value: 'hi', label: 'हिन्दी' }
+            ],
+            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi')
+          }
+        ]}
+      />
 
-      {/* TABLE */}
-      <div style={{
-        background: "#fff",
-        borderRadius: 13,
-        padding: "20px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
-      }}>
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
-            Loading countries...
-          </div>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#1e40af" }}>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>ID</th>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Name</th>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Code</th>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Status</th>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Created</th>
-                  <th style={{ padding: "12px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCountries.map((country) => (
-                  <tr key={country.id} style={{ 
-                    borderBottom: "1.5px solid #C0C0C0",
-                    backgroundColor: country.isActive ? "transparent" : "#f3f4f6",
-                    opacity: country.isActive ? 1 : 0.6
-                  }}>
-                    <td style={{ padding: "12px", fontSize: "14px" }}>{country.id}</td>
-                    <td style={{ padding: "12px", fontSize: "14px" }}>
-                      <div>
-                        <div>{getCountryDisplayName(country)}</div>
-                        {selectedLanguage === 'en' && country.nameHi && (
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameHi}</div>
-                        )}
-                        {selectedLanguage === 'hi' && (
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameEn}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px", fontSize: "14px" }}>{country.code}</td>
-                    <td style={{ padding: "12px" }}>
-                      <span style={{
-                        padding: "4px 8px",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                        fontWeight: "500",
-                        background: country.isActive ? "#dcfce7" : "#fee2e2",
-                        color: country.isActive ? "#166534" : "#991b1b"
-                      }}>
-                        {country.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px", fontSize: "14px" }}>
-                      {new Date(country.createdAt).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: "12px" }}>
-                      <button
-                        onClick={() => handleEdit(country)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#2563eb",
-                          cursor: "pointer",
-                          marginRight: "8px",
-                          padding: "4px"
-                        }}
-                        title="Edit"
-                      >
-                        <img src={editIcon} alt="Edit" style={{ width: "16px", height: "16px" }} />
-                      </button>
-                      {country.isActive && (
-                        <button
-                          onClick={() => handleDelete(country.id)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#dc2626",
-                            cursor: "pointer",
-                            padding: "4px"
-                          }}
-                          title="Deactivate"
-                        >
-                          <img src={deleteIcon} alt="Deactivate" style={{ width: "16px", height: "16px" }} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <MasterTable
+        columns={columns}
+        data={filteredCountries}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        emptyMessage="No countries found."
+        loadingMessage="Loading countries..."
+      />
 
       {/* MODAL */}
-      {showModal && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: "#fff",
-            borderRadius: 13,
-            padding: "30px",
-            width: "500px",
-            maxWidth: "90%"
-          }}>
-            <h3 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "600" }}>
-              {editingCountry ? "Edit Country" : "Add Country"}
-            </h3>
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Country Name (English) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nameEn}
-                  onChange={(e) => handleNameEnChange(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Country Name (Hindi)
-                </label>
-                <input
-                  type="text"
-                  value={formData.nameHi}
-                  onChange={(e) => setFormData({ ...formData, nameHi: e.target.value })}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Code *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  <input
-                    type="checkbox"
-                    checked={autoTranslate}
-                    onChange={(e) => setAutoTranslate(e.target.checked)}
-                    style={{ width: "16px", height: "16px" }}
-                  />
-                  Auto-translate to Hindi
-                </label>
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Active Languages (Multi-select)
-                </label>
-                <div style={{ 
-                  display: "flex", 
-                  flexWrap: "wrap", 
-                  gap: "8px",
-                  maxHeight: "100px",
-                  overflowY: "auto",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  padding: "8px"
-                }}>
-                  {languagesLoading ? (
-                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Loading languages...</div>
-                  ) : (
-                    languages.map((language) => (
-                      <label
-                        key={language.id}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          fontSize: "12px",
-                          cursor: "pointer",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          backgroundColor: selectedLanguages.includes(language.id) ? "#e0e7ff" : "#f3f4f6"
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedLanguages.includes(language.id)}
-                          onChange={() => handleLanguageToggle(language.id)}
-                          style={{ width: "12px", height: "12px" }}
-                        />
-                        {language.name}
-                      </label>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    style={{ width: "16px", height: "16px" }}
-                  />
-                  Active
-                </label>
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  style={{
-                    padding: "10px 20px",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    background: "#fff",
-                    fontSize: "14px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: "10px 20px",
-                    border: "none",
-                    borderRadius: "8px",
-                    background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-                    color: "#fff",
-                    fontSize: "14px",
-                    cursor: "pointer"
-                  }}
-                >
-                  {editingCountry ? "Update" : "Create"}
-                </button>
-              </div>
-            </form>
+      <MasterModal
+        isOpen={showModal}
+        title={editingCountry ? "Edit Country" : "Add Country"}
+      >
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+              Country Name (English) *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.nameEn}
+              onChange={(e) => handleNameEnChange(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px"
+              }}
+            />
           </div>
-        </div>
-      )}
-    </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+              Country Name (Hindi)
+            </label>
+            <input
+              type="text"
+              value={formData.nameHi}
+              onChange={(e) => setFormData({ ...formData, nameHi: e.target.value })}
+              style={{
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px"
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+              Code *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.code}
+              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+              style={{
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px"
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
+              <input
+                type="checkbox"
+                checked={autoTranslate}
+                onChange={(e) => setAutoTranslate(e.target.checked)}
+                style={{ width: "16px", height: "16px" }}
+              />
+              Auto-translate to Hindi
+            </label>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
+              <input
+                type="checkbox"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                style={{ width: "16px", height: "16px" }}
+              />
+              Active
+            </label>
+          </div>
+
+          <FormActions
+            onCancel={resetForm}
+            submitLabel={editingCountry ? "Update" : "Create"}
+          />
+        </form>
+      </MasterModal>
+    </>
   );
 };
 
