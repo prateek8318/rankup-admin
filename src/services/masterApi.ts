@@ -488,6 +488,71 @@ export interface SubscriptionPlanListDto {
   isActive: boolean;
 }
 
+export const qualificationApi = {
+  getAll: (languageId?: number, countryCode?: string) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    if (countryCode) params.append('countryCode', countryCode);
+    const queryString = params.toString();
+    return masterApiClient.get(`/qualifications${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  getById: (id: number, languageId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/qualifications/${id}${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  create: (data: any) => 
+    masterApiClient.post('/qualifications', data),
+  
+  update: (id: number, data: any) => 
+    masterApiClient.put(`/qualifications/${id}`, data),
+  
+  delete: (id: number) => 
+    masterApiClient.delete(`/qualifications/${id}`),
+  
+  updateStatus: (id: number, isActive: boolean) => 
+    masterApiClient.patch(`/qualifications/${id}/status`, { isActive })
+};
+
+export const streamApi = {
+  getAll: (languageId?: number, qualificationId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    if (qualificationId) params.append('qualificationId', qualificationId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/streams${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  getById: (id: number, languageId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/streams/${id}${queryString ? `?${queryString}` : ''}`);
+  },
+  
+  create: (data: any) => 
+    masterApiClient.post('/streams', data),
+  
+  update: (id: number, data: any) => 
+    masterApiClient.put(`/streams/${id}`, data),
+  
+  delete: (id: number) => 
+    masterApiClient.delete(`/streams/${id}`),
+  
+  updateStatus: (id: number, isActive: boolean) => 
+    masterApiClient.patch(`/streams/${id}/status`, { isActive }),
+  
+  getByQualification: (qualificationId: number, languageId?: number) => {
+    const params = new URLSearchParams();
+    if (languageId) params.append('languageId', languageId.toString());
+    const queryString = params.toString();
+    return masterApiClient.get(`/streams?qualificationId=${qualificationId}${queryString ? `&${queryString}` : ''}`);
+  }
+};
+
 export const subjectApi = {
   getAll: (languageId?: number) => {
     const params = new URLSearchParams();
