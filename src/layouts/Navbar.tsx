@@ -6,9 +6,9 @@ const Navbar = () => {
   const { auth } = useAuth();
   const userName = auth.user?.name || 'Admin';
   return (
-    <div style={{ background: '#E6F5FF', padding: '5px 18px', borderBottom: '1px solid #E6F5FF' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ position: 'relative', width: '420px' }}>
+    <div style={{ background: '#E6F5FF', padding: '2px 18px', borderBottom: '1px solid #E6F5FF' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        {/* <div style={{ position: 'relative', width: '420px' }}>
           <img
             src="/src/assets/icons/search.png"
             alt="search"
@@ -28,7 +28,7 @@ const Navbar = () => {
               boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
             }}
           />
-        </div>
+        </div> */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>Hi, {userName}</div>

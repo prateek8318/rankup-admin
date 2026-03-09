@@ -73,7 +73,7 @@ const TwoStepVerificationPage: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const mobile = location.state?.mobileNumber || '+91 *****3210';
+  const mobile = location.state?.mobileNumber || '+91 9876543210';
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(60);

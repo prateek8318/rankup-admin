@@ -1,24 +1,65 @@
 import { useState, useEffect } from 'react';
-import { countryApi, CountryDto, CreateCountryDto, UpdateCountryDto } from '@/services/masterApi';
+import { countryApi, CountryDto, CreateCountryDto, UpdateCountryDto, languageApi, LanguageDto } from '@/services/masterApi';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 
+const translateText = async (text: string, targetLanguage: string): Promise<string> => {
+  try {
+    const languageMap: { [key: string]: string } = {
+      'en': 'en',
+      'hi': 'hi',
+      'es': 'es',
+      'fr': 'fr',
+      'de': 'de',
+      'zh': 'zh',
+      'ja': 'ja',
+      'ar': 'ar',
+      'pt': 'pt',
+      'ru': 'ru'
+    };
+
+    const targetLang = languageMap[targetLanguage] || targetLanguage;
+
+    // Using Google Translate API
+    const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    const data = await response.json();
+
+    if (data && data[0] && data[0][0] && data[0][0][0]) {
+      return data[0][0][0];
+    }
+
+    return text; // Fallback to original text if translation fails
+  } catch (error) {
+    console.error('Translation error:', error);
+    return text; // Fallback to original text
+  }
+};
+
 const Countries = () => {
   const [countries, setCountries] = useState<CountryDto[]>([]);
+  const [languages, setLanguages] = useState<LanguageDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi'>('en');
   const [showModal, setShowModal] = useState(false);
   const [editingCountry, setEditingCountry] = useState<CountryDto | null>(null);
+  const [selectedLanguages, setSelectedLanguages] = useState<number[]>([]);
+  const [autoTranslate, setAutoTranslate] = useState(true);
   const [formData, setFormData] = useState<CreateCountryDto>({
     name: '',
+    nameEn: '',
+    nameHi: '',
     code: '',
+    subdivisionLabelEn: 'State',
+    subdivisionLabelHi: 'राज्य',
     isActive: true
   });
 
-  const fetchCountries = async () => {
+  const fetchCountries = async (language?: string) => {
     try {
       setLoading(true);
-      const response = await countryApi.getAll();
+      const response = await countryApi.getAll(language);
       console.log('Countries API Response:', response); // Debug log
       // Handle different response structures
       if (response.data) {
@@ -46,19 +87,57 @@ const Countries = () => {
     }
   };
 
+  const fetchLanguages = async () => {
+    try {
+      setLanguagesLoading(true);
+      const response = await languageApi.getAll();
+      if (response.data) {
+        if (response.data.success && response.data.data) {
+          setLanguages(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setLanguages(response.data);
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          setLanguages(response.data.data);
+        } else {
+          setLanguages([]);
+        }
+      } else if (response && Array.isArray(response)) {
+        setLanguages(response);
+      } else {
+        setLanguages([]);
+      }
+    } catch (error) {
+      console.error('Error fetching languages:', error);
+      setLanguages([]);
+    } finally {
+      setLanguagesLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchCountries();
-  }, []);
+    fetchCountries(selectedLanguage);
+    fetchLanguages();
+  }, [selectedLanguage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editingCountry) {
-        await countryApi.update(editingCountry.id, formData as UpdateCountryDto);
+        // Construct UpdateCountryDto with all required fields
+        const updateData: UpdateCountryDto = {
+          id: editingCountry.id,
+          nameEn: formData.nameEn || formData.name || '',
+          nameHi: formData.nameHi || '',
+          code: formData.code || '',
+          subdivisionLabelEn: formData.subdivisionLabelEn || 'State',
+          subdivisionLabelHi: formData.subdivisionLabelHi || 'राज्य',
+          isActive: formData.isActive !== undefined ? formData.isActive : true
+        };
+        await countryApi.update(editingCountry.id, updateData);
       } else {
         await countryApi.create(formData);
       }
-      fetchCountries();
+      fetchCountries(selectedLanguage);
       resetForm();
     } catch (error) {
       console.error('Error saving country:', error);
@@ -68,8 +147,12 @@ const Countries = () => {
   const handleEdit = (country: CountryDto) => {
     setEditingCountry(country);
     setFormData({
-      name: country.name,
+      name: country.nameEn || country.name, // Use nameEn or fallback to main name
+      nameEn: country.nameEn || country.name,
+      nameHi: country.nameHi || '',
       code: country.code,
+      subdivisionLabelEn: (country as any).subdivisionLabelEn || 'State',
+      subdivisionLabelHi: (country as any).subdivisionLabelHi || 'राज्य',
       isActive: country.isActive
     });
     setShowModal(true);
@@ -79,7 +162,7 @@ const Countries = () => {
     if (window.confirm('Are you sure you want to deactivate this country?')) {
       try {
         await countryApi.updateStatus(id, false);
-        fetchCountries();
+        fetchCountries(selectedLanguage);
       } catch (error) {
         console.error('Error deactivating country:', error);
       }
@@ -87,13 +170,59 @@ const Countries = () => {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', code: '', isActive: true });
+    setFormData({ 
+      name: '', 
+      nameEn: '', 
+      nameHi: '', 
+      code: '', 
+      subdivisionLabelEn: 'State',
+      subdivisionLabelHi: 'राज्य',
+      isActive: true 
+    });
     setEditingCountry(null);
     setShowModal(false);
   };
 
+  const getCountryDisplayName = (country: CountryDto) => {
+    // Try nameHi first for Hindi, then fallback to nameEn, then main name
+    if (selectedLanguage === 'hi') {
+      return country.nameHi || country.nameEn || country.name;
+    }
+    return country.nameEn || country.name;
+  };
+
+  const handleNameEnChange = async (value: string) => {
+    const updatedFormData = { 
+      ...formData, 
+      name: value, // Set main name for backend
+      nameEn: value 
+    };
+    setFormData(updatedFormData);
+    
+    if (autoTranslate && value.trim()) {
+      try {
+        const hindiTranslation = await translateText(value, 'hi');
+        setFormData(prev => ({ 
+          ...prev, 
+          nameHi: hindiTranslation,
+          name: value // Keep main name as English
+        }));
+      } catch (error) {
+        console.error('Auto-translation failed:', error);
+      }
+    }
+  };
+
+  const handleLanguageToggle = (languageId: number) => {
+    setSelectedLanguages(prev => 
+      prev.includes(languageId) 
+        ? prev.filter(id => id !== languageId)
+        : [...prev, languageId]
+    );
+  };
+
   const filteredCountries = countries.filter(country =>
-    (country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (getCountryDisplayName(country).toLowerCase().includes(searchTerm.toLowerCase()) ||
     country.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -127,6 +256,22 @@ const Countries = () => {
               outline: "none"
             }}
           />
+          
+          <select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value as 'en' | 'hi')}
+            style={{
+              padding: "10px 15px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              background: "#fff",
+              fontSize: "14px",
+              minWidth: "150px"
+            }}
+          >
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+          </select>
         </div>
 
         <button
@@ -178,7 +323,17 @@ const Countries = () => {
                     opacity: country.isActive ? 1 : 0.6
                   }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{country.id}</td>
-                    <td style={{ padding: "12px", fontSize: "14px" }}>{country.name}</td>
+                    <td style={{ padding: "12px", fontSize: "14px" }}>
+                      <div>
+                        <div>{getCountryDisplayName(country)}</div>
+                        {selectedLanguage === 'en' && country.nameHi && (
+                          <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameHi}</div>
+                        )}
+                        {selectedLanguage === 'hi' && (
+                          <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameEn}</div>
+                        )}
+                      </div>
+                    </td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{country.code}</td>
                     <td style={{ padding: "12px" }}>
                       <span style={{
@@ -210,19 +365,21 @@ const Countries = () => {
                       >
                         <img src={editIcon} alt="Edit" style={{ width: "16px", height: "16px" }} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(country.id)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#dc2626",
-                          cursor: "pointer",
-                          padding: "4px"
-                        }}
-                        title="Deactivate"
-                      >
-                        <img src={deleteIcon} alt="Deactivate" style={{ width: "16px", height: "16px" }} />
-                      </button>
+                      {country.isActive && (
+                        <button
+                          onClick={() => handleDelete(country.id)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            padding: "4px"
+                          }}
+                          title="Deactivate"
+                        >
+                          <img src={deleteIcon} alt="Deactivate" style={{ width: "16px", height: "16px" }} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -260,13 +417,31 @@ const Countries = () => {
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: "20px" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  Name *
+                  Country Name (English) *
                 </label>
                 <input
                   type="text"
                   required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={formData.nameEn}
+                  onChange={(e) => handleNameEnChange(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    fontSize: "14px"
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+                  Country Name (Hindi)
+                </label>
+                <input
+                  type="text"
+                  value={formData.nameHi}
+                  onChange={(e) => setFormData({ ...formData, nameHi: e.target.value })}
                   style={{
                     width: "100%",
                     padding: "10px",
@@ -294,6 +469,62 @@ const Countries = () => {
                     fontSize: "14px"
                   }}
                 />
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
+                  <input
+                    type="checkbox"
+                    checked={autoTranslate}
+                    onChange={(e) => setAutoTranslate(e.target.checked)}
+                    style={{ width: "16px", height: "16px" }}
+                  />
+                  Auto-translate to Hindi
+                </label>
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
+                  Active Languages (Multi-select)
+                </label>
+                <div style={{ 
+                  display: "flex", 
+                  flexWrap: "wrap", 
+                  gap: "8px",
+                  maxHeight: "100px",
+                  overflowY: "auto",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  padding: "8px"
+                }}>
+                  {languagesLoading ? (
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Loading languages...</div>
+                  ) : (
+                    languages.map((language) => (
+                      <label
+                        key={language.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          fontSize: "12px",
+                          cursor: "pointer",
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          backgroundColor: selectedLanguages.includes(language.id) ? "#e0e7ff" : "#f3f4f6"
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedLanguages.includes(language.id)}
+                          onChange={() => handleLanguageToggle(language.id)}
+                          style={{ width: "12px", height: "12px" }}
+                        />
+                        {language.name}
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div style={{ marginBottom: "20px" }}>

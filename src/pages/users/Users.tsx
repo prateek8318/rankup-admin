@@ -43,8 +43,8 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
   return (
     <div
       style={{
-        width: 240,
-        height: 120,
+        width: 255,
+        height: 124,
         background: gradient,
         borderRadius: 13,
         padding: 16,

@@ -93,7 +93,7 @@ export const languageApi = {
     masterApiClient.delete(`/languages/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/languages/${id}/status`, { isActive })
+    masterApiClient.patch(`/languages/${id}/status`, isActive)
 };
 
 export const stateApi = {
@@ -122,7 +122,7 @@ export const stateApi = {
     masterApiClient.delete(`/states/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/states/${id}/status`, { isActive }),
+    masterApiClient.patch(`/states/${id}/status`, isActive),
   
   seedLanguages: () => 
     masterApiClient.post('/states/seed-languages'),
@@ -153,17 +153,37 @@ export const countryApi = {
     return masterApiClient.get(`/countries/code/${code}${queryString ? `?${queryString}` : ''}`);
   },
   
-  create: (data: CreateCountryDto) => 
-    masterApiClient.post('/countries', data),
+  create: (data: CreateCountryDto) => {
+    // Transform data to send only backend-compatible fields
+    const backendData = {
+      name: data.name || data.nameEn, // Use name or fallback to nameEn
+      code: data.code,
+      isActive: data.isActive
+    };
+    console.log('Creating country with data:', backendData); // Debug log
+    return masterApiClient.post('/countries', backendData);
+  },
   
-  update: (id: number, data: UpdateCountryDto) => 
-    masterApiClient.put(`/countries/${id}`, data),
+  update: (id: number, data: UpdateCountryDto) => {
+    // Transform data to send backend-compatible structure with required fields
+    const backendData = {
+      id: id, // Required: Must match URL ID
+      nameEn: data.nameEn || '', // Required: English name
+      nameHi: data.nameHi || '', // Required: Hindi name
+      code: data.code || '', // Required: Country code
+      subdivisionLabelEn: data.subdivisionLabelEn,
+      subdivisionLabelHi: data.subdivisionLabelHi,
+      isActive: data.isActive !== undefined ? data.isActive : true
+    };
+    console.log('Updating country with data:', backendData); // Debug log
+    return masterApiClient.put(`/countries/${id}`, backendData);
+  },
   
   delete: (id: number) => 
     masterApiClient.delete(`/countries/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/countries/${id}/status`, { isActive })
+    masterApiClient.patch(`/countries/${id}/status`, isActive)
 };
 
 export const categoryApi = {
@@ -226,7 +246,7 @@ export const categoryApi = {
     masterApiClient.delete(`/categories/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/categories/${id}/status`, { isActive })
+    masterApiClient.patch(`/categories/${id}/status`, isActive)
 };
 
 export interface CreateLanguageDto {
@@ -285,20 +305,30 @@ export interface StateDto {
 }
 
 export interface CreateCountryDto {
-  name: string;
-  code: string;
-  isActive?: boolean;
+  name?: string; // Optional: Single name field for backend compatibility
+  nameEn?: string; // Optional: English name
+  nameHi?: string; // Optional: Hindi name
+  code: string; // Required: Country code
+  subdivisionLabelEn?: string; // Optional: Subdivision label English
+  subdivisionLabelHi?: string; // Optional: Subdivision label Hindi
+  isActive?: boolean; // Optional: Active status
 }
 
 export interface UpdateCountryDto {
-  name?: string;
-  code?: string;
-  isActive?: boolean;
+  id: number; // Required: ID must match URL ID
+  nameEn: string; // Required: English name
+  nameHi: string; // Required: Hindi name  
+  code: string; // Required: Country code
+  subdivisionLabelEn?: string; // Optional: Subdivision label English
+  subdivisionLabelHi?: string; // Optional: Subdivision label Hindi
+  isActive?: boolean; // Optional: Active status
 }
 
 export interface CountryDto {
   id: number;
-  name: string;
+  name: string; // Main name field (from backend)
+  nameEn?: string; // English name (frontend derived)
+  nameHi?: string; // Hindi name (frontend derived)
   code: string;
   isActive: boolean;
   createdAt: string;
@@ -344,7 +374,7 @@ export const subscriptionApi = {
     subscriptionApiClient.delete(`/admin/subscription-plans/${id}`),
   
   togglePlanStatus: (id: number, isActive: boolean) => 
-    subscriptionApiClient.patch(`/admin/subscription-plans/${id}/status`, { isActive }),
+    subscriptionApiClient.patch(`/admin/subscription-plans/${id}/status`, isActive),
   
   // User-facing APIs
   getActivePlans: (language: string = 'en') => 
@@ -483,7 +513,7 @@ export const subjectApi = {
     masterApiClient.delete(`/subjects/${id}`),
   
   updateStatus: (id: number, isActive: boolean) => 
-    masterApiClient.patch(`/subjects/${id}/status`, { isActive })
+    masterApiClient.patch(`/subjects/${id}/status`, isActive)
 };
 
 export interface CreateSubjectDto {

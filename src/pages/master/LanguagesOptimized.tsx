@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/services/masterApi';
 import { useOptimizedApi, useDebounce } from '@/hooks/useOptimizedApi';
 import editIcon from '@/assets/icons/edit.png';
@@ -15,26 +15,26 @@ const Languages = () => {
   });
 
   // Use optimized API hook with caching
-  const { data: languagesData, loading, refetch: fetchLanguages } = useOptimizedApi(
+  const { data: languagesData, loading, error, refetch: fetchLanguages } = useOptimizedApi(
     languageApi.getAll,
     undefined,
     []
   );
 
-  // Ensure languages is always a typed array regardless of API response shape
-  const languages: LanguageDto[] = Array.isArray(languagesData)
-    ? languagesData
-    : (languagesData as any)?.data
-      ? Array.isArray((languagesData as any).data)
-        ? (languagesData as any).data
-        : []
-      : [];
+  // Extract languages array — cast to any to avoid AxiosResponse type conflicts
+  const languages: LanguageDto[] = useMemo(() => {
+    if (!languagesData) return [];
+    const d = languagesData as any;
+    if (Array.isArray(d)) return d;
+    if (d?.data && Array.isArray(d.data)) return d.data;
+    return [];
+  }, [languagesData]);
 
   // Debounced search term for performance
-  const _debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Predefined language codes with names and native script translations
-  const languageOptions = [
+  const languageOptions = useMemo(() => [
     { name: 'Hindi', code: 'hi', nativeName: 'हिंदी' },
     { name: 'Bengali', code: 'bn', nativeName: 'বাংলা' },
     { name: 'Tamil', code: 'ta', nativeName: 'தமிழ்' },
@@ -57,6 +57,7 @@ const Languages = () => {
     { name: 'Maithili', code: 'mai', nativeName: 'मैथिली' },
     { name: 'Santali', code: 'sat', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ' },
     { name: 'Kashmiri', code: 'ks', nativeName: 'कश्मीरी / کشمیری' },
+    // Widely Spoken Regional Languages
     { name: 'Tulu', code: 'tcy', nativeName: 'ತುಳು' },
     { name: 'Bhojpuri', code: 'bho', nativeName: 'भोजपुरी' },
     { name: 'Rajasthani', code: 'raj', nativeName: 'राजस्थानी' },
@@ -94,54 +95,81 @@ const Languages = () => {
     { name: 'Dimasa', code: 'dis', nativeName: 'Dimasa' },
     { name: 'Karbi', code: 'mjw', nativeName: 'Karbi' },
     { name: 'Garo', code: 'grt', nativeName: 'Garo' }
-  ];
+  ], []);
 
-  // Filter out already used language codes (case-insensitive)
-  const availableLanguageOptions = languageOptions.filter((option) =>
-    !languages.some((lang: LanguageDto) => lang.code.toLowerCase() === option.code.toLowerCase()) ||
-    (editingLanguage && editingLanguage.code.toLowerCase() === option.code.toLowerCase())
-  );
-
-  // For edit mode, include the current language being edited (case-insensitive)
-  const dropdownOptions = editingLanguage
-    ? languageOptions.filter((option) =>
-        !languages.some(
-          (lang: LanguageDto) =>
-            lang.code.toLowerCase() === option.code.toLowerCase() &&
-            lang.id !== editingLanguage.id
-        ) || editingLanguage.code.toLowerCase() === option.code.toLowerCase()
-      )
-    : availableLanguageOptions;
+  // ── IMPORTANT: isCustomMode and isCustomCodeValid must be declared BEFORE
+  //    any useMemo/useCallback that references them (isFormValid, handleSubmit) ──
 
   // Check if form is in custom mode
-  const isCustomMode =
+  const isCustomMode = useMemo(() =>
     formData.code === 'custom' ||
     (!!formData.code &&
-      !languageOptions.some((opt) => opt.code === formData.code) &&
-      !editingLanguage);
+      !languageOptions.some(opt => opt.code === formData.code) &&
+      !editingLanguage),
+    [formData.code, languageOptions, editingLanguage]
+  );
 
   // Validate custom language code (case-insensitive)
-  const isCustomCodeValid =
+  const isCustomCodeValid = useMemo(() =>
     !!formData.code &&
     formData.code !== 'custom' &&
-    !languageOptions.some((opt) => opt.code.toLowerCase() === formData.code.toLowerCase()) &&
-    !languages.some((lang: LanguageDto) => lang.code.toLowerCase() === formData.code.toLowerCase());
+    !languageOptions.some(opt => opt.code.toLowerCase() === formData.code.toLowerCase()) &&
+    !languages.some(lang => lang.code.toLowerCase() === formData.code.toLowerCase()),
+    [formData.code, languageOptions, languages]
+  );
 
-  // Validate form submission
-  const isFormValid = () => {
+  // Validate form — this is a boolean value, NOT a function. Use as `isFormValid`, never `isFormValid()`
+  const isFormValid = useMemo(() => {
     if (!formData.name || !formData.code) return false;
     if (isCustomMode && (formData.code === 'custom' || !isCustomCodeValid)) return false;
     return true;
-  };
+  }, [formData, isCustomMode, isCustomCodeValid]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Filter out already used language codes (case-insensitive)
+  const availableLanguageOptions = useMemo(() =>
+    languageOptions.filter(option =>
+      !languages.some(lang => lang.code.toLowerCase() === option.code.toLowerCase()) ||
+      (editingLanguage && editingLanguage.code.toLowerCase() === option.code.toLowerCase())
+    ),
+    [languageOptions, languages, editingLanguage]
+  );
+
+  // For edit mode, include the current language being edited
+  const dropdownOptions = useMemo(() =>
+    editingLanguage
+      ? languageOptions.filter(option =>
+          !languages.some(lang =>
+            lang.code.toLowerCase() === option.code.toLowerCase() &&
+            lang.id !== editingLanguage.id
+          ) || editingLanguage.code.toLowerCase() === option.code.toLowerCase()
+        )
+      : availableLanguageOptions,
+    [languageOptions, languages, editingLanguage, availableLanguageOptions]
+  );
+
+  // Filtered languages with debounced search
+  const filteredLanguages = useMemo(() =>
+    languages.filter(lang =>
+      lang.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      lang.code.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    ),
+    [languages, debouncedSearchTerm]
+  );
+
+  // ── Handlers ──
+
+  const resetForm = useCallback(() => {
+    setFormData({ name: '', code: '', isActive: true });
+    setEditingLanguage(null);
+    setShowModal(false);
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isFormValid()) {
+    if (!isFormValid) {
       alert('Please fill all required fields with valid data.');
       return;
     }
-
     try {
       if (editingLanguage) {
         await languageApi.update(editingLanguage.id, formData as UpdateLanguageDto);
@@ -153,9 +181,9 @@ const Languages = () => {
     } catch (err) {
       console.error('Error saving language:', err);
     }
-  };
+  }, [formData, editingLanguage, isFormValid, fetchLanguages, resetForm]);
 
-  const handleEdit = (language: LanguageDto) => {
+  const handleEdit = useCallback((language: LanguageDto) => {
     setEditingLanguage(language);
     setFormData({
       name: language.name,
@@ -163,22 +191,21 @@ const Languages = () => {
       isActive: language.isActive
     });
     setShowModal(true);
-  };
+  }, []);
 
-  // Handle language selection from dropdown
-  const handleLanguageSelect = (selectedCode: string) => {
+  const handleLanguageSelect = useCallback((selectedCode: string) => {
     if (selectedCode === 'custom') {
-      setFormData({ ...formData, name: '', code: 'custom' });
+      setFormData(prev => ({ ...prev, name: '', code: 'custom' }));
     } else {
-      const selectedLanguage = languageOptions.find((opt) => opt.code === selectedCode);
+      const selectedLanguage = languageOptions.find(opt => opt.code === selectedCode);
       if (selectedLanguage) {
         const bilingualName = `${selectedLanguage.name} / ${selectedLanguage.nativeName}`;
-        setFormData({ ...formData, name: bilingualName, code: selectedLanguage.code });
+        setFormData(prev => ({ ...prev, name: bilingualName, code: selectedLanguage.code }));
       }
     }
-  };
+  }, [languageOptions]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = useCallback(async (id: number) => {
     if (window.confirm('Are you sure you want to deactivate this language?')) {
       try {
         await languageApi.updateStatus(id, false);
@@ -187,18 +214,17 @@ const Languages = () => {
         console.error('Error deactivating language:', err);
       }
     }
-  };
+  }, [fetchLanguages]);
 
-  const resetForm = () => {
-    setFormData({ name: '', code: '', isActive: true });
-    setEditingLanguage(null);
-    setShowModal(false);
-  };
+  // ── Render ──
 
-  const filteredLanguages = languages.filter((lang: LanguageDto) =>
-    lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lang.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#dc2626" }}>
+        Error loading languages: {error}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -274,15 +300,12 @@ const Languages = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredLanguages.map((language: LanguageDto) => (
-                  <tr
-                    key={language.id}
-                    style={{
-                      borderBottom: "1.5px solid #C0C0C0",
-                      backgroundColor: language.isActive ? "transparent" : "#f3f4f6",
-                      opacity: language.isActive ? 1 : 0.6
-                    }}
-                  >
+                {filteredLanguages.map((language) => (
+                  <tr key={language.id} style={{
+                    borderBottom: "1.5px solid #C0C0C0",
+                    backgroundColor: language.isActive ? "transparent" : "#f3f4f6",
+                    opacity: language.isActive ? 1 : 0.6
+                  }}>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.id}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.name}</td>
                     <td style={{ padding: "12px", fontSize: "14px" }}>{language.code}</td>
@@ -411,12 +434,8 @@ const Languages = () => {
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={
-                    isCustomMode
-                      ? "Enter custom language name (e.g., 'Bhojpuri / भोजपुरी')..."
-                      : "Language name (auto-filled with native script)"
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder={isCustomMode ? "Enter custom language name (e.g., 'Bhojpuri / भोजपुरी')..." : "Language name (auto-filled with native script)"}
                   readOnly={!isCustomMode && !editingLanguage}
                   style={{
                     width: "100%",
@@ -439,12 +458,8 @@ const Languages = () => {
                   type="text"
                   required
                   value={formData.code === 'custom' ? '' : formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase() })}
-                  placeholder={
-                    isCustomMode
-                      ? "Enter custom language code (e.g., 'bho' for Bhojpuri)..."
-                      : ""
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value.toLowerCase() }))}
+                  placeholder={isCustomMode ? "Enter custom language code (e.g., 'bho' for Bhojpuri)..." : ""}
                   readOnly={!isCustomMode && !editingLanguage}
                   style={{
                     width: "100%",
@@ -457,7 +472,11 @@ const Languages = () => {
                   }}
                 />
                 {isCustomMode && (
-                  <p style={{ fontSize: "12px", color: isCustomCodeValid ? "#059669" : "#ef4444", marginTop: "4px" }}>
+                  <p style={{
+                    fontSize: "12px",
+                    color: isCustomCodeValid ? "#059669" : "#ef4444",
+                    marginTop: "4px"
+                  }}>
                     {isCustomCodeValid
                       ? "✓ Custom code is available"
                       : "✗ This code already exists (case-insensitive check)"
@@ -477,14 +496,14 @@ const Languages = () => {
                   <input
                     type="checkbox"
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
                     style={{ width: "16px", height: "16px" }}
                   />
                   Active
                 </label>
               </div>
 
-              {/* Actions */}
+              {/* Form Actions */}
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                 <button
                   type="button"
@@ -500,19 +519,20 @@ const Languages = () => {
                 >
                   Cancel
                 </button>
+                {/* isFormValid is a boolean from useMemo — never call it as isFormValid() */}
                 <button
                   type="submit"
-                  disabled={!isFormValid()}
+                  disabled={!isFormValid}
                   style={{
                     padding: "10px 20px",
                     border: "none",
                     borderRadius: "8px",
-                    background: isFormValid()
+                    background: isFormValid
                       ? "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)"
                       : "#d1d5db",
-                    color: isFormValid() ? "#fff" : "#9ca3af",
+                    color: isFormValid ? "#fff" : "#9ca3af",
                     fontSize: "14px",
-                    cursor: isFormValid() ? "pointer" : "not-allowed"
+                    cursor: isFormValid ? "pointer" : "not-allowed"
                   }}
                 >
                   {editingLanguage ? "Update" : "Create"}

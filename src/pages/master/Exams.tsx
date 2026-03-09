@@ -6,7 +6,6 @@ import {
   getExamsList,
   createExam,
   updateExam,
-  deleteExam,
   updateExamStatus,
   uploadExamImage
 } from '@/services/examsApi';
@@ -314,8 +313,12 @@ const Exams = () => {
                     <td style={{ padding: 12 }}><span style={{ padding: '4px 8px', borderRadius: 12, background: exam.isActive ? '#dcfce7' : '#fee2e2', color: exam.isActive ? '#166534' : '#991b1b' }}>{exam.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td style={{ padding: 12 }}>
                       <button onClick={() => handleEdit(exam)} style={{ background: 'none', border: 'none', marginRight: 8 }} title="Edit"><img src={editIcon} alt="Edit" style={{ width: 16 }} /></button>
-                      <button onClick={() => handleDelete(exam.id)} style={{ background: 'none', border: 'none', marginRight: 8 }} title="Delete"><img src={deleteIcon} alt="Delete" style={{ width: 16 }} /></button>
-                      <button onClick={() => handleToggleStatus(exam)} style={{ background: 'none', border: 'none' }}>{exam.isActive ? 'Disable' : 'Enable'}</button>
+                      {exam.isActive && (
+                        <button onClick={() => handleDelete(exam.id)} style={{ background: 'none', border: 'none', marginRight: 8 }} title="Delete"><img src={deleteIcon} alt="Delete" style={{ width: 16 }} /></button>
+                      )}
+                      {/* {exam.isActive && (
+                        <button onClick={() => handleToggleStatus(exam)} style={{ background: 'none', border: 'none' }}>Disable</button>
+                      )} */}
                     </td>
                   </tr>
                 ))}

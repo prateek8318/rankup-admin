@@ -57,7 +57,10 @@ export const qualificationApi = {
 
   toggleQualificationStatus: async (id: string, isActive: boolean): Promise<any> => {
     try {
-      const response = await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), { isActive });
+      // Try object format like Streams API since direct boolean might not work
+      const requestData = { isActive };
+      console.log('Toggling qualification status with data:', requestData); // Debug log
+      const response = await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), requestData);
       return response.data;
     } catch (error: any) {
       console.error('Toggle Status API Error:', {

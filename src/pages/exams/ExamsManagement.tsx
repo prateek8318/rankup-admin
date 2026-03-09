@@ -682,7 +682,7 @@ const ExamsManagement = () => {
                           </span>
                         </td>
                         <td style={{ padding: "16px", fontSize: "14px" }}>
-                          <button style={{
+                          {/* <button style={{
                             background: "none",
                             border: "none",
                             color: "#2563eb",
@@ -690,7 +690,7 @@ const ExamsManagement = () => {
                             fontSize: "14px",
                             marginRight: "8px",
                             fontWeight: "500"
-                          }} onClick={() => handleViewExam(exam)}>View</button>
+                          }} onClick={() => handleViewExam(exam)}>View</button> */}
                           <button style={{
                             background: "none",
                             border: "none",
