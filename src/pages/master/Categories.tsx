@@ -4,6 +4,9 @@ import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
 import FormActions from '@/components/common/FormActions';
+import FormInput from '@/components/common/FormInput';
+import FormSelect from '@/components/common/FormSelect';
+import StatusBadge from '@/components/common/StatusBadge';
 
 // Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
@@ -48,12 +51,10 @@ const Categories = () => {
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [isTranslating, setIsTranslating] = useState(false);
   const [formData, setFormData] = useState<CreateCategoryDto>({
-    nameEn: '',
-    nameHi: '',
-    key: '',
-    type: 'category'
+    nameEn: '', nameHi: '', key: '', type: 'category',
   });
 
+  /* ─── data fetching ─ */
   const fetchCategories = async (language?: string) => {
     try {
       setLoading(true);
@@ -85,6 +86,7 @@ const Categories = () => {
     fetchCategories(selectedLanguage);
   }, [selectedLanguage]);
 
+  /* ─── handlers ─ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -106,7 +108,7 @@ const Categories = () => {
       nameEn: category.nameEn,
       nameHi: category.nameHi || '',
       key: category.key,
-      type: category.type
+      type: category.type,
     });
     setShowModal(true);
   };
@@ -166,70 +168,53 @@ const Categories = () => {
     return selectedLanguage === 'hi' && category.nameHi ? category.nameHi : category.nameEn;
   };
 
-  const filteredCategories = Array.isArray(categories) ? categories.filter(category =>
-    (getCategoryDisplayName(category).toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.type.toLowerCase().includes(searchTerm.toLowerCase()))
-  ) : [];
+  /* ─── table config ─ */
+  const filteredCategories = Array.isArray(categories)
+    ? categories.filter(
+        (category) =>
+          getCategoryDisplayName(category).toLowerCase().includes(searchTerm.toLowerCase()) ||
+          category.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          category.type.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    : [];
 
   const columns: TableColumn[] = [
     { key: 'id', label: 'ID' },
     {
-      key: 'name',
-      label: 'Name',
+      key: 'name', label: 'Name',
       render: (category) => (
         <div>
           <div>{getCategoryDisplayName(category)}</div>
           {selectedLanguage === 'en' && category.nameHi && (
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>{category.nameHi}</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>{category.nameHi}</div>
           )}
           {selectedLanguage === 'hi' && (
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>{category.nameEn}</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>{category.nameEn}</div>
           )}
         </div>
-      )
+      ),
     },
     { key: 'key', label: 'Key' },
     {
-      key: 'type',
-      label: 'Type',
+      key: 'type', label: 'Type',
       render: (category) => (
         <span style={{
-          padding: "4px 8px",
-          borderRadius: "12px",
-          fontSize: "12px",
-          fontWeight: "500",
-          background: "#f3f4f6",
-          color: "#374151"
+          padding: '4px 8px', borderRadius: 12, fontSize: '12px',
+          fontWeight: '500', background: '#f3f4f6', color: '#374151',
         }}>
           {category.type}
         </span>
-      )
+      ),
     },
+    { key: 'status', label: 'Status', render: (row) => <StatusBadge isActive={row.isActive} /> },
     {
-      key: 'status',
-      label: 'Status',
-      render: (category) => (
-        <span style={{
-          padding: "4px 8px",
-          borderRadius: "12px",
-          fontSize: "12px",
-          fontWeight: "500",
-          background: category.isActive ? "#dcfce7" : "#fee2e2",
-          color: category.isActive ? "#166534" : "#991b1b"
-        }}>
-          {category.isActive ? "Active" : "Inactive"}
-        </span>
-      )
+      key: 'createdAt', label: 'Created',
+      render: (category) => new Date(category.createdAt).toLocaleDateString(),
     },
-    {
-      key: 'createdAt',
-      label: 'Created',
-      render: (category) => new Date(category.createdAt).toLocaleDateString()
-    },
-    { key: 'actions', label: 'Actions' }
+    { key: 'actions', label: 'Actions' },
   ];
 
+  /* ─── render ─ */
   return (
     <>
       <MasterHeader
@@ -240,21 +225,20 @@ const Categories = () => {
         onAddClick={() => setShowModal(true)}
         filters={[
           {
-            key: 'language',
-            label: 'Language',
-            value: selectedLanguage,
+            key: 'language', label: 'Language', value: selectedLanguage,
             options: [
               { value: 'en', label: 'English' },
-              { value: 'hi', label: 'हिन्दी' }
+              { value: 'hi', label: 'हिन्दी' },
             ],
-            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi')
-          }
+            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi'),
+          },
         ]}
       />
 
       <MasterTable
         columns={columns}
         data={filteredCategories}
+        loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyMessage="No categories found."
@@ -263,119 +247,47 @@ const Categories = () => {
 
       <MasterModal
         isOpen={showModal}
-        title={editingCategory ? "Edit Category" : "Add Category"}
+        title={editingCategory ? 'Edit Category' : 'Add Category'}
       >
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Category Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.nameEn}
-              onChange={(e) => handleNameEnChange(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px"
-              }}
-            />
-          </div>
+          <FormInput
+            label="Category Name"
+            value={formData.nameEn}
+            onChange={(val) => setFormData({ ...formData, nameEn: val })}
+            required
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-              <label style={{ fontSize: "14px", fontWeight: "500" }}>
-                Category Name (Hindi)
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <input
-                  type="checkbox"
-                  id="autoTranslate"
-                  checked={autoTranslate}
-                  onChange={(e) => setAutoTranslate(e.target.checked)}
-                  style={{ width: "16px", height: "16px" }}
-                />
-                <label htmlFor="autoTranslate" style={{ fontSize: "12px", color: "#6b7280", cursor: "pointer" }}>
-                  Auto-translate
-                </label>
-              </div>
-            </div>
-            <input
-              type="text"
-              value={formData.nameHi}
-              onChange={(e) => handleNameHiChange(e.target.value)}
-              placeholder={isTranslating ? "Translating..." : ""}
-              disabled={isTranslating}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-                opacity: isTranslating ? 0.6 : 1,
-                backgroundColor: isTranslating ? "#f9fafb" : "#fff"
-              }}
-            />
-            {isTranslating && (
-              <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
-                Auto-translating to Hindi...
-              </p>
-            )}
-          </div>
+          <FormInput
+            label="Category Name (Hindi)"
+            value={formData.nameHi || ''}
+            onChange={(val) => setFormData({ ...formData, nameHi: val })}
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Key *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.key}
-              onChange={(e) => setFormData({ ...formData, key: e.target.value.toLowerCase() })}
-              placeholder="e.g., general, obc, sc"
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px"
-              }}
-            />
-            <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
-              Unique key for the category (lowercase, no spaces)
-            </p>
-          </div>
+          <FormInput
+            label="Key"
+            value={formData.key}
+            onChange={(val) => setFormData({ ...formData, key: val.toLowerCase() })}
+            required
+            placeholder="e.g., general, obc, sc"
+            helperText="Unique key for the category (lowercase, no spaces)"
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Type *
-            </label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-                backgroundColor: "#fff"
-              }}
-            >
-              <option value="category">Category</option>
-              <option value="qualification">Qualification</option>
-              <option value="exam_category">Exam Category</option>
-              <option value="stream">Stream</option>
-            </select>
-          </div>
+          <FormSelect
+            label="Type"
+            value={formData.type}
+            onChange={(val) => setFormData({ ...formData, type: val as any })}
+            options={[
+              { value: 'category', label: 'Category' },
+              { value: 'qualification', label: 'Qualification' },
+              { value: 'exam_category', label: 'Exam Category' },
+              { value: 'stream', label: 'Stream' },
+            ]}
+            required
+          />
 
           <FormActions
             onCancel={resetForm}
-            submitLabel={editingCategory ? "Update" : "Create"}
+            submitLabel={editingCategory ? 'Update' : 'Create'}
           />
         </form>
       </MasterModal>
