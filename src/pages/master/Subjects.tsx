@@ -177,7 +177,7 @@ const Subjects = () => {
 
           <FormTextarea
             label="Description"
-            value={formData.description}
+            value={formData.description || ''}
             onChange={(val) => setFormData({ ...formData, description: val })}
           />
 
