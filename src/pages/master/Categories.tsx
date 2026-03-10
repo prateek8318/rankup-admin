@@ -5,7 +5,6 @@ import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
 import FormActions from '@/components/common/FormActions';
 import FormInput from '@/components/common/FormInput';
-import FormSelect from '@/components/common/FormSelect';
 import StatusBadge from '@/components/common/StatusBadge';
 
 // Translation function using Google Translate API (free tier)
@@ -253,15 +252,50 @@ const Categories = () => {
           <FormInput
             label="Category Name"
             value={formData.nameEn}
-            onChange={(val) => setFormData({ ...formData, nameEn: val })}
+            onChange={(val) => handleNameEnChange(val)}
             required
           />
 
-          <FormInput
-            label="Category Name (Hindi)"
-            value={formData.nameHi || ''}
-            onChange={(val) => setFormData({ ...formData, nameHi: val })}
-          />
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+              <label style={{ fontSize: "14px", fontWeight: "500" }}>
+                Category Name (Hindi)
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input
+                  type="checkbox"
+                  id="autoTranslate"
+                  checked={autoTranslate}
+                  onChange={(e) => setAutoTranslate(e.target.checked)}
+                  style={{ width: "16px", height: "16px" }}
+                />
+                <label htmlFor="autoTranslate" style={{ fontSize: "12px", color: "#6b7280", cursor: "pointer" }}>
+                  Auto-translate
+                </label>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={formData.nameHi || ''}
+              onChange={(e) => handleNameHiChange(e.target.value)}
+              placeholder={isTranslating ? "Translating..." : ""}
+              disabled={isTranslating}
+              style={{
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px",
+                opacity: isTranslating ? 0.6 : 1,
+                backgroundColor: isTranslating ? "#f9fafb" : "#fff"
+              }}
+            />
+            {isTranslating && (
+              <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                Auto-translating...
+              </p>
+            )}
+          </div>
 
           <FormInput
             label="Key"
@@ -270,19 +304,6 @@ const Categories = () => {
             required
             placeholder="e.g., general, obc, sc"
             helperText="Unique key for the category (lowercase, no spaces)"
-          />
-
-          <FormSelect
-            label="Type"
-            value={formData.type}
-            onChange={(val) => setFormData({ ...formData, type: val as any })}
-            options={[
-              { value: 'category', label: 'Category' },
-              { value: 'qualification', label: 'Qualification' },
-              { value: 'exam_category', label: 'Exam Category' },
-              { value: 'stream', label: 'Stream' },
-            ]}
-            required
           />
 
           <FormActions
