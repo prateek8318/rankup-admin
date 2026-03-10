@@ -5,6 +5,39 @@ import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
 import FormActions from '@/components/common/FormActions';
 
+// Translation function using Google Translate API (free tier)
+const translateText = async (text: string, targetLanguage: string): Promise<string> => {
+  try {
+    const languageMap: { [key: string]: string } = {
+      'en': 'en',
+      'hi': 'hi',
+      'es': 'es',
+      'fr': 'fr',
+      'de': 'de',
+      'zh': 'zh',
+      'ja': 'ja',
+      'ar': 'ar',
+      'pt': 'pt',
+      'ru': 'ru'
+    };
+
+    const targetLang = languageMap[targetLanguage] || targetLanguage;
+
+    // Using Google Translate API (you might need to set up API key)
+    const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    const data = await response.json();
+
+    if (data && data[0] && data[0][0] && data[0][0][0]) {
+      return data[0][0][0];
+    }
+
+    return text; // Fallback to original text if translation fails
+  } catch (error) {
+    console.error('Translation error:', error);
+    return text; // Fallback to original text
+  }
+};
+
 const Categories = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +45,8 @@ const Categories = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi'>('en');
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null);
+  const [autoTranslate, setAutoTranslate] = useState(true);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [formData, setFormData] = useState<CreateCategoryDto>({
     nameEn: '',
     nameHi: '',
@@ -91,6 +126,40 @@ const Categories = () => {
     setFormData({ nameEn: '', nameHi: '', key: '', type: 'category' });
     setEditingCategory(null);
     setShowModal(false);
+  };
+
+  const handleNameEnChange = async (value: string) => {
+    setFormData({ ...formData, nameEn: value });
+    
+    // Auto-translate to Hindi if enabled and the field is not empty
+    if (autoTranslate && value.trim()) {
+      setIsTranslating(true);
+      try {
+        const translatedHindi = await translateText(value, 'hi');
+        setFormData(prev => ({ ...prev, nameHi: translatedHindi }));
+      } catch (error) {
+        console.error('Auto-translation failed:', error);
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+  };
+
+  const handleNameHiChange = async (value: string) => {
+    setFormData({ ...formData, nameHi: value });
+    
+    // Auto-translate to English if enabled and the field is not empty
+    if (autoTranslate && value.trim()) {
+      setIsTranslating(true);
+      try {
+        const translatedEnglish = await translateText(value, 'en');
+        setFormData(prev => ({ ...prev, nameEn: translatedEnglish }));
+      } catch (error) {
+        console.error('Auto-translation failed:', error);
+      } finally {
+        setIsTranslating(false);
+      }
+    }
   };
 
   const getCategoryDisplayName = (category: CategoryDto) => {
@@ -205,7 +274,7 @@ const Categories = () => {
               type="text"
               required
               value={formData.nameEn}
-              onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+              onChange={(e) => handleNameEnChange(e.target.value)}
               style={{
                 width: "100%",
                 padding: "10px",
@@ -217,21 +286,44 @@ const Categories = () => {
           </div>
 
           <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Category Name (Hindi)
-            </label>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+              <label style={{ fontSize: "14px", fontWeight: "500" }}>
+                Category Name (Hindi)
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input
+                  type="checkbox"
+                  id="autoTranslate"
+                  checked={autoTranslate}
+                  onChange={(e) => setAutoTranslate(e.target.checked)}
+                  style={{ width: "16px", height: "16px" }}
+                />
+                <label htmlFor="autoTranslate" style={{ fontSize: "12px", color: "#6b7280", cursor: "pointer" }}>
+                  Auto-translate
+                </label>
+              </div>
+            </div>
             <input
               type="text"
               value={formData.nameHi}
-              onChange={(e) => setFormData({ ...formData, nameHi: e.target.value })}
+              onChange={(e) => handleNameHiChange(e.target.value)}
+              placeholder={isTranslating ? "Translating..." : ""}
+              disabled={isTranslating}
               style={{
                 width: "100%",
                 padding: "10px",
                 border: "1px solid #e5e7eb",
                 borderRadius: "8px",
-                fontSize: "14px"
+                fontSize: "14px",
+                opacity: isTranslating ? 0.6 : 1,
+                backgroundColor: isTranslating ? "#f9fafb" : "#fff"
               }}
             />
+            {isTranslating && (
+              <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                Auto-translating to Hindi...
+              </p>
+            )}
           </div>
 
           <div style={{ marginBottom: "20px" }}>
