@@ -1,40 +1,17 @@
 import { useState, useEffect } from 'react';
-import { countryApi, CountryDto, CreateCountryDto, UpdateCountryDto, languageApi, LanguageDto } from '@/services/masterApi';
+import {
+  countryApi, languageApi,
+  CountryDto, CreateCountryDto, UpdateCountryDto, LanguageDto,
+} from '@/services/masterApi';
+import { extractApiData } from '@/utils/apiHelpers';
+import { translateText } from '@/utils/translate';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
 import FormActions from '@/components/common/FormActions';
-
-const translateText = async (text: string, targetLanguage: string): Promise<string> => {
-  try {
-    const languageMap: { [key: string]: string } = {
-      'en': 'en',
-      'hi': 'hi',
-      'es': 'es',
-      'fr': 'fr',
-      'de': 'de',
-      'zh': 'zh',
-      'ja': 'ja',
-      'ar': 'ar',
-      'pt': 'pt',
-      'ru': 'ru'
-    };
-
-    const targetLang = languageMap[targetLanguage] || targetLanguage;
-
-    const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
-    const data = await response.json();
-
-    if (data && data[0] && data[0][0] && data[0][0][0]) {
-      return data[0][0][0];
-    }
-
-    return text;
-  } catch (error) {
-    console.error('Translation error:', error);
-    return text;
-  }
-};
+import FormInput from '@/components/common/FormInput';
+import FormCheckbox from '@/components/common/FormCheckbox';
+import StatusBadge from '@/components/common/StatusBadge';
 
 const Countries = () => {
   const [countries, setCountries] = useState<CountryDto[]>([]);
@@ -45,33 +22,15 @@ const Countries = () => {
   const [editingCountry, setEditingCountry] = useState<CountryDto | null>(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [formData, setFormData] = useState<CreateCountryDto>({
-    name: '',
-    nameEn: '',
-    nameHi: '',
-    code: '',
-    subdivisionLabelEn: 'State',
-    subdivisionLabelHi: 'राज्य',
-    isActive: true
+    name: '', nameEn: '', nameHi: '', code: '',
+    subdivisionLabelEn: 'State', subdivisionLabelHi: 'राज्य', isActive: true,
   });
 
+  /* ─── data fetching ─ */
   const fetchCountries = async (language?: string) => {
     try {
       const response = await countryApi.getAll(language);
-      if (response.data) {
-        if (response.data.success && response.data.data) {
-          setCountries(response.data.data);
-        } else if (Array.isArray(response.data)) {
-          setCountries(response.data);
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          setCountries(response.data.data);
-        } else {
-          setCountries([]);
-        }
-      } else if (response && Array.isArray(response)) {
-        setCountries(response);
-      } else {
-        setCountries([]);
-      }
+      setCountries(extractApiData<CountryDto>(response));
     } catch (error) {
       console.error('Error fetching countries:', error);
       setCountries([]);
@@ -81,21 +40,7 @@ const Countries = () => {
   const fetchLanguages = async () => {
     try {
       const response = await languageApi.getAll();
-      if (response.data) {
-        if (response.data.success && response.data.data) {
-          setLanguages(response.data.data);
-        } else if (Array.isArray(response.data)) {
-          setLanguages(response.data);
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          setLanguages(response.data.data);
-        } else {
-          setLanguages([]);
-        }
-      } else if (response && Array.isArray(response)) {
-        setLanguages(response);
-      } else {
-        setLanguages([]);
-      }
+      setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
       console.error('Error fetching languages:', error);
       setLanguages([]);
@@ -107,6 +52,7 @@ const Countries = () => {
     fetchLanguages();
   }, [selectedLanguage]);
 
+  /* ─── handlers ─ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -118,7 +64,7 @@ const Countries = () => {
           code: formData.code || '',
           subdivisionLabelEn: formData.subdivisionLabelEn || 'State',
           subdivisionLabelHi: formData.subdivisionLabelHi || 'राज्य',
-          isActive: formData.isActive !== undefined ? formData.isActive : true
+          isActive: formData.isActive !== undefined ? formData.isActive : true,
         };
         await countryApi.update(editingCountry.id, updateData);
       } else {
@@ -140,7 +86,7 @@ const Countries = () => {
       code: country.code,
       subdivisionLabelEn: (country as any).subdivisionLabelEn || 'State',
       subdivisionLabelHi: (country as any).subdivisionLabelHi || 'राज्य',
-      isActive: country.isActive
+      isActive: country.isActive,
     });
     setShowModal(true);
   };
@@ -157,95 +103,61 @@ const Countries = () => {
   };
 
   const resetForm = () => {
-    setFormData({ 
-      name: '', 
-      nameEn: '', 
-      nameHi: '', 
-      code: '', 
-      subdivisionLabelEn: 'State',
-      subdivisionLabelHi: 'राज्य',
-      isActive: true 
+    setFormData({
+      name: '', nameEn: '', nameHi: '', code: '',
+      subdivisionLabelEn: 'State', subdivisionLabelHi: 'राज्य', isActive: true,
     });
     setEditingCountry(null);
     setShowModal(false);
   };
 
   const getCountryDisplayName = (country: CountryDto) => {
-    if (selectedLanguage === 'hi') {
-      return country.nameHi || country.nameEn || country.name;
-    }
+    if (selectedLanguage === 'hi') return country.nameHi || country.nameEn || country.name;
     return country.nameEn || country.name;
   };
 
   const handleNameEnChange = async (value: string) => {
-    const updatedFormData = { 
-      ...formData, 
-      name: value,
-      nameEn: value 
-    };
-    setFormData(updatedFormData);
-    
+    setFormData((prev) => ({ ...prev, name: value, nameEn: value }));
     if (autoTranslate && value.trim()) {
       try {
         const hindiTranslation = await translateText(value, 'hi');
-        setFormData(prev => ({ 
-          ...prev, 
-          nameHi: hindiTranslation,
-          name: value
-        }));
+        setFormData((prev) => ({ ...prev, nameHi: hindiTranslation, name: value }));
       } catch (error) {
         console.error('Auto-translation failed:', error);
       }
     }
   };
 
-  const filteredCountries = countries.filter(country =>
-    (getCountryDisplayName(country).toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.code.toLowerCase().includes(searchTerm.toLowerCase()))
+  /* ─── table config ─ */
+  const filteredCountries = countries.filter(
+    (country) =>
+      getCountryDisplayName(country).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      country.code.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const columns: TableColumn[] = [
     { key: 'id', label: 'ID' },
     {
-      key: 'name',
-      label: 'Name',
+      key: 'name', label: 'Name',
       render: (country) => (
         <div>
           <div>{getCountryDisplayName(country)}</div>
           {selectedLanguage === 'en' && country.nameHi && (
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameHi}</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>{country.nameHi}</div>
           )}
           {selectedLanguage === 'hi' && (
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>{country.nameEn}</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>{country.nameEn}</div>
           )}
         </div>
-      )
+      ),
     },
     { key: 'code', label: 'Code' },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (country) => (
-        <span style={{
-          padding: "4px 8px",
-          borderRadius: "12px",
-          fontSize: "12px",
-          fontWeight: "500",
-          background: country.isActive ? "#dcfce7" : "#fee2e2",
-          color: country.isActive ? "#166534" : "#991b1b"
-        }}>
-          {country.isActive ? "Active" : "Inactive"}
-        </span>
-      )
-    },
-    {
-      key: 'createdAt',
-      label: 'Created',
-      render: (country) => new Date(country.createdAt).toLocaleDateString()
-    },
-    { key: 'actions', label: 'Actions' }
+    { key: 'status', label: 'Status', render: (row) => <StatusBadge isActive={row.isActive} /> },
+    { key: 'createdAt', label: 'Created', render: (row) => new Date(row.createdAt).toLocaleDateString() },
+    { key: 'actions', label: 'Actions' },
   ];
 
+  /* ─── render ─ */
   return (
     <>
       <MasterHeader
@@ -256,15 +168,13 @@ const Countries = () => {
         onAddClick={() => setShowModal(true)}
         filters={[
           {
-            key: 'language',
-            label: 'Language',
-            value: selectedLanguage,
+            key: 'language', label: 'Language', value: selectedLanguage,
             options: [
               { value: 'en', label: 'English' },
-              { value: 'hi', label: 'हिन्दी' }
+              { value: 'hi', label: 'हिन्दी' },
             ],
-            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi')
-          }
+            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi'),
+          },
         ]}
       />
 
@@ -279,92 +189,44 @@ const Countries = () => {
 
       <MasterModal
         isOpen={showModal}
-        title={editingCountry ? "Edit Country" : "Add Country"}
+        title={editingCountry ? 'Edit Country' : 'Add Country'}
       >
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Country Name (English) *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.nameEn}
-              onChange={(e) => handleNameEnChange(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px"
-              }}
-            />
-          </div>
+          <FormInput
+            label="Country Name (English)"
+            value={formData.nameEn}
+            onChange={handleNameEnChange}
+            required
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Country Name (Hindi)
-            </label>
-            <input
-              type="text"
-              value={formData.nameHi}
-              onChange={(e) => setFormData({ ...formData, nameHi: e.target.value })}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px"
-              }}
-            />
-          </div>
+          <FormInput
+            label="Country Name (Hindi)"
+            value={formData.nameHi}
+            onChange={(val) => setFormData({ ...formData, nameHi: val })}
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500" }}>
-              Code *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px"
-              }}
-            />
-          </div>
+          <FormInput
+            label="Code"
+            value={formData.code}
+            onChange={(val) => setFormData({ ...formData, code: val })}
+            required
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
-              <input
-                type="checkbox"
-                checked={autoTranslate}
-                onChange={(e) => setAutoTranslate(e.target.checked)}
-                style={{ width: "16px", height: "16px" }}
-              />
-              Auto-translate to Hindi
-            </label>
-          </div>
+          <FormCheckbox
+            label="Auto-translate to Hindi"
+            checked={autoTranslate}
+            onChange={setAutoTranslate}
+          />
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
-              <input
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                style={{ width: "16px", height: "16px" }}
-              />
-              Active
-            </label>
-          </div>
+          <FormCheckbox
+            label="Active"
+            checked={formData.isActive}
+            onChange={(checked) => setFormData({ ...formData, isActive: checked })}
+          />
 
           <FormActions
             onCancel={resetForm}
-            submitLabel={editingCountry ? "Update" : "Create"}
+            submitLabel={editingCountry ? 'Update' : 'Create'}
           />
         </form>
       </MasterModal>
