@@ -21,7 +21,7 @@ const Qualifications = () => {
   const [qualifications, setQualifications] = useState<QualificationDto[]>([]);
   const [countries] = useState<CountryDto[]>(mockCountries);
   const [languages, setLanguages] = useState<LanguageDto[]>([]);
-  const [selectedLanguageIdFilter, setSelectedLanguageIdFilter] = useState<number | undefined>(undefined);
+  const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,13 +39,13 @@ const Qualifications = () => {
   useEffect(() => {
     fetchQualifications();
     fetchLanguages();
-  }, [selectedLanguageIdFilter]);
+  }, [selectedLanguageFilter]);
 
   const fetchQualifications = async () => {
     try {
       setLoading(true);
       const params: any = {};
-      if (selectedLanguageIdFilter) params.languageId = selectedLanguageIdFilter;
+      if (selectedLanguageFilter) params.language = selectedLanguageFilter;
       const data = await qualificationApi.getAllQualifications(params);
       setQualifications(data);
     } catch (error) {
@@ -233,17 +233,20 @@ const Qualifications = () => {
       key: 'languages', label: 'Languages',
       render: (q) => (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {q.names.map((name: QualificationName) => (
-            <span
-              key={name.languageId}
-              style={{
-                padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
-                borderRadius: 8, fontSize: '12px', fontWeight: '500',
-              }}
-            >
-              {name.languageCode || name.languageId}
-            </span>
-          ))}
+          {q.names.map((name: QualificationName) => {
+            const language = languages.find((l) => l.id === name.languageId);
+            return (
+              <span
+                key={name.languageId}
+                style={{
+                  padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
+                  borderRadius: 8, fontSize: '12px', fontWeight: '500',
+                }}
+              >
+                {language?.name || name.languageCode || name.languageId}
+              </span>
+            );
+          })}
         </div>
       ),
     },
@@ -264,9 +267,9 @@ const Qualifications = () => {
         filters={[
           {
             key: 'language', label: 'Language',
-            value: selectedLanguageIdFilter ?? null,
-            options: languages.map((l) => ({ value: l.id, label: l.name })),
-            onChange: (value) => setSelectedLanguageIdFilter(value ? Number(value) : undefined),
+            value: selectedLanguageFilter ?? null,
+            options: languages.map((l) => ({ value: l.code, label: l.name })),
+            onChange: (value) => setSelectedLanguageFilter(value as string || undefined),
           },
         ]}
       />

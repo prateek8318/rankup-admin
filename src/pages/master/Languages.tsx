@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/services/masterApi';
-import { useOptimizedApi } from '@/hooks/useOptimizedApi';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
@@ -15,25 +14,34 @@ const Languages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState<LanguageDto | null>(null);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | undefined>(undefined);
+  const [languages, setLanguages] = useState<LanguageDto[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<CreateLanguageDto>({
     name: '',
     code: '',
     isActive: true,
   });
 
-  const { data: languagesData, loading, refetch: fetchLanguages } = useOptimizedApi(
-    languageApi.getAll,
-    undefined,
-    [],
-  );
+  /* ─── data fetching ─ */
+  const fetchLanguages = async () => {
+    try {
+      setLoading(true);
+      const response = await languageApi.getAll();
+      let data = response.data?.data || response.data || [];
+      if (!Array.isArray(data)) data = [];
+      setLanguages(data);
+    } catch (error) {
+      console.error('Error fetching languages:', error);
+      setLanguages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const languages: LanguageDto[] = Array.isArray(languagesData)
-    ? languagesData
-    : (languagesData as any)?.data
-      ? Array.isArray((languagesData as any).data)
-        ? (languagesData as any).data
-        : []
-      : [];
+  useEffect(() => {
+    fetchLanguages();
+  }, [selectedStatusFilter]);
 
   /* ─── derived values ─ */
   const availableLanguageOptions = LANGUAGE_OPTIONS.filter(
@@ -131,9 +139,18 @@ const Languages = () => {
 
   /* ─── table config ─ */
   const filteredLanguages = languages.filter(
-    (lang) =>
-      lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lang.code.toLowerCase().includes(searchTerm.toLowerCase()),
+    (lang) => {
+      const matchesSearch = 
+        lang.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lang.code.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = 
+        !selectedStatusFilter || 
+        (selectedStatusFilter === 'active' && lang.isActive) ||
+        (selectedStatusFilter === 'inactive' && !lang.isActive);
+      
+      return matchesSearch && matchesStatus;
+    }
   );
 
   const columns: TableColumn[] = [
@@ -171,6 +188,18 @@ const Languages = () => {
         onSearchChange={setSearchTerm}
         addButtonLabel="Add Language"
         onAddClick={() => setShowModal(true)}
+        filters={[
+          {
+            key: 'status',
+            label: 'Status',
+            value: selectedStatusFilter ?? null,
+            options: [
+              { value: 'active', label: 'Active' },
+              { value: 'inactive', label: 'Inactive' },
+            ],
+            onChange: (value) => setSelectedStatusFilter(value ? String(value) : undefined),
+          },
+        ]}
       />
 
       <MasterTable

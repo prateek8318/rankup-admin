@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { qualificationApi } from '@/services/qualificationApi';
-import { languageApi } from '@/services/masterApi';
+import { languageApi, streamApi } from '@/services/masterApi';
 import {
-  StreamDto, CreateStreamDto,
-  StreamName, QualificationDto, LanguageDto,
+  StreamDto, CreateStreamDto, StreamName, QualificationDto, LanguageDto,
 } from '@/types/qualification';
 import { extractApiData } from '@/utils/apiHelpers';
 import { translateText } from '@/utils/translate';
@@ -21,7 +20,7 @@ const Streams = () => {
   const [streams, setStreams] = useState<StreamDto[]>([]);
   const [qualifications, setQualifications] = useState<QualificationDto[]>([]);
   const [languages, setLanguages] = useState<LanguageDto[]>([]);
-  const [selectedLanguageIdFilter, setSelectedLanguageIdFilter] = useState<number | undefined>(undefined);
+  const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,13 +38,13 @@ const Streams = () => {
   useEffect(() => {
     fetchData();
     fetchLanguages();
-  }, [selectedLanguageIdFilter]);
+  }, [selectedLanguageFilter]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const params: any = {};
-      if (selectedLanguageIdFilter) params.languageId = selectedLanguageIdFilter;
+      if (selectedLanguageFilter) params.language = selectedLanguageFilter;
       const [streamsData, qualificationsData] = await Promise.all([
         qualificationApi.getAllStreams(params),
         qualificationApi.getAllQualifications(params),
@@ -179,11 +178,11 @@ const Streams = () => {
     }
     try {
       if (editingStream) {
-        await qualificationApi.updateStream(editingStream.id.toString(), {
+        await streamApi.update(editingStream.id, {
           ...formData, id: editingStream.id,
         });
       } else {
-        await qualificationApi.createStream(formData);
+        await streamApi.create(formData);
       }
       fetchData();
       resetForm();
@@ -211,47 +210,97 @@ const Streams = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to deactivate this stream?')) {
+    if (window.confirm('Are you sure you want to delete this stream?')) {
       try {
-        await qualificationApi.toggleStreamStatus(id.toString(), false);
+        await streamApi.delete(id);
         fetchData();
       } catch (error) {
-        console.error('Failed to deactivate stream:', error);
-        alert('Failed to deactivate stream');
+        console.error('Failed to delete stream:', error);
+        alert('Failed to delete stream');
       }
     }
   };
 
   /* ─── table config ─ */
   const filteredStreams = streams.filter(
-    (s) =>
-      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.qualificationName.toLowerCase().includes(searchTerm.toLowerCase()),
+    (s) => {
+      // Debug logging
+      console.log('Search term:', searchTerm);
+      console.log('Stream data:', s);
+      
+      // Safe search term handling
+      if (!searchTerm || typeof searchTerm !== 'string') {
+        return true; // Show all if no search term
+      }
+      
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Search in main fields with null checks
+      const mainNameMatch = (s.name || '').toLowerCase().includes(searchLower);
+      const mainDescMatch = (s.description || '').toLowerCase().includes(searchLower);
+      const qualificationMatch = (s.qualificationName || '').toLowerCase().includes(searchLower);
+      
+      // Search in names array for multilingual content with null checks
+      const namesMatch = s.names?.some((name: any) => 
+        (name.name || '').toLowerCase().includes(searchLower) ||
+        (name.description || '').toLowerCase().includes(searchLower)
+      ) || false;
+      
+      const result = mainNameMatch || mainDescMatch || qualificationMatch || namesMatch;
+      console.log('Filter result:', result);
+      return result;
+    }
   );
 
   const columns: TableColumn[] = [
     { key: 'id', label: 'ID' },
     { key: 'name', label: 'Name' },
-    { key: 'description', label: 'Description' },
+    {
+      key: 'description', label: 'Description',
+      render: (stream) => {
+        // Try to get description from the main description field first
+        if (stream.description) {
+          return stream.description;
+        }
+        
+        // If main description is empty, try to get it from the names array
+        const firstName = stream.names?.[0];
+        if (firstName?.description) {
+          return firstName.description;
+        }
+        
+        // Fallback to empty string
+        return '-';
+      },
+    },
     { key: 'qualificationName', label: 'Qualification' },
     {
       key: 'languages', label: 'Languages',
-      render: (stream) => (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {stream.names.map((name: StreamName) => (
-            <span
-              key={name.languageId}
-              style={{
-                padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
-                borderRadius: 8, fontSize: '12px', fontWeight: '500',
-              }}
-            >
-              {name.languageCode || name.languageId}
-            </span>
-          ))}
-        </div>
-      ),
+      render: (stream) => {
+        console.log('Stream names:', stream.names);
+        console.log('Available languages:', languages);
+        
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {stream.names.map((name: StreamName) => {
+              const language = languages.find((l) => l.id === name.languageId);
+              console.log(`Looking for languageId ${name.languageId}, found:`, language);
+              
+              return (
+                <span
+                  key={name.languageId}
+                  style={{
+                    padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
+                    borderRadius: 8, fontSize: '12px', fontWeight: '500',
+                  }}
+                >
+                  {language?.name || `Lang ${name.languageId}`}
+                </span>
+              );
+            })}
+          </div>
+        );
+      },
     },
     { key: 'status', label: 'Status', render: (row) => <StatusBadge isActive={row.isActive} /> },
     { key: 'createdAt', label: 'Created', render: (row) => new Date(row.createdAt).toLocaleDateString() },
@@ -270,9 +319,9 @@ const Streams = () => {
         filters={[
           {
             key: 'language', label: 'Language',
-            value: selectedLanguageIdFilter ?? null,
-            options: languages.map((l) => ({ value: l.id, label: l.name })),
-            onChange: (value) => setSelectedLanguageIdFilter(value ? Number(value) : undefined),
+            value: selectedLanguageFilter ?? null,
+            options: languages.map((l) => ({ value: l.code, label: l.name })),
+            onChange: (value) => setSelectedLanguageFilter(value as string || undefined),
           },
         ]}
       />

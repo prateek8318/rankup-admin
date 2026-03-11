@@ -8,7 +8,6 @@ import exportIcon from '@/assets/icons/export.png';
 import vectorIcon from '@/assets/icons/Vector.png';
 import vector1Icon from '@/assets/icons/Vector (3).png';
 import vector2Icon from '@/assets/icons/Vector (6).png';
-import Loader from '@/components/Loader';
 import vector3Icon from '@/assets/icons/Vector (3).png';
 import vector4Icon from '@/assets/icons/Vector (2).png';
 import vector5Icon from '@/assets/icons/Vector (8).png';
@@ -140,73 +139,83 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      // Fetch all users to get accurate total count and enable proper pagination
       const response = await getUsersList({
-        page: currentPage,
-        pageSize: 10,
+        page: 1,
+        pageSize: 1000, // Fetch a large number to get all users
       });
 
       console.log('API Response:', response); // Debug log
 
       if (response.items) {
-        // Apply client-side filtering for search and filters
-        let filteredItems = response.items;
+        // Check if any filters are applied
+        const hasFilters = searchTerm || 
+                          filters.userType !== 'All Users' || 
+                          filters.status !== 'All Status' || 
+                          filters.time !== 'All Time';
         
-        // Filter by search term if provided
-        if (searchTerm) {
-          filteredItems = filteredItems.filter((user: User) =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.phoneNumber.includes(searchTerm)
-          );
-        }
+        let allUsers = response.items;
         
-        // Apply filters
-        if (filters.userType !== 'All Users') {
-          if (filters.userType === 'Active Users') {
-            filteredItems = filteredItems.filter(user => user.isActive);
-          } else if (filters.userType === 'Blocked Users') {
-            filteredItems = filteredItems.filter(user => !user.isActive);
+        if (hasFilters) {
+          // Apply client-side filtering for search and filters
+          let filteredItems = response.items;
+          
+          // Filter by search term if provided
+          if (searchTerm) {
+            filteredItems = filteredItems.filter((user: User) =>
+              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              user.phoneNumber.includes(searchTerm)
+            );
           }
-        }
-        
-        if (filters.status !== 'All Status') {
-          if (filters.status === 'Active') {
-            filteredItems = filteredItems.filter(user => user.isActive);
-          } else if (filters.status === 'Blocked') {
-            filteredItems = filteredItems.filter(user => !user.isActive);
+          
+          // Apply filters
+          if (filters.userType !== 'All Users') {
+            if (filters.userType === 'Active Users') {
+              filteredItems = filteredItems.filter(user => user.isActive);
+            } else if (filters.userType === 'Blocked Users') {
+              filteredItems = filteredItems.filter(user => !user.isActive);
+            }
           }
-        }
-        
-        if (filters.time !== 'All Time') {
-          if (filters.time === 'Last 7 days') {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            filteredItems = filteredItems.filter(user => {
-              const createdAt = new Date(user.createdAt);
-              return createdAt > sevenDaysAgo;
-            });
-          } else if (filters.time === 'Last 30 days') {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            filteredItems = filteredItems.filter(user => {
-              const createdAt = new Date(user.createdAt);
-              return createdAt > thirtyDaysAgo;
-            });
+          
+          if (filters.status !== 'All Status') {
+            if (filters.status === 'Active') {
+              filteredItems = filteredItems.filter(user => user.isActive);
+            } else if (filters.status === 'Blocked') {
+              filteredItems = filteredItems.filter(user => !user.isActive);
+            }
           }
+          
+          if (filters.time !== 'All Time') {
+            if (filters.time === 'Last 7 days') {
+              const sevenDaysAgo = new Date();
+              sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+              filteredItems = filteredItems.filter(user => {
+                const createdAt = new Date(user.createdAt);
+                return createdAt > sevenDaysAgo;
+              });
+            } else if (filters.time === 'Last 30 days') {
+              const thirtyDaysAgo = new Date();
+              thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+              filteredItems = filteredItems.filter(user => {
+                const createdAt = new Date(user.createdAt);
+                return createdAt > thirtyDaysAgo;
+              });
+            }
+          }
+          
+          allUsers = filteredItems;
         }
         
-        setUsers(filteredItems);
-        
-        // For filtered results, recalculate pagination
-        const filteredTotal = filteredItems.length;
+        // Apply pagination to the final user list
         const itemsPerPage = 10;
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        const paginatedItems = filteredItems.slice(startIndex, endIndex);
+        const paginatedItems = allUsers.slice(startIndex, endIndex);
         
         setUsers(paginatedItems);
-        setTotalUsers(filteredTotal);
-        setTotalPages(Math.ceil(filteredTotal / itemsPerPage));
+        setTotalUsers(allUsers.length);
+        setTotalPages(Math.ceil(allUsers.length / itemsPerPage));
 
         // Calculate stats from all users (not filtered)
         const total = response.totalCount || response.items.length;
@@ -293,7 +302,7 @@ const Users = () => {
       }
     };
     fetchUserStats();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, filters.userType, filters.status, filters.time]);
 
   // Update current time every 30 seconds to make "Last Active" more dynamic
   useEffect(() => {
@@ -351,53 +360,6 @@ const Users = () => {
     } else {
       setSelectedUsers(users.map(user => getUserId(user)));
     }
-  };
-
-  const handleApply = () => {
-    console.log('Applying filters:', filters);
-    // Reset to page 1 when applying filters
-    setCurrentPage(1);
-    // Apply filters to users list
-    let filteredUsers = users;
-    
-    // Filter by user type
-    if (filters.userType !== 'All Users') {
-      if (filters.userType === 'Active Users') {
-        filteredUsers = filteredUsers.filter(user => user.isActive);
-      } else if (filters.userType === 'Blocked Users') {
-        filteredUsers = filteredUsers.filter(user => !user.isActive);
-      }
-    }
-    
-    // Filter by status
-    if (filters.status !== 'All Status') {
-      if (filters.status === 'Active') {
-        filteredUsers = filteredUsers.filter(user => user.isActive);
-      } else if (filters.status === 'Blocked') {
-        filteredUsers = filteredUsers.filter(user => !user.isActive);
-      }
-    }
-    
-    // Filter by time
-    if (filters.time !== 'All Time') {
-      if (filters.time === 'Last 7 days') {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        filteredUsers = filteredUsers.filter(user => {
-          const createdAt = new Date(user.createdAt);
-          return createdAt > sevenDaysAgo;
-        });
-      } else if (filters.time === 'Last 30 days') {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        filteredUsers = filteredUsers.filter(user => {
-          const createdAt = new Date(user.createdAt);
-          return createdAt > thirtyDaysAgo;
-        });
-      }
-    }
-    
-    setUsers(filteredUsers);
   };
 
   const handleReset = () => {
@@ -598,21 +560,6 @@ const Users = () => {
                 <option>Block Selected</option>
                 <option>Export Selected</option>
               </select>
-              <button
-                onClick={handleApply}
-                style={{
-                  padding: "8px 48px",
-                  border: "none",
-                  borderRadius: "20px",
-                  background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-                  color: "#fff",
-                  fontSize: "18px",
-                  cursor: "pointer",
-                  fontWeight: "500"
-                }}
-              >
-                Apply
-              </button>
 
               {/* Export Button */}
               

@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
         return {
           success: false,
-          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.15:56924'
+          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.29:56924'
         };
       }
       return {
