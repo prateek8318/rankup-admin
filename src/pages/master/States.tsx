@@ -334,7 +334,7 @@ const States = () => {
 
           <FormCheckbox
             label="Active"
-            checked={formData.isActive}
+            checked={formData.isActive ?? true}
             onChange={(checked) => setFormData({ ...formData, isActive: checked })}
           />
 

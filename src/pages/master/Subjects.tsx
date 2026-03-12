@@ -268,6 +268,7 @@ const Subjects = () => {
         </form>
       </MasterModal>
     </>
+    
   );
 };
 
