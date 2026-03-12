@@ -74,8 +74,9 @@ export const getUsersList = async (params: UserListParams = {}): Promise<Paginat
       const allUsers = response.data.data;
       const totalCount = allUsers.length;
       
-      // Implement client-side pagination since API returns all users
-      const pageSize = params.pageSize || 50;
+      // If pageSize is not specified or is greater than total, return all users
+      // Otherwise implement client-side pagination
+      const pageSize = params.pageSize || totalCount; // Default to all users if no pageSize specified
       const page = params.page || 1;
       const startIndex = (page - 1) * pageSize;
       const endIndex = startIndex + pageSize;
@@ -98,7 +99,7 @@ export const getUsersList = async (params: UserListParams = {}): Promise<Paginat
       return {
         items: response.data,
         page: params.page || 1,
-        pageSize: params.pageSize || 50,
+        pageSize: params.pageSize || response.data.length,
         totalCount: response.data.length
       };
     }

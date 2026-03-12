@@ -31,7 +31,7 @@ const Subjects = () => {
   useEffect(() => {
     fetchSubjects();
     fetchLanguages();
-  }, []);
+  }, [selectedLanguageIdFilter]);
 
   /* ─── data fetching ─ */
   const fetchSubjects = async () => {
@@ -102,9 +102,17 @@ const Subjects = () => {
 
   /* ─── table config ─ */
   const filteredSubjects = subjects.filter(
-    (s) =>
-      (s.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (s.description?.toLowerCase() || '').includes(searchTerm.toLowerCase()),
+    (s) => {
+      const matchesSearch = 
+        (s.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (s.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      
+      const matchesLanguage = 
+        !selectedLanguageIdFilter || 
+        (s.names || []).some((n: any) => n.languageId === selectedLanguageIdFilter);
+      
+      return matchesSearch && matchesLanguage;
+    }
   );
 
   const columns: TableColumn[] = [
@@ -121,7 +129,24 @@ const Subjects = () => {
       key: 'languages', label: 'Languages',
       render: (subject) => {
         const names = subject.names || [];
-        return names.map((n: any) => n.language?.name || `Lang ${n.languageId}`).join(', ') || '-';
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {names.map((n: any) => {
+              const language = languages.find((l) => l.id === n.languageId);
+              return (
+                <span
+                  key={n.languageId}
+                  style={{
+                    padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
+                    borderRadius: 8, fontSize: '12px', fontWeight: '500',
+                  }}
+                >
+                  {language?.name || n.language?.name || `Lang ${n.languageId || 'Unknown'}`}
+                </span>
+              );
+            })}
+          </div>
+        );
       },
     },
     { key: 'status', label: 'Status', render: (row) => <StatusBadge isActive={row.isActive} /> },
