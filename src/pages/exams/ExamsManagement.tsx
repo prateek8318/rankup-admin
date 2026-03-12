@@ -131,13 +131,11 @@ const ExamsManagement = () => {
       const params: ExamListParams = {
         page: currentPage,
         limit: 10,
-        search: searchTerm
+        search: searchTerm,
+        filters: filters
       };
 
-      console.log('Fetching exams with params:', params);
       const response = await getExamsList(params);
-
-      console.log('Exams API Response:', response);
 
       if (response.success && response.data) {
         // Set exams for current page
@@ -166,9 +164,6 @@ const ExamsManagement = () => {
         const totalQuestions = response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.totalMarks || 0), 0);
         const avgDuration = response.data.length > 0 ? Math.round(response.data.reduce((sum: number, exam: ExamDto) => sum + exam.durationInMinutes, 0) / response.data.length) : 0;
 
-        console.log('Processed current page exams:', response.data);
-        console.log('Calculated stats:', { total, active, inactive, totalQuestions, avgDuration });
-
         setExamStats({
           totalExams: total,
           activeExams: active,
@@ -177,7 +172,6 @@ const ExamsManagement = () => {
           avgDuration: avgDuration
         });
       } else {
-        console.log('API response unsuccessful or no data:', response);
         setExams([]);
         setExamStats({
           totalExams: 0,
@@ -188,8 +182,6 @@ const ExamsManagement = () => {
         });
       }
     } catch (error: unknown) {
-      console.error('Error fetching exams:', error);
-      console.error('Error details:', error instanceof Error ? error.message : error);
       // Set fallback values
       setExams([]);
       setExamStats({
@@ -207,14 +199,12 @@ const ExamsManagement = () => {
   const fetchTotalExamsCount = async () => {
     try {
       const response = await getExamsCount();
-      console.log('Exams Count Response:', response);
 
       if (response.success && response.data) {
         // Use the actual total count from API for pagination display
         setTotalExams(response.data.totalExams || 0);
       }
     } catch (error) {
-      console.error('Error fetching exams count:', error);
       setTotalExams(0);
     }
   };
@@ -260,7 +250,6 @@ const ExamsManagement = () => {
   };
 
   const handleApply = () => {
-    console.log('Applying filters:', filters);
     fetchExams();
   };
 
@@ -281,7 +270,7 @@ const ExamsManagement = () => {
   };
 
   const handleExport = () => {
-    console.log('Exporting exam data...');
+    // TODO: Implement export functionality
   };
 
   const handlePageChange = (page: number) => {
@@ -289,25 +278,21 @@ const ExamsManagement = () => {
   };
 
   const handleViewExam = (exam: ExamDto) => {
-    console.log('View exam:', exam);
-    // TODO: Implement view functionality - open modal or navigate to view page
+    // Implement view functionality - open modal or navigate to view page
   };
 
   const handleEditExam = (exam: ExamDto) => {
-    console.log('Edit exam:', exam);
-    // TODO: Implement edit functionality - open modal or navigate to edit page
+    // Implement edit functionality - open modal or navigate to edit page
   };
 
   const handleDeleteExam = async (exam: ExamDto) => {
     if (window.confirm(`Are you sure you want to delete "${exam.name}"?`)) {
       try {
         await deleteExam(exam.id);
-        console.log('Exam deleted successfully');
         // Refresh the exams list
         fetchExams();
         fetchTotalExamsCount();
       } catch (error) {
-        console.error('Error deleting exam:', error);
         alert('Error deleting exam. Please try again.');
       }
     }
@@ -319,7 +304,6 @@ const ExamsManagement = () => {
       fetchExams();
       fetchTotalExamsCount();
     } catch (error) {
-      console.error('Error updating exam status:', error);
       alert('Error updating exam status. Please try again.');
     }
   };

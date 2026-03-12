@@ -150,3 +150,4 @@ const TwoStepVerificationPage: React.FC = () => {
 };
 
 export default TwoStepVerificationPage;
+

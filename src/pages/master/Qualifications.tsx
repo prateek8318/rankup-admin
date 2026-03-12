@@ -49,7 +49,7 @@ const Qualifications = () => {
       const data = await qualificationApi.getAllQualifications(params);
       setQualifications(data);
     } catch (error) {
-      console.error('Failed to fetch qualifications:', error);
+      ;
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ const Qualifications = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      ;
       setLanguages([]);
     } finally {
       setLanguagesLoading(false);
@@ -185,7 +185,7 @@ const Qualifications = () => {
       resetForm();
       setShowModal(false);
     } catch (error) {
-      console.error('Failed to save qualification:', error);
+      ;
       alert('Failed to save qualification');
     }
   };
@@ -212,7 +212,7 @@ const Qualifications = () => {
         await qualificationApi.toggleQualificationStatus(id.toString(), false);
         fetchQualifications();
       } catch (error) {
-        console.error('Error deactivating qualification:', error);
+        ;
       }
     }
   };
@@ -396,3 +396,4 @@ const Qualifications = () => {
 };
 
 export default Qualifications;
+

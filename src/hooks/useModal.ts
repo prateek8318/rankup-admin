@@ -29,3 +29,4 @@ export const useModal = (initialState = false): UseModalResult => {
     toggleModal
   };
 };
+

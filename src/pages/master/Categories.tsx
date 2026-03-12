@@ -35,7 +35,7 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
 
     return text; // Fallback to original text if translation fails
   } catch (error) {
-    console.error('Translation error:', error);
+    ;
     return text; // Fallback to original text
   }
 };
@@ -74,7 +74,7 @@ const Categories = () => {
         setCategories([]);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      ;
       setCategories([]);
     } finally {
       setLoading(false);
@@ -97,7 +97,7 @@ const Categories = () => {
       fetchCategories(selectedLanguage);
       resetForm();
     } catch (error) {
-      console.error('Error saving category:', error);
+      ;
     }
   };
 
@@ -118,7 +118,7 @@ const Categories = () => {
         await categoryApi.updateStatus(id, false);
         fetchCategories(selectedLanguage);
       } catch (error) {
-        console.error('Error deactivating category:', error);
+        ;
       }
     }
   };
@@ -139,7 +139,7 @@ const Categories = () => {
         const translatedHindi = await translateText(value, 'hi');
         setFormData(prev => ({ ...prev, nameHi: translatedHindi }));
       } catch (error) {
-        console.error('Auto-translation failed:', error);
+        ;
       } finally {
         setIsTranslating(false);
       }
@@ -156,7 +156,7 @@ const Categories = () => {
         const translatedEnglish = await translateText(value, 'en');
         setFormData(prev => ({ ...prev, nameEn: translatedEnglish }));
       } catch (error) {
-        console.error('Auto-translation failed:', error);
+        ;
       } finally {
         setIsTranslating(false);
       }
@@ -317,3 +317,4 @@ const Categories = () => {
 };
 
 export default Categories;
+

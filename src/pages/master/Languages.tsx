@@ -32,7 +32,7 @@ const Languages = () => {
       if (!Array.isArray(data)) data = [];
       setLanguages(data);
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      ;
       setLanguages([]);
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ const Languages = () => {
       fetchLanguages();
       resetForm();
     } catch (err) {
-      console.error('Error saving language:', err);
+      ;
     }
   };
 
@@ -126,7 +126,7 @@ const Languages = () => {
         await languageApi.updateStatus(id, false);
         fetchLanguages();
       } catch (err) {
-        console.error('Error deactivating language:', err);
+        ;
       }
     }
   };

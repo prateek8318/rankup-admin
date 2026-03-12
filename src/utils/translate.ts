@@ -22,7 +22,8 @@ export const translateText = async (
     const data = await response.json();
     return data?.[0]?.[0]?.[0] || text;
   } catch (error) {
-    console.error('Translation error:', error);
+    ;
     return text;
   }
 };
+

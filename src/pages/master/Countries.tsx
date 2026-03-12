@@ -32,7 +32,7 @@ const Countries = () => {
       const response = await countryApi.getAll(language);
       setCountries(extractApiData<CountryDto>(response));
     } catch (error) {
-      console.error('Error fetching countries:', error);
+      ;
       setCountries([]);
     }
   };
@@ -42,7 +42,7 @@ const Countries = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      ;
       setLanguages([]);
     }
   };
@@ -73,7 +73,7 @@ const Countries = () => {
       fetchCountries(selectedLanguage);
       resetForm();
     } catch (error) {
-      console.error('Error saving country:', error);
+      ;
     }
   };
 
@@ -97,7 +97,7 @@ const Countries = () => {
         await countryApi.updateStatus(id, false);
         fetchCountries(selectedLanguage);
       } catch (error) {
-        console.error('Error deactivating country:', error);
+        ;
       }
     }
   };
@@ -123,7 +123,7 @@ const Countries = () => {
         const hindiTranslation = await translateText(value, 'hi');
         setFormData((prev) => ({ ...prev, nameHi: hindiTranslation, name: value }));
       } catch (error) {
-        console.error('Auto-translation failed:', error);
+        ;
       }
     }
   };
@@ -235,3 +235,4 @@ const Countries = () => {
 };
 
 export default Countries;
+

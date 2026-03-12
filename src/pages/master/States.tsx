@@ -37,7 +37,6 @@ const States = () => {
       const response = await stateApi.getAll(selectedLanguageId, selectedCountryCode || undefined);
       setStates(extractApiData<StateDto>(response));
     } catch (error) {
-      console.error('Error fetching states:', error);
       setStates([]);
     } finally {
       setLoading(false);
@@ -49,7 +48,6 @@ const States = () => {
       const response = await countryApi.getAll();
       setCountries(extractApiData<CountryDto>(response));
     } catch (error) {
-      console.error('Error fetching countries:', error);
       setCountries([]);
     }
   };
@@ -59,7 +57,6 @@ const States = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      console.error('Error fetching languages:', error);
       setLanguages([]);
     }
   };
@@ -85,7 +82,7 @@ const States = () => {
       fetchStates();
       resetForm();
     } catch (error) {
-      console.error('Error saving state:', error);
+      alert('Error saving state');
     }
   };
 
@@ -105,7 +102,7 @@ const States = () => {
         await stateApi.updateStatus(id, false);
         fetchStates();
       } catch (error) {
-        console.error('Error deactivating state:', error);
+        alert('Error deactivating state');
       }
     }
   };
@@ -349,3 +346,4 @@ const States = () => {
 };
 
 export default States;
+

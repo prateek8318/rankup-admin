@@ -47,3 +47,4 @@ const createImage = (file: File): Promise<HTMLImageElement> =>
     image.setAttribute('crossOrigin', 'anonymous');
     image.src = URL.createObjectURL(file);
   });
+

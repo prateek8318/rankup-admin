@@ -145,7 +145,7 @@ const Users = () => {
         pageSize: 1000, // Fetch a large number to get all users
       });
 
-      console.log('API Response:', response); // Debug log
+      ; // Debug log
 
       if (response.items) {
         // Check if any filters are applied
@@ -234,7 +234,7 @@ const Users = () => {
           return lastLogin < thirtyDaysAgo;
         }).length;
 
-        console.log('Processed users:', response.items); // Debug log
+        ; // Debug log
 
         setUserStats({
           totalUsers: total,
@@ -245,7 +245,7 @@ const Users = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      ;
       // Set fallback values
       setUserStats({
         totalUsers: 0,
@@ -266,7 +266,7 @@ const Users = () => {
       try {
         // Get total users count
         const countData = await getUsersCount();
-        console.log('User count data:', countData);
+        ;
         
         // Get daily active users count
         const dailyActiveResponse = await fetch('/api/admin/users/daily-active-count', {
@@ -280,7 +280,7 @@ const Users = () => {
         let dailyActiveCount = 0;
         if (dailyActiveResponse.ok) {
           const dailyActiveData = await dailyActiveResponse.json();
-          console.log('Daily Active Count Response:', dailyActiveData); // Debug log
+          ; // Debug log
           // Handle API response structure: {success, data, message, timestamp}
           if (dailyActiveData.success && dailyActiveData.data) {
             dailyActiveCount = dailyActiveData.data.dailyActiveUsers || 0;
@@ -298,7 +298,7 @@ const Users = () => {
           }));
         }
       } catch (error) {
-        console.error('Error fetching user stats:', error);
+        ;
       }
     };
     fetchUserStats();
@@ -375,7 +375,7 @@ const Users = () => {
 
   const handleExport = async () => {
     try {
-      console.log('Exporting user data...');
+      ;
       const { exportToExcel } = await import('@/utils/excelUtils');
 
       const dataToExport = users.map(user => ({
@@ -394,7 +394,7 @@ const Users = () => {
 
       exportToExcel(dataToExport, 'Users_List');
     } catch (error) {
-      console.error('Export failed:', error);
+      ;
     }
   };
 

@@ -89,9 +89,9 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
       ? `${apiEndpoints.EXAMS.GET_ALL}?${queryParams.toString()}`
       : apiEndpoints.EXAMS.GET_ALL;
 
-    console.log('Making API call to:', url);
+    ;
     const response = await apiClient.get(url);
-    console.log('Raw API response:', response.data);
+    ;
     
     // Handle the case where API returns data directly without wrapper
     let apiResponse: ApiResponse<ExamDto[]>;
@@ -117,13 +117,13 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
       apiResponse = response.data;
     }
     
-    console.log('Processed API response:', apiResponse);
+    ;
     return apiResponse;
   } catch (error: any) {
-    console.error('Error fetching exams:', error);
-    console.error('Error response data:', error.response?.data);
-    console.error('Error status:', error.response?.status);
-    console.error('Error headers:', error.response?.headers);
+    ;
+    ;
+    ;
+    ;
     throw error;
   }
 };
@@ -136,7 +136,7 @@ export const getExamById = async (id: number): Promise<ApiResponse<ExamDto>> => 
     const response = await apiClient.get(apiEndpoints.EXAMS.GET_BY_ID(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error fetching exam by ID:', error);
+    ;
     throw error;
   }
 };
@@ -156,7 +156,7 @@ export const createExam = async (examData: CreateExamDto): Promise<ApiResponse<E
       data: response.data
     };
   } catch (error) {
-    console.error('Error creating exam:', error);
+    ;
     throw error;
   }
 };
@@ -176,7 +176,7 @@ export const updateExam = async (id: number, examData: UpdateExamDto): Promise<A
       data: response.data
     };
   } catch (error) {
-    console.error('Error updating exam:', error);
+    ;
     throw error;
   }
 };
@@ -188,7 +188,7 @@ export const deleteExam = async (id: number): Promise<void> => {
   try {
     await apiClient.delete(apiEndpoints.EXAMS.DELETE(id.toString()));
   } catch (error) {
-    console.error('Error deleting exam:', error);
+    ;
     throw error;
   }
 };
@@ -204,7 +204,7 @@ export const updateExamStatus = async (id: number, isActive: boolean): Promise<v
       },
     });
   } catch (error) {
-    console.error('Error updating exam status:', error);
+    ;
     throw error;
   }
 };
@@ -228,7 +228,7 @@ export const uploadExamImage = async (id: number, file: File): Promise<{ imageUr
     );
     return response.data;
   } catch (error) {
-    console.error('Error uploading exam image:', error);
+    ;
     throw error;
   }
 };
@@ -253,7 +253,7 @@ export const getExamsByQualification = async (
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching exams by qualification:', error);
+    ;
     throw error;
   }
 };
@@ -266,7 +266,7 @@ export const getExamsForUser = async (): Promise<ApiResponse<ExamDto[]>> => {
     const response = await apiClient.get(apiEndpoints.EXAMS.GET_FOR_USER);
     return response.data;
   } catch (error) {
-    console.error('Error fetching exams for user:', error);
+    ;
     throw error;
   }
 };
@@ -282,7 +282,7 @@ export const getExamsCount = async (): Promise<ApiResponse<{ totalExams: number 
       data: { totalExams: response.totalCount || 0 }
     };
   } catch (error) {
-    console.error('Error fetching exams count:', error);
+    ;
     throw error;
   }
 };
@@ -301,3 +301,4 @@ export default {
   getExams,
   getExamsCount,
 };
+

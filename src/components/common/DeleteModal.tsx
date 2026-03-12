@@ -20,7 +20,7 @@ const DeleteModel: React.FC = () => {
   };
   
   const handleCancel = () => {
-    console.log('Clicked cancel button');
+    ;
     setOpen(false);
   };
   
@@ -43,3 +43,4 @@ const DeleteModel: React.FC = () => {
 };
 
 export default DeleteModel;
+

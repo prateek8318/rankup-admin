@@ -67,7 +67,7 @@ export const getUsersList = async (params: UserListParams = {}): Promise<Paginat
 
     const response = await apiClient.get(url);
     
-    console.log('Raw API Response:', response.data); // Debug log
+    ; // Debug log
     
     // Handle the actual API response structure: {success, data, message, timestamp}
     if (response.data.success && response.data.data) {
@@ -82,7 +82,7 @@ export const getUsersList = async (params: UserListParams = {}): Promise<Paginat
       const endIndex = startIndex + pageSize;
       const paginatedUsers = allUsers.slice(startIndex, endIndex);
       
-      console.log(`Pagination: Page ${page}, Start ${startIndex}, End ${endIndex}, Showing ${paginatedUsers.length} of ${allUsers.length} users`);
+      ;
       
       return {
         items: paginatedUsers,
@@ -106,7 +106,7 @@ export const getUsersList = async (params: UserListParams = {}): Promise<Paginat
     
     return response.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    ;
     throw error;
   }
 };
@@ -119,7 +119,7 @@ export const getUserById = async (id: number): Promise<ApiResponse<UserDto>> => 
     const response = await apiClient.get(apiEndpoints.USERS.GET_BY_ID(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error fetching user by ID:', error);
+    ;
     throw error;
   }
 };
@@ -132,7 +132,7 @@ export const updateUser = async (id: number, userData: UpdateUserDto): Promise<A
     const response = await apiClient.put(apiEndpoints.USERS.UPDATE(id.toString()), userData);
     return response.data;
   } catch (error) {
-    console.error('Error updating user:', error);
+    ;
     throw error;
   }
 };
@@ -144,7 +144,7 @@ export const deleteUser = async (id: number): Promise<void> => {
   try {
     await apiClient.delete(apiEndpoints.USERS.DELETE(id.toString()));
   } catch (error) {
-    console.error('Error deleting user:', error);
+    ;
     throw error;
   }
 };
@@ -160,7 +160,7 @@ export const enableDisableUser = async (id: number, isActive: boolean): Promise<
       },
     });
   } catch (error) {
-    console.error('Error updating user status:', error);
+    ;
     throw error;
   }
 };

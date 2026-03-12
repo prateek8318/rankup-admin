@@ -20,3 +20,4 @@ class SubscriptionService extends BaseApiService {
 }
 
 export default new SubscriptionService();
+

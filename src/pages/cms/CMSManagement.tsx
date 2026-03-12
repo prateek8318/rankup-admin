@@ -11,9 +11,9 @@ import deleteIcon from '@/assets/icons/delete.png';
 // Translation function using Google Translate API (free tier)
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
-    console.log('=== TRANSLATING TEXT ===');
-    console.log('Original text:', text);
-    console.log('Target language:', targetLanguage);
+    ;
+    ;
+    ;
     
     // Map language codes to Google Translate language codes
     const languageMap: { [key: string]: string } = {
@@ -32,32 +32,32 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     };
 
     const targetLang = languageMap[targetLanguage] || targetLanguage;
-    console.log('Mapped language code:', targetLang);
+    ;
 
     // Using Google Translate API (you might need to set up API key)
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-    console.log('Translation URL:', url);
+    ;
     
     const response = await fetch(url);
     
     if (!response.ok) {
-      console.error('Translation API response not OK:', response.status, response.statusText);
+      ;
       throw new Error('Translation failed');
     }
 
     const data = await response.json();
-    console.log('Translation API response:', data);
+    ;
     
     if (data && data[0] && data[0][0] && data[0][0][0]) {
       const translatedText = data[0][0][0];
-      console.log('Translated text:', translatedText);
+      ;
       return translatedText;
     } else {
-      console.error('Invalid translation response structure:', data);
+      ;
       return text; // Return original text if translation fails
     }
   } catch (error) {
-    console.error('Translation error:', error);
+    ;
     return text; // Return original text if translation fails
   }
 };
@@ -114,7 +114,7 @@ const CMSManagement = () => {
         setTotalItems(response.total || 0);
       }
     } catch (error) {
-      console.error('Error fetching CMS items:', error);
+      ;
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ const CMSManagement = () => {
         setAvailableLanguages(languageOptions);
       }
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      ;
     }
   };
 
@@ -169,7 +169,7 @@ const CMSManagement = () => {
             });
           }
         } catch (error) {
-          console.error(`Translation failed for ${langCode}:`, error);
+          ;
           // Add fallback with original content
           translations.push({
             languageCode: langCode,
@@ -190,7 +190,7 @@ const CMSManagement = () => {
       setSelectedLanguagesForModal(['en']); // Reset to English only
       fetchCMSItems();
     } catch (error) {
-      console.error('Error saving CMS item:', error);
+      ;
     }
   };
 
@@ -206,7 +206,7 @@ const CMSManagement = () => {
       const translated = await translateText(formData.content, selectedLanguage);
       setTranslatedContent(translated);
     } catch (error) {
-      console.error('Translation failed:', error);
+      ;
       // Fallback to original content if translation fails
       setTranslatedContent(formData.content);
     }
@@ -222,7 +222,7 @@ const CMSManagement = () => {
         await deleteCMS(id);
         fetchCMSItems();
       } catch (error) {
-        console.error('Error deleting CMS item:', error);
+        ;
       }
     }
   };
@@ -233,7 +233,7 @@ const CMSManagement = () => {
       await updateCMSStatus(id, newStatus === 'Active');
       fetchCMSItems();
     } catch (error) {
-      console.error('Error updating CMS status:', error);
+      ;
     }
   };
 
@@ -838,3 +838,4 @@ const CMSManagement = () => {
 };
 
 export default CMSManagement;
+

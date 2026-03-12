@@ -20,3 +20,4 @@ class ExamService extends BaseApiService {
 }
 
 export default new ExamService();
+

@@ -8,3 +8,4 @@ export const exportToExcel = (data: any[], fileName: string) => {
     const dataBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(dataBlob, `${fileName}.xlsx`);
 };
+

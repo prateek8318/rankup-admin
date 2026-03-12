@@ -32,3 +32,4 @@ declare module '@/features/auth' {
     verifyOTP: (otp: string) => Promise<{ success: boolean; error?: string }>;
   };
 }
+

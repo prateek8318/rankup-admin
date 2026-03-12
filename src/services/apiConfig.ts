@@ -14,3 +14,4 @@ export const API_CONFIG = {
 
 export const axiosInstance = apiClient;
 export default API_CONFIG;
+
