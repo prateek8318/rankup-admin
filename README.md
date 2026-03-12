@@ -36,7 +36,7 @@ src/
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/teknikoglobal1326/RankUp-Admin-Panel.git
 cd rankupadmin
 ```
 
@@ -106,12 +106,7 @@ The application is configured to work with multiple microservices:
 - TypeScript strict mode
 - ESLint for code quality
 
-## 📱 Responsive Design
 
-The application is fully responsive and works across:
-- Desktop (1920px+)
-- Tablet (768px - 1024px)
-- Mobile (320px - 768px)
 
 ## 🚀 Deployment
 
