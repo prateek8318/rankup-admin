@@ -136,14 +136,14 @@ const Subscriptions = () => {
           setPlans(response.data || []);
           setTotalPlans(response.pagination?.totalCount || 0);
         } catch (error) {
-          console.error('Error fetching subscription plans:', error);
+          ;
         } finally {
           setLoading(false);
         }
       };
       fetchData();
     } catch (error) {
-      console.error('Error toggling popular status:', error);
+      ;
     }
   };
 
@@ -161,14 +161,14 @@ const Subscriptions = () => {
           setPlans(response.data || []);
           setTotalPlans(response.pagination?.totalCount || 0);
         } catch (error) {
-          console.error('Error fetching subscription plans:', error);
+          ;
         } finally {
           setLoading(false);
         }
       };
       fetchData();
     } catch (error) {
-      console.error('Error toggling recommended status:', error);
+      ;
     }
   };
 
@@ -186,14 +186,14 @@ const Subscriptions = () => {
           setPlans(response.data || []);
           setTotalPlans(response.pagination?.totalCount || 0);
         } catch (error) {
-          console.error('Error fetching subscription plans:', error);
+          ;
         } finally {
           setLoading(false);
         }
       };
       fetchData();
     } catch (error) {
-      console.error('Error toggling active status:', error);
+      ;
     }
   };
 
@@ -240,7 +240,7 @@ const Subscriptions = () => {
           avgPrice: s.avgPrice || 0
         });
       } catch (err) {
-        console.error(err);
+        ;
       } finally {
         setLoading(false);
       }
@@ -470,7 +470,7 @@ const Subscriptions = () => {
                 setPlans(response.data || []);
                 setTotalPlans(response.pagination?.totalCount || 0);
               } catch (error) {
-                console.error('Error fetching subscription plans:', error);
+                ;
               } finally {
                 setLoading(false);
               }

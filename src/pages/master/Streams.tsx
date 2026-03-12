@@ -52,7 +52,7 @@ const Streams = () => {
       setStreams(streamsData);
       setQualifications(qualificationsData);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      alert('Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,6 @@ const Streams = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      console.error('Error fetching languages:', error);
       setLanguages([]);
     } finally {
       setLanguagesLoading(false);
@@ -188,7 +187,6 @@ const Streams = () => {
       resetForm();
       setShowModal(false);
     } catch (error) {
-      console.error('Failed to save stream:', error);
       alert('Failed to save stream');
     }
   };
@@ -215,7 +213,6 @@ const Streams = () => {
         await streamApi.delete(id);
         fetchData();
       } catch (error) {
-        console.error('Failed to delete stream:', error);
         alert('Failed to delete stream');
       }
     }
@@ -224,10 +221,6 @@ const Streams = () => {
   /* ─── table config ─ */
   const filteredStreams = streams.filter(
     (s) => {
-      // Debug logging
-      console.log('Search term:', searchTerm);
-      console.log('Stream data:', s);
-      
       // Safe search term handling
       if (!searchTerm || typeof searchTerm !== 'string') {
         return true; // Show all if no search term
@@ -247,7 +240,6 @@ const Streams = () => {
       ) || false;
       
       const result = mainNameMatch || mainDescMatch || qualificationMatch || namesMatch;
-      console.log('Filter result:', result);
       return result;
     }
   );
@@ -277,14 +269,10 @@ const Streams = () => {
     {
       key: 'languages', label: 'Languages',
       render: (stream) => {
-        console.log('Stream names:', stream.names);
-        console.log('Available languages:', languages);
-        
         return (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {stream.names.map((name: StreamName) => {
               const language = languages.find((l) => l.id === name.languageId);
-              console.log(`Looking for languageId ${name.languageId}, found:`, language);
               
               return (
                 <span
@@ -448,3 +436,4 @@ const Streams = () => {
 };
 
 export default Streams;
+

@@ -42,7 +42,7 @@ const Subjects = () => {
       if (!Array.isArray(data)) data = [];
       setSubjects(data.map((s: any) => ({ ...s, names: s.subjectLanguages || s.names || [] })));
     } catch (err) {
-      console.error(err);
+      ;
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ const Subjects = () => {
       if (!Array.isArray(data)) data = [];
       setLanguages(data);
     } catch (err) {
-      console.error(err);
+      ;
     } finally {
       setLanguagesLoading(false);
     }
@@ -75,7 +75,7 @@ const Subjects = () => {
       setShowModal(false);
       fetchSubjects();
     } catch (err) {
-      console.error(err);
+      ;
     }
   };
 
@@ -96,7 +96,7 @@ const Subjects = () => {
       await subjectApi.updateStatus(id, false);
       fetchSubjects();
     } catch (err) {
-      console.error(err);
+      ;
     }
   };
 

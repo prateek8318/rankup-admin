@@ -33,7 +33,7 @@ export const getDashboardTotals = async () => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Dashboard Totals API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -63,7 +63,7 @@ export const getDashboardOverview = async () => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Dashboard Overview API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -99,7 +99,7 @@ export const getDashboardStats = async ({ page = 1, rowsPerPage = 10, searchQuer
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Dashboard Stats API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -132,7 +132,7 @@ export const getUsersCount = async () => {
     }
 
     const result = await res.json();
-    console.log('Users Count API Response:', result); // Debug log
+    ; // Debug log
     
     // Handle the actual API response structure: {success, data, message, timestamp}
     if (result.success && result.data) {
@@ -142,7 +142,7 @@ export const getUsersCount = async () => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Users Count API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -178,7 +178,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("CMS List API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -206,7 +206,7 @@ export const getCMSContent = async (key: string, language: string = "en") => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("CMS Content API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -234,7 +234,7 @@ export const getCMSKeys = async () => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("CMS Keys API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -264,7 +264,7 @@ export const createCMS = async (data: unknown) => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Create CMS API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -294,7 +294,7 @@ export const updateCMS = async (id: string, data: unknown) => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Update CMS API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -332,7 +332,7 @@ export const deleteCMS = async (id: string) => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Delete CMS API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -362,7 +362,7 @@ export const updateCMSStatus = async (id: string, status: boolean) => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Update CMS Status API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -396,7 +396,7 @@ export const getExams = async ({ page = 1, limit = 10, search = "" }: { page?: n
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Exams API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -424,7 +424,7 @@ export const getExamsCount = async () => {
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Exams Count API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -458,7 +458,7 @@ export const getUsers = async ({ page = 1, limit = 10, search = "" }: { page?: n
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
-    console.error("Users API Error:", err);
+    ;
     toast.error(message);
     throw new Error(message);
   }
@@ -467,3 +467,4 @@ export const getUsers = async ({ page = 1, limit = 10, search = "" }: { page?: n
 export const getAllDeashboard = async ({ page, rowsPerPage, searchQuery }: DashboardParams) => {
   return getDashboardStats({ page, rowsPerPage, searchQuery });
 };
+

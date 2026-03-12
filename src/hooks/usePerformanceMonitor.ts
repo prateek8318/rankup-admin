@@ -113,7 +113,7 @@ export const withPerformanceMonitor = <P extends object>(
         
         return () => {
           const renderTime = endTimer(`${componentName}_render`);
-          console.log(`${componentName} render time: ${renderTime}ms`);
+          ;
         };
       });
 
@@ -207,3 +207,4 @@ export const getBundleSize = async (): Promise<{
 };
 
 export default usePerformanceMonitor;
+

@@ -4,8 +4,6 @@ import { useRouteError, isRouteErrorResponse } from 'react-router-dom';
 const ErrorFallback: React.FC = () => {
   const error = useRouteError();
   // Log full error for debugging
-  // eslint-disable-next-line no-console
-  console.error('Route error caught by ErrorFallback:', error);
 
   if (isRouteErrorResponse(error)) {
     return (
@@ -26,3 +24,4 @@ const ErrorFallback: React.FC = () => {
 };
 
 export default ErrorFallback;
+

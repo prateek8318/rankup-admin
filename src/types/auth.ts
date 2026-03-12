@@ -15,3 +15,4 @@ export interface VerifyOTPResult {
   success: boolean;
   error?: string;
 }
+

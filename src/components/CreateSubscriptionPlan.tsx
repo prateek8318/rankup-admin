@@ -16,7 +16,7 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     const data = await response.json();
     return data?.[0]?.[0]?.[0] || text;
   } catch (err) {
-    console.error('translateText error', err);
+    ;
     return text;
   }
 };
@@ -77,7 +77,7 @@ const CreateSubscriptionPlan: React.FC<CreateSubscriptionPlanProps> = ({ onClose
         setLanguages([]);
       }
     } catch (error) {
-      console.error('Error fetching master data:', error);
+      ;
       setExams([]);
       setLanguages([]);
     }
@@ -140,7 +140,7 @@ const CreateSubscriptionPlan: React.FC<CreateSubscriptionPlanProps> = ({ onClose
             ]
           }));
         } catch (error) {
-          console.error('Translation error:', error);
+          ;
         }
       }
     } else if (!checked) {
@@ -185,7 +185,7 @@ const CreateSubscriptionPlan: React.FC<CreateSubscriptionPlanProps> = ({ onClose
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Error creating subscription plan:', error);
+      ;
       toast.error(error.message || 'Failed to create subscription plan');
     } finally {
       setLoading(false);

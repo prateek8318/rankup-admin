@@ -155,7 +155,7 @@ export const getSubscriptionPlansList = async (
     
     return response.data;
   } catch (error) {
-    console.error('Error fetching subscription plans:', error);
+    ;
     throw error;
   }
 };
@@ -178,7 +178,7 @@ export const getSubscriptionPlanById = async (
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching subscription plan by ID:', error);
+    ;
     throw error;
   }
 };
@@ -193,7 +193,7 @@ export const createSubscriptionPlan = async (
     const response = await apiClient.post(apiEndpoints.SUBSCRIPTIONS.PLANS.CREATE, planData);
     return response.data;
   } catch (error) {
-    console.error('Error creating subscription plan:', error);
+    ;
     throw error;
   }
 };
@@ -212,7 +212,7 @@ export const updateSubscriptionPlan = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error updating subscription plan:', error);
+    ;
     throw error;
   }
 };
@@ -225,7 +225,7 @@ export const deleteSubscriptionPlan = async (id: number): Promise<ApiResponse<{ 
     const response = await apiClient.delete(apiEndpoints.SUBSCRIPTIONS.PLANS.DELETE(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error deleting subscription plan:', error);
+    ;
     throw error;
   }
 };
@@ -238,7 +238,7 @@ export const togglePopularStatus = async (id: number): Promise<ApiResponse<Parti
     const response = await apiClient.patch(apiEndpoints.SUBSCRIPTIONS.PLANS.TOGGLE_POPULAR(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error toggling popular status:', error);
+    ;
     // Return mock response to prevent crash
     return {
       success: false,
@@ -256,7 +256,7 @@ export const toggleRecommendedStatus = async (id: number): Promise<ApiResponse<P
     const response = await apiClient.patch(apiEndpoints.SUBSCRIPTIONS.PLANS.TOGGLE_RECOMMENDED(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error toggling recommended status:', error);
+    ;
     // Return mock response to prevent crash
     return {
       success: false,
@@ -274,7 +274,7 @@ export const toggleActiveStatus = async (id: number): Promise<ApiResponse<Partia
     const response = await apiClient.patch(apiEndpoints.SUBSCRIPTIONS.PLANS.TOGGLE_STATUS(id.toString()));
     return response.data;
   } catch (error) {
-    console.error('Error toggling active status:', error);
+    ;
     // Return mock response to prevent crash
     return {
       success: false,
@@ -298,7 +298,7 @@ export const getSubscriptionPlanStats = async (): Promise<SubscriptionPlanStats>
       return response.data;
     }
   } catch (error) {
-    console.error('Error fetching subscription plan stats:', error);
+    ;
     // Return default values when API fails
     return {
       totalPlans: 0,
@@ -336,7 +336,7 @@ export const getFilteredSubscriptionPlans = async (
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching filtered subscription plans:', error);
+    ;
     throw error;
   }
 };
@@ -364,7 +364,7 @@ export const getActiveSubscriptionPlans = async (
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching active subscription plans:', error);
+    ;
     throw error;
   }
 };
@@ -382,3 +382,4 @@ export default {
   getFilteredSubscriptionPlans,
   getActiveSubscriptionPlans,
 };
+

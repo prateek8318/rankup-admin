@@ -25,3 +25,4 @@ export const authApi = {
     await apiClient.post(apiEndpoints.AUTH.LOGOUT);
   },
 };
+

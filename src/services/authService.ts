@@ -32,7 +32,7 @@ class AuthService extends BaseApiService {
 
       throw new Error(response.ErrorMessage || 'Login failed');
     } catch (error) {
-      console.error('Login Error:', error);
+      ;
       throw error;
     }
   }
@@ -41,7 +41,7 @@ class AuthService extends BaseApiService {
     try {
       await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
-      console.error('Logout Error:', error);
+      ;
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -71,7 +71,7 @@ class AuthService extends BaseApiService {
 
       throw new Error('Token refresh failed');
     } catch (error) {
-      console.error('Token Refresh Error:', error);
+      ;
       this.logout();
       throw error;
     }
@@ -94,3 +94,4 @@ class AuthService extends BaseApiService {
 }
 
 export default new AuthService();
+

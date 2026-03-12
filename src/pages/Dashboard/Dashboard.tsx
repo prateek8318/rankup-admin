@@ -201,13 +201,13 @@ const DashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      console.log('🚫 Using mock data only - API disabled');
+      ;
       setStats(mockStats);
       setOverview(mockOverview);
       
     } catch (err: any) {
       setError('Failed to load dashboard data');
-      console.error('Dashboard error:', err);
+      ;
       setStats(mockStats);
       setOverview(mockOverview);
     } finally {
@@ -495,3 +495,4 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+

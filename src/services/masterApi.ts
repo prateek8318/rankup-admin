@@ -25,12 +25,6 @@ const subscriptionApiClient = axios.create({
 // Add auth interceptor for Master Service
 masterApiClient.interceptors.request.use(
   (config) => {
-    console.log('=== API REQUEST ===');
-    console.log('URL:', config.url);
-    console.log('Method:', config.method);
-    console.log('Base URL:', config.baseURL);
-    console.log('Full URL:', `${config.baseURL || ''}${config.url || ''}`);
-    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,12 +37,6 @@ masterApiClient.interceptors.request.use(
 // Add auth interceptor for Subscription Service
 subscriptionApiClient.interceptors.request.use(
   (config) => {
-    console.log('=== SUBSCRIPTION API REQUEST ===');
-    console.log('URL:', config.url);
-    console.log('Method:', config.method);
-    console.log('Base URL:', config.baseURL);
-    console.log('Full URL:', `${config.baseURL || ''}${config.url || ''}`);
-    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -61,17 +49,9 @@ subscriptionApiClient.interceptors.request.use(
 // Add response interceptor for debugging
 subscriptionApiClient.interceptors.response.use(
   (response) => {
-    console.log('=== SUBSCRIPTION API RESPONSE INTERCEPTOR ===');
-    console.log('Response URL:', response.config.url);
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', response.data);
     return response;
   },
   (error) => {
-    console.log('=== SUBSCRIPTION API ERROR INTERCEPTOR ===');
-    console.log('Error URL:', error.config?.url);
-    console.log('Error Status:', error.response?.status);
-    console.log('Error Data:', error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -160,7 +140,6 @@ export const countryApi = {
       code: data.code,
       isActive: data.isActive
     };
-    console.log('Creating country with data:', backendData); // Debug log
     return masterApiClient.post('/countries', backendData);
   },
   
@@ -175,7 +154,6 @@ export const countryApi = {
       subdivisionLabelHi: data.subdivisionLabelHi,
       isActive: data.isActive !== undefined ? data.isActive : true
     };
-    console.log('Updating country with data:', backendData); // Debug log
     return masterApiClient.put(`/countries/${id}`, backendData);
   },
   
@@ -619,3 +597,4 @@ export interface ApiResponseDto<T> {
   message?: string;
   errorMessage?: string;
 }
+

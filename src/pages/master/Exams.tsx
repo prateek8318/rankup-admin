@@ -22,7 +22,7 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     const data = await response.json();
     return data?.[0]?.[0]?.[0] || text;
   } catch (err) {
-    console.error('translateText error', err);
+    ;
     return text;
   }
 };
@@ -79,7 +79,7 @@ const Exams = () => {
       const streamsResp = await streamApi.getAll();
       setStreams(Array.isArray(streamsResp.data) ? streamsResp.data : (streamsResp.data?.data || []));
     } catch (err) {
-      console.error('fetchData error', err);
+      ;
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ const Exams = () => {
         setLanguages([]);
       }
     } catch (err) {
-      console.error('fetchLanguages error', err);
+      ;
       setLanguages([]);
     } finally {
       setLanguagesLoading(false);
@@ -120,7 +120,7 @@ const Exams = () => {
       else if (Array.isArray(res.data)) setCountries(res.data);
       else setCountries([]);
     } catch (err) {
-      console.error('fetchCountries error', err);
+      ;
       setCountries([]);
     }
   };
@@ -151,7 +151,7 @@ const Exams = () => {
       await updateExamStatus(id, false);
       await fetchData();
     } catch (err) {
-      console.error('deleteExam error', err);
+      ;
       alert('Failed to deactivate exam');
     }
   };
@@ -206,7 +206,7 @@ const Exams = () => {
         setImageFile(croppedFile);
         setShowCropModal(false);
       } catch (error) {
-        console.error('Error cropping image:', error);
+        ;
         alert('Failed to crop image');
       }
     }
@@ -248,7 +248,7 @@ const Exams = () => {
       setIsInternationalFlag(false);
       await fetchData();
     } catch (err) {
-      console.error('submit error', err);
+      ;
       alert('Failed to save exam');
     }
   };
@@ -268,7 +268,7 @@ const Exams = () => {
         const translatedDesc = lang && (lang as any).code !== 'en' ? await translateText(formData.description || '', (lang as any).code) : formData.description || '';
         setFormData({ ...formData, names: [...names, { languageId, name: translatedName, description: translatedDesc }] });
       } catch (err) {
-        console.error('Translation error:', err);
+        ;
       } finally {
         setIsTranslating(false);
       }

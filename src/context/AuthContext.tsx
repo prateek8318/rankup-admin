@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("Token not found in response");
       }
     } catch (error: unknown) {
-      console.error('Login error:', error);
+      ;
       const err = error as { code?: string; message?: string; response?: { data?: { message?: string } } };
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
         return {
@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } }; message?: string };
-      console.error("OTP verification failed:", error);
+      ;
       return { success: false, error: err.response?.data?.message || err.message };
     }
   };
@@ -136,3 +136,4 @@ export function useAuthContext() {
   }
   return context;
 }
+

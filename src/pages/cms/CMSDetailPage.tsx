@@ -36,7 +36,7 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     const data = await response.json();
     return data[0][0][0];
   } catch (error) {
-    console.error('Translation error:', error);
+    ;
     return text; // Return original text if translation fails
   }
 };
@@ -79,7 +79,7 @@ const CMSDetailPage = () => {
         setAvailableLanguages(languageOptions);
       }
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      ;
       // Fallback to basic languages
       setAvailableLanguages([
         { code: 'en', name: 'English' },
@@ -105,7 +105,7 @@ const CMSDetailPage = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching CMS content:', error);
+      ;
     } finally {
       setLoading(false);
     }
@@ -143,7 +143,7 @@ const CMSDetailPage = () => {
             });
           }
         } catch (error) {
-          console.error(`Translation failed for ${langCode}:`, error);
+          ;
           // Add fallback with original content
           translations.push({
             languageCode: langCode,
@@ -161,7 +161,7 @@ const CMSDetailPage = () => {
       setIsEditing(false);
       fetchCMSContent();
     } catch (error) {
-      console.error('Error updating CMS item:', error);
+      ;
     }
   };
 
@@ -173,7 +173,7 @@ const CMSDetailPage = () => {
       const translated = await translateText(formData.content, targetLang);
       setFormData(prev => ({ ...prev, content: translated }));
     } catch (error) {
-      console.error('Translation failed:', error);
+      ;
     }
   };
 
@@ -189,7 +189,7 @@ const CMSDetailPage = () => {
       setIsEditing(false);
       fetchCMSContent();
     } catch (error) {
-      console.error('Error saving CMS content:', error);
+      ;
     }
   };
 
@@ -201,7 +201,7 @@ const CMSDetailPage = () => {
         await deleteCMS(cmsItem.id);
         navigate('/home/cms');
       } catch (error) {
-        console.error('Error deleting CMS item:', error);
+        ;
       }
     }
   };
@@ -502,3 +502,4 @@ const CMSDetailPage = () => {
 };
 
 export default CMSDetailPage;
+

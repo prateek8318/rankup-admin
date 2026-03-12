@@ -125,3 +125,4 @@ const MasterTable: React.FC<MasterTableProps> = ({
 };
 
 export default MasterTable;
+

@@ -179,7 +179,7 @@ const Languages = () => {
       fetchLanguages();
       resetForm();
     } catch (err) {
-      console.error('Error saving language:', err);
+      ;
     }
   }, [formData, editingLanguage, isFormValid, fetchLanguages, resetForm]);
 
@@ -211,7 +211,7 @@ const Languages = () => {
         await languageApi.updateStatus(id, false);
         fetchLanguages();
       } catch (err) {
-        console.error('Error deactivating language:', err);
+        ;
       }
     }
   }, [fetchLanguages]);
