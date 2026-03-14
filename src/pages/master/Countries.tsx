@@ -194,14 +194,14 @@ const Countries = () => {
         <form onSubmit={handleSubmit}>
           <FormInput
             label="Country Name (English)"
-            value={formData.nameEn}
+            value={formData.nameEn || ''}
             onChange={handleNameEnChange}
             required
           />
 
           <FormInput
             label="Country Name (Hindi)"
-            value={formData.nameHi}
+            value={formData.nameHi || ''}
             onChange={(val) => setFormData({ ...formData, nameHi: val })}
           />
 
@@ -220,7 +220,7 @@ const Countries = () => {
 
           <FormCheckbox
             label="Active"
-            checked={formData.isActive}
+            checked={formData.isActive || false}
             onChange={(checked) => setFormData({ ...formData, isActive: checked })}
           />
 

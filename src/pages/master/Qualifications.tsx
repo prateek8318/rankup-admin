@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import styles from './Qualifications.module.css';
+import { useQualifications } from '@/hooks/useQualifications';
 import { qualificationApi, mockCountries } from '@/services/qualificationApi';
 import { languageApi } from '@/services/masterApi';
 import {
@@ -18,57 +21,29 @@ import StatusBadge from '@/components/common/StatusBadge';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 
 const Qualifications = () => {
-  const [qualifications, setQualifications] = useState<QualificationDto[]>([]);
-  const [countries] = useState<CountryDto[]>(mockCountries);
-  const [languages, setLanguages] = useState<LanguageDto[]>([]);
-  const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingQualification, setEditingQualification] = useState<QualificationDto | null>(null);
   const [selectedLanguages, setSelectedLanguages] = useState<number[]>([]);
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState<CreateQualificationDto>({
     name: '', description: '', countryCode: '', names: [],
   });
 
-  /* ─── data fetching ─ */
-  useEffect(() => {
-    fetchQualifications();
-    fetchLanguages();
-  }, [selectedLanguageFilter]);
+  const {
+    qualifications,
+    countries,
+    languages,
+    loading,
+    languagesLoading,
+    deleteQualification,
+    saveQualification,
+  } = useQualifications(selectedLanguageFilter);
 
-  const fetchQualifications = async () => {
-    try {
-      setLoading(true);
-      const params: any = {};
-      if (selectedLanguageFilter) params.language = selectedLanguageFilter;
-      const data = await qualificationApi.getAllQualifications(params);
-      setQualifications(data);
-    } catch (error) {
-      ;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchLanguages = async () => {
-    try {
-      setLanguagesLoading(true);
-      const response = await languageApi.getAll();
-      setLanguages(extractApiData<LanguageDto>(response));
-    } catch (error) {
-      ;
-      setLanguages([]);
-    } finally {
-      setLanguagesLoading(false);
-    }
-  };
-
-  /* ─── language toggle with auto-translate ─ */
+/* ─── language toggle with auto-translate ─ */
   const handleLanguageToggle = (languageId: number) => {
     const names = formData.names || [];
     const isCurrentlySelected = selectedLanguages.includes(languageId);
@@ -166,27 +141,17 @@ const Qualifications = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.description || !formData.countryCode) {
-      alert('Please fill all required fields');
+      toast.error('Please fill all required fields');
       return;
     }
     if (selectedLanguages.length === 0) {
-      alert('Please select at least one language');
+      toast.error('Please select at least one language');
       return;
     }
-    try {
-      if (editingQualification) {
-        await qualificationApi.updateQualification(editingQualification.id.toString(), {
-          ...formData, id: editingQualification.id,
-        });
-      } else {
-        await qualificationApi.createQualification(formData);
-      }
-      fetchQualifications();
+    const success = await saveQualification(formData, editingQualification);
+    if (success) {
       resetForm();
       setShowModal(false);
-    } catch (error) {
-      ;
-      alert('Failed to save qualification');
     }
   };
 
@@ -207,14 +172,7 @@ const Qualifications = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to deactivate this qualification?')) {
-      try {
-        await qualificationApi.toggleQualificationStatus(id.toString(), false);
-        fetchQualifications();
-      } catch (error) {
-        ;
-      }
-    }
+    await deleteQualification(id);
   };
 
   /* ─── table config ─ */
@@ -232,16 +190,13 @@ const Qualifications = () => {
     {
       key: 'languages', label: 'Languages',
       render: (q) => (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+        <div className={styles.languageContainer}>
           {q.names.map((name: QualificationName) => {
             const language = languages.find((l) => l.id === name.languageId);
             return (
               <span
                 key={name.languageId}
-                style={{
-                  padding: '2px 6px', background: '#dbeafe', color: '#1e40af',
-                  borderRadius: 8, fontSize: '12px', fontWeight: '500',
-                }}
+                className={styles.languageBadge}
               >
                 {language?.name || name.languageCode || name.languageId}
               </span>
@@ -297,7 +252,7 @@ const Qualifications = () => {
             required
             labelSuffix={
               isTranslating ? (
-                <span style={{ marginLeft: 8, fontSize: '12px', color: '#6b7280' }}>(Translating...)</span>
+                <span className={styles.translatingText}>(Translating...)</span>
               ) : null
             }
           />
@@ -332,20 +287,20 @@ const Qualifications = () => {
           />
 
           {formData.names.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: '14px', fontWeight: '500' }}>
+            <div className={styles.translationSection}>
+              <label className={styles.translationLabel}>
                 Qualification Names and Descriptions by Language *
               </label>
-              <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
+              <div className={styles.translationList}>
                 {formData.names.map((name) => {
                   const language = languages.find((l) => l.id === name.languageId);
                   return (
-                    <div key={name.languageId} style={{ marginBottom: 12, padding: 8, background: '#f9fafb', borderRadius: 6 }}>
-                      <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: 4 }}>
+                    <div key={name.languageId} className={styles.translationItem}>
+                      <div className={styles.translationLangName}>
                         {language?.name} ({(language as any)?.nativeName})
                       </div>
-                      <div style={{ marginBottom: 4 }}>
-                        <label style={{ fontSize: '12px', fontWeight: '500' }}>Name:</label>
+                      <div className={styles.inputGroup}>
+                        <label className={styles.inputLabel}>Name:</label>
                         <input
                           type="text" required value={name.name}
                           onChange={(e) => {
@@ -354,14 +309,11 @@ const Qualifications = () => {
                             updatedNames[index] = { ...name, name: e.target.value };
                             setFormData({ ...formData, names: updatedNames });
                           }}
-                          style={{
-                            width: '100%', padding: '4px 6px', border: '1px solid #e5e7eb',
-                            borderRadius: 4, fontSize: '12px', marginTop: 2, boxSizing: 'border-box',
-                          }}
+                          className={styles.inputField}
                         />
                       </div>
                       <div>
-                        <label style={{ fontSize: '12px', fontWeight: '500' }}>Description:</label>
+                        <label className={styles.inputLabel}>Description:</label>
                         <textarea
                           required value={name.description}
                           onChange={(e) => {
@@ -371,10 +323,7 @@ const Qualifications = () => {
                             setFormData({ ...formData, names: updatedNames });
                           }}
                           rows={2}
-                          style={{
-                            width: '100%', padding: '4px 6px', border: '1px solid #e5e7eb',
-                            borderRadius: 4, fontSize: '12px', marginTop: 2, resize: 'vertical', boxSizing: 'border-box',
-                          }}
+                          className={styles.textareaField}
                         />
                       </div>
                     </div>

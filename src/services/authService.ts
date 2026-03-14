@@ -19,7 +19,7 @@ interface LoginResponse {
 class AuthService extends BaseApiService {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
-      const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials);
+      const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials) as LoginResponse;
 
       if (response.Success && response.Token) {
         localStorage.setItem('token', response.Token);
@@ -59,7 +59,7 @@ class AuthService extends BaseApiService {
 
       const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH, {
         RefreshToken: refreshToken
-      });
+      }) as LoginResponse;
 
       if (response.Success && response.Token) {
         localStorage.setItem('token', response.Token);

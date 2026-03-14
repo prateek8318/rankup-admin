@@ -27,8 +27,8 @@ const MasterTable: React.FC<MasterTableProps> = ({
   emptyMessage = "No data found.",
   loadingMessage = "Loading..."
 }) => {
-  const renderActions = (item: any) => (
-    <td style={{ padding: 12 }}>
+  const renderActions = (item: any, key?: string) => (
+    <td key={key} style={{ padding: 12 }}>
       <button
         onClick={() => onEdit?.(item)}
         style={{
@@ -106,7 +106,7 @@ const MasterTable: React.FC<MasterTableProps> = ({
               >
                 {columns.map((column) => {
                   if (column.key === 'actions') {
-                    return renderActions(row);
+                    return renderActions(row, column.key);
                   }
                   
                   return (

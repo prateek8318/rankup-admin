@@ -3,7 +3,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Layout from "@/layouts/Layout";
-import { DashboardPage } from "@/features/dashboard";
+import DashboardPage from "@/pages/Dashboard/Dashboard";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import LoginPage from "@/pages/Auth/LoginPage";
 import ForgotPasswordPage from "@/pages/Auth/ForgotPasswordPage";

@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { notificationService } from '@/services/notificationService';
 import { errorHandlingService } from '@/services/errorHandlingService';
-import { DashboardCardProps, DashboardCardStyles } from '@/styles/dashboardCardStyles';
 import usersIcon from '@/assets/icons/user.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
 import examsIcon from '@/assets/icons/total exams.png';

@@ -7,13 +7,17 @@ const mockExams: ExamDto[] = [
     description: "Comprehensive mathematics exam covering all topics",
     durationInMinutes: 120,
     totalMarks: 100,
-    passingMarks: 35,
+    passingMarks: 50,
     isActive: true,
-    createdAt: "2024-01-15T10:30:00Z",
-    imageUrl: "https://example.com/math-exam.jpg",
+    createdAt: '2024-02-15T10:00:00Z',
+    imageUrl: 'https://via.placeholder.com/150',
     isInternational: false,
     qualificationIds: [1, 2],
-    streamIds: [1]
+    streamIds: [1],
+    countryCode: "IN",
+    minAge: 18,
+    maxAge: 35,
+    names: []
   },
   {
     id: 2,
@@ -21,13 +25,17 @@ const mockExams: ExamDto[] = [
     description: "Physics, Chemistry and Biology combined test",
     durationInMinutes: 90,
     totalMarks: 80,
-    passingMarks: 28,
+    passingMarks: 50,
     isActive: true,
-    createdAt: "2024-01-20T14:15:00Z",
-    imageUrl: "https://example.com/science-exam.jpg",
+    createdAt: "2024-02-01T08:00:00Z",
+    imageUrl: "https://example.com/physics-exam.jpg",
     isInternational: false,
     qualificationIds: [2],
-    streamIds: [2]
+    streamIds: [2],
+    countryCode: "IN",
+    minAge: 18,
+    maxAge: 35,
+    names: []
   },
   {
     id: 3,
@@ -35,13 +43,17 @@ const mockExams: ExamDto[] = [
     description: "Grammar, vocabulary and comprehension test",
     durationInMinutes: 60,
     totalMarks: 50,
-    passingMarks: 20,
+    passingMarks: 60,
     isActive: false,
-    createdAt: "2024-01-25T09:00:00Z",
-    imageUrl: "https://example.com/english-exam.jpg",
+    createdAt: '2024-01-20T09:15:00Z',
+    imageUrl: 'https://via.placeholder.com/150',
     isInternational: true,
-    qualificationIds: [1, 3],
-    streamIds: [1, 3]
+    qualificationIds: [3],
+    streamIds: [4],
+    countryCode: "UK",
+    minAge: 20,
+    maxAge: 40,
+    names: []
   }
 ];
 

@@ -22,6 +22,10 @@ export interface ExamDto {
   streamIds: number[];
   qualifications?: { id: number; name: string }[];
   streams?: { id: number; name: string }[];
+  totalMarks?: number;
+  durationInMinutes?: number;
+  passingMarks?: number;
+  isInternational?: boolean;
 }
 
 export interface CreateExamDto {
@@ -34,6 +38,9 @@ export interface CreateExamDto {
   names: ExamName[];
   qualificationIds: number[];
   streamIds: number[];
+  totalMarks?: number;
+  durationInMinutes?: number;
+  isInternational?: boolean;
 }
 
 export interface UpdateExamDto {
@@ -47,6 +54,9 @@ export interface UpdateExamDto {
   names: ExamName[];
   qualificationIds: number[];
   streamIds: number[];
+  totalMarks?: number;
+  durationInMinutes?: number;
+  isInternational?: boolean;
 }
 
 export interface ExamListParams {
@@ -59,6 +69,7 @@ export interface ExamListParams {
   page?: number;
   limit?: number;
   search?: string;
+  isInternational?: boolean;
 }
 
 export interface ApiResponse<T> {

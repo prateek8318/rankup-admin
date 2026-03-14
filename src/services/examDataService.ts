@@ -72,7 +72,7 @@ export class ExamDataService {
     try {
       const result = await createExam(examData);
       notificationService.success('Exam created successfully');
-      return result;
+      return result.data;
     } catch (error) {
       errorHandlingService.handleError(error, 'createExam');
       return null;
@@ -81,9 +81,9 @@ export class ExamDataService {
 
   static async updateExam(examData: UpdateExamDto): Promise<ExamDto | null> {
     try {
-      const result = await updateExam(examData);
+      const result = await updateExam(examData.id, examData);
       notificationService.success('Exam updated successfully');
-      return result;
+      return result.data;
     } catch (error) {
       errorHandlingService.handleError(error, 'updateExam');
       return null;
@@ -103,8 +103,8 @@ export class ExamDataService {
 
   static async uploadExamImage(file: File): Promise<string | null> {
     try {
-      const result = await uploadExamImage(file);
-      return result;
+      const result = await uploadExamImage(0, file); // fallback to 0 or expect ID
+      return result.imageUrl;
     } catch (error) {
       errorHandlingService.handleError(error, 'uploadExamImage');
       return null;

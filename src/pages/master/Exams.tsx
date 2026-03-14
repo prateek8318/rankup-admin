@@ -1,20 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
+import toast from 'react-hot-toast';
 import { getCroppedImg } from '../../utils/cropImage';
-import {
-  ExamDto,
-  CreateExamDto,
-  UpdateExamDto,
-  getExamsList,
-  createExam,
-  updateExam,
-  updateExamStatus,
-  uploadExamImage
-} from '@/services/examsApi';
-import { qualificationApi, streamApi, languageApi, countryApi } from '@/services/masterApi';
-import { QualificationDto, StreamDto, LanguageDto } from '@/types/qualification';
+import { ExamDto, CreateExamDto, UpdateExamDto } from '@/services/examsApi';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
+import { useExams } from '@/hooks/useExams';
+import styles from './Exams.module.css';
 
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
   try {
@@ -22,17 +14,15 @@ const translateText = async (text: string, targetLanguage: string): Promise<stri
     const data = await response.json();
     return data?.[0]?.[0]?.[0] || text;
   } catch (err) {
-    ;
     return text;
   }
 };
 
 const Exams = () => {
-  const [exams, setExams] = useState<ExamDto[]>([]);
-  const [qualifications, setQualifications] = useState<QualificationDto[]>([]);
-  const [streams, setStreams] = useState<StreamDto[]>([]);
-  const [languages, setLanguages] = useState<LanguageDto[]>([]);
-  const [countries, setCountries] = useState<any[]>([]);
+  const {
+    exams, qualifications, streams, languages, countries, loading, languagesLoading, removeExam, saveExam
+  } = useExams();
+
   const [filterLanguageId, setFilterLanguageId] = useState<number | null>(null);
   const [regionFilter, setRegionFilter] = useState<'all' | 'india' | 'international'>('all');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -43,8 +33,6 @@ const Exams = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [isInternationalFlag, setIsInternationalFlag] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-  const [languagesLoading, setLanguagesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingExam, setEditingExam] = useState<ExamDto | null>(null);
@@ -63,67 +51,10 @@ const Exams = () => {
   });
 
   useEffect(() => {
-    fetchData();
-    fetchLanguages();
-    fetchCountries();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const resp = await getExamsList({ page: 1, limit: 1000 });
-      if (resp?.success && resp.data) setExams(resp.data);
-
-      const qualsResp = await qualificationApi.getAll();
-      setQualifications(Array.isArray(qualsResp.data) ? qualsResp.data : (qualsResp.data?.data || []));
-      const streamsResp = await streamApi.getAll();
-      setStreams(Array.isArray(streamsResp.data) ? streamsResp.data : (streamsResp.data?.data || []));
-    } catch (err) {
-      ;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchLanguages = async () => {
-    try {
-      setLanguagesLoading(true);
-      const response = await languageApi.getAll();
-      if (response.data) {
-        if (response.data.success && response.data.data) setLanguages(response.data.data);
-        else if (Array.isArray(response.data)) setLanguages(response.data);
-        else if (response.data.data && Array.isArray(response.data.data)) setLanguages(response.data.data);
-        else setLanguages([]);
-      } else if (response && Array.isArray(response)) {
-        setLanguages(response);
-      } else {
-        setLanguages([]);
-      }
-    } catch (err) {
-      ;
-      setLanguages([]);
-    } finally {
-      setLanguagesLoading(false);
-    }
-  };
-
-  useEffect(() => {
     if (formData.countryCode === 'IN' && isInternationalFlag) {
       setIsInternationalFlag(false);
     }
-  }, [formData.countryCode]);
-
-  const fetchCountries = async () => {
-    try {
-      const res = await countryApi.getAll();
-      if (res?.data?.data) setCountries(res.data.data);
-      else if (Array.isArray(res.data)) setCountries(res.data);
-      else setCountries([]);
-    } catch (err) {
-      ;
-      setCountries([]);
-    }
-  };
+  }, [formData.countryCode, isInternationalFlag]);
 
   const handleEdit = (exam: ExamDto) => {
     setEditingExam(exam);
@@ -146,14 +77,8 @@ const Exams = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to deactivate this exam?')) return;
-    try {
-      await updateExamStatus(id, false);
-      await fetchData();
-    } catch (err) {
-      ;
-      alert('Failed to deactivate exam');
-    }
+    if (!window.confirm('Are you sure you want to deactivate this exam?')) return;
+    await removeExam(id);
   };
 
   const validateForm = useCallback(() => {
@@ -206,8 +131,7 @@ const Exams = () => {
         setImageFile(croppedFile);
         setShowCropModal(false);
       } catch (error) {
-        ;
-        alert('Failed to crop image');
+        toast.error('Failed to crop image');
       }
     }
   }, [imageFile, croppedAreaPixels]);
@@ -221,35 +145,14 @@ const Exams = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    try {
-      if (editingExam) {
-        const payload: UpdateExamDto = { id: editingExam.id, ...formData } as any;
-        if (isInternationalFlag) (payload as any).isInternational = true;
-        await updateExam(editingExam.id, payload);
-        if (imageFile) {
-          const up = await uploadExamImage(editingExam.id, imageFile);
-          if (up && (up as any).imageUrl) setFormData(prev => ({ ...prev, imageUrl: (up as any).imageUrl } as any));
-        }
-      } else {
-        const createPayload: any = { ...formData };
-        if (isInternationalFlag) createPayload.isInternational = true;
-        const resp = await createExam(createPayload);
-        const createdId = resp?.data?.id || (resp?.data as any)?.examId || (resp?.data && (resp.data as any).id);
-        if (imageFile && createdId) {
-          const up = await uploadExamImage(createdId, imageFile);
-          if (up && (up as any).imageUrl) setFormData(prev => ({ ...prev, imageUrl: (up as any).imageUrl } as any));
-        }
-      }
+    
+    const success = await saveExam(formData, editingExam, imageFile, isInternationalFlag);
+    if (success) {
       setShowModal(false);
       setEditingExam(null);
-      setFormData({ name: '', description: '', countryCode: '', minAge: 18, maxAge: 60, names: [], qualificationIds: [], streamIds: [] });
+      setFormData({ name: '', description: '', countryCode: 'IN', minAge: 18, maxAge: 60, names: [], qualificationIds: [], streamIds: [] });
       setImageFile(null);
       setIsInternationalFlag(false);
-      await fetchData();
-    } catch (err) {
-      ;
-      alert('Failed to save exam');
     }
   };
 
@@ -268,7 +171,6 @@ const Exams = () => {
         const translatedDesc = lang && (lang as any).code !== 'en' ? await translateText(formData.description || '', (lang as any).code) : formData.description || '';
         setFormData({ ...formData, names: [...names, { languageId, name: translatedName, description: translatedDesc }] });
       } catch (err) {
-        ;
       } finally {
         setIsTranslating(false);
       }
@@ -292,7 +194,7 @@ const Exams = () => {
       } finally { setIsTranslating(false); }
     };
     translateAll();
-  }, [formData.name]);
+  }, [formData.name, languages]);
 
   const filteredExams = exams.filter(ex => {
     const matchesSearch = (ex.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (ex.description || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -303,44 +205,19 @@ const Exams = () => {
   return (
     <>
       <div>
-        <div style={{
-          background: "#fff",
-          borderRadius: 13,
-          padding: "20px",
-          marginBottom: 30,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "20px"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <div className={styles.headerContainer}>
+          <div className={styles.filtersRow}>
             <input
               type="text"
               placeholder="Search exams..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: "10px 20px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "20px",
-                background: "#fff",
-                fontSize: "16px",
-                width: "300px",
-                outline: "none"
-              }}
+              className={styles.searchInput}
             />
             <select
               value={filterLanguageId ?? ''}
               onChange={e => setFilterLanguageId(e.target.value ? parseInt(e.target.value) : null)}
-              style={{
-                padding: "10px 15px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                background: "#fff",
-                fontSize: "14px",
-                minWidth: "150px"
-              }}
+              className={styles.filterSelect}
             >
               <option value="">All languages</option>
               {languages.map(l => <option key={l.id} value={l.id}>{l.name} ({l.code})</option>)}
@@ -348,14 +225,7 @@ const Exams = () => {
             <select
               value={regionFilter}
               onChange={e => setRegionFilter(e.target.value as any)}
-              style={{
-                padding: "10px 15px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                background: "#fff",
-                fontSize: "14px",
-                minWidth: "150px"
-              }}
+              className={styles.filterSelect}
             >
               <option value="all">All regions</option>
               <option value="india">India</option>
@@ -372,49 +242,36 @@ const Exams = () => {
               setErrors({});
               setShowModal(true);
             }}
-            style={{
-              padding: "10px 24px",
-              border: "none",
-              borderRadius: "8px",
-              background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-              color: "#fff",
-              fontSize: "16px",
-              cursor: "pointer",
-              fontWeight: "500"
-            }}
+            className={styles.primaryButton}
           >
             Add Exam
           </button>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 12, padding: 16 }}>
+        <div className={styles.tableContainer}>
           {loading ? <div>Loading exams...</div> : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className={styles.table}>
               <thead>
-                <tr style={{ background: '#1e40af', color: '#fff' }}>
-                  <th style={{ padding: 12, textAlign: 'left' }}>ID</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Name</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Country</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Age</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Languages</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Image</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Status</th>
-                  <th style={{ padding: 12, textAlign: 'left' }}>Actions</th>
+                <tr>
+                  <th className={styles.th}>ID</th>
+                  <th className={styles.th}>Name</th>
+                  <th className={styles.th}>Country</th>
+                  <th className={styles.th}>Age</th>
+                  <th className={styles.th}>Languages</th>
+                  <th className={styles.th}>Image</th>
+                  <th className={styles.th}>Status</th>
+                  <th className={styles.th}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredExams.map(exam => (
-                  <tr key={exam.id} style={{
-                    borderBottom: '1px solid #f3f4f6',
-                    backgroundColor: exam.isActive ? 'transparent' : '#f3f4f6',
-                    opacity: exam.isActive ? 1 : 0.6
-                  }}>
-                    <td style={{ padding: 12 }}>{exam.id}</td>
-                    <td style={{ padding: 12 }}>{exam.name}</td>
-                    <td style={{ padding: 12 }}>{exam.countryCode}</td>
-                    <td style={{ padding: 12 }}>{exam.minAge}-{exam.maxAge}</td>
-                    <td style={{ padding: 12 }}>{(exam.names || []).map(n => languages.find(l => l.id === n.languageId)?.name || n.languageId).join(', ')}</td>
-                    <td style={{ padding: 12 }}>
+                  <tr key={exam.id} className={exam.isActive ? styles.trActive : styles.trInactive}>
+                    <td className={styles.td}>{exam.id}</td>
+                    <td className={styles.td}>{exam.name}</td>
+                    <td className={styles.td}>{exam.countryCode}</td>
+                    <td className={styles.td}>{exam.minAge}-{exam.maxAge}</td>
+                    <td className={styles.td}>{(exam.names || []).map(n => languages.find(l => l.id === n.languageId)?.name || n.languageId).join(', ')}</td>
+                    <td className={styles.td}>
                       {(() => {
                         const src = (exam as any).imageUrl || (exam as any).image || (exam as any).logo || (exam as any).imagePath || '';
                         if (!src) return null;
@@ -422,17 +279,17 @@ const Exams = () => {
                         return <img src={normalized} alt="exam" style={{ height: 32, marginRight: 8 }} />;
                       })()}
                     </td>
-                    <td style={{ padding: 12 }}>
-                      <span style={{ padding: '4px 8px', borderRadius: 12, background: exam.isActive ? '#dcfce7' : '#fee2e2', color: exam.isActive ? '#166534' : '#991b1b' }}>
+                    <td className={styles.td}>
+                      <span className={exam.isActive ? styles.statusActive : styles.statusInactive}>
                         {exam.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td style={{ padding: 12 }}>
-                      <button onClick={() => handleEdit(exam)} style={{ background: 'none', border: 'none', marginRight: 8 }} title="Edit">
+                    <td className={styles.td}>
+                      <button onClick={() => handleEdit(exam)} className={styles.iconButton} title="Edit">
                         <img src={editIcon} alt="Edit" style={{ width: 16 }} />
                       </button>
                       {exam.isActive && (
-                        <button onClick={() => handleDelete(exam.id)} style={{ background: 'none', border: 'none', marginRight: 8 }} title="Delete">
+                        <button onClick={() => handleDelete(exam.id)} className={styles.iconButton} title="Delete">
                           <img src={deleteIcon} alt="Delete" style={{ width: 16 }} />
                         </button>
                       )}
@@ -445,37 +302,28 @@ const Exams = () => {
         </div>
 
         {showModal && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div style={{ background: '#fff', borderRadius: 13, padding: 30, width: 720, maxHeight: '90vh', overflowY: 'auto' }}>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+              <h3 className={styles.modalTitle}>
                 {editingExam ? 'Edit Exam' : 'Add Exam'}
               </h3>
 
               <div style={{ marginBottom: 20, textAlign: 'center' }}>
-                {errors.image && <div style={{ color: '#dc2626', fontSize: '12px', marginBottom: 8 }}>{errors.image}</div>}
-                <div style={{
-                  width: 100,
-                  height: 100,
-                  border: errors.image ? '2px dashed #dc2626' : '2px dashed #d1d5db',
-                  borderRadius: '50%',
-                  margin: '0 auto 10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  background: '#f9fafb',
-                  position: 'relative'
-                }} onClick={() => document.getElementById('examImageInput')?.click()}>
+                {errors.image && <div className={styles.errorText} style={{ marginBottom: 8 }}>{errors.image}</div>}
+                <div 
+                  className={errors.image ? styles.imageUploadBoxError : styles.imageUploadBox}
+                  onClick={() => document.getElementById('examImageInput')?.click()}
+                >
                   {croppedImage ? (
-                    <img src={croppedImage} alt="Cropped" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img src={croppedImage} alt="Cropped" className={styles.imagePreview} />
                   ) : imageFile ? (
-                    <img src={URL.createObjectURL(imageFile)} alt="Preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img src={URL.createObjectURL(imageFile)} alt="Preview" className={styles.imagePreview} />
                   ) : editingExam?.imageUrl ? (
-                    <img src={editingExam.imageUrl} alt="Current" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img src={editingExam.imageUrl} alt="Current" className={styles.imagePreview} />
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#6b7280' }}>
-                      <div style={{ fontSize: '24px', marginBottom: '4px' }}>📷</div>
-                      <div style={{ fontSize: '12px' }}>Upload Image</div>
+                    <div className={styles.imagePlaceholder}>
+                      <div className={styles.imageIcon}>📷</div>
+                      <div className={styles.helperText}>Upload Image</div>
                     </div>
                   )}
                 </div>
@@ -486,66 +334,48 @@ const Exams = () => {
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
                 />
-                <div style={{ fontSize: '12px', color: '#6b7280' }}>Click to upload exam image (PNG, JPG, JPEG only)</div>
+                <div className={styles.helperText}>Click to upload exam image (PNG, JPG, JPEG only)</div>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Name *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Name *</label>
                   <input
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      borderRadius: 8,
-                      border: errors.name ? '1px solid #dc2626' : '1px solid #e5e7eb',
-                      fontSize: '14px'
-                    }}
+                    className={errors.name ? styles.formInputError : styles.formInput}
                   />
-                  {errors.name && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.name}</div>}
+                  {errors.name && <div className={styles.errorText}>{errors.name}</div>}
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Description *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Description *</label>
                   <textarea
                     value={formData.description}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      borderRadius: 8,
-                      border: errors.description ? '1px solid #dc2626' : '1px solid #e5e7eb',
-                      fontSize: '14px',
-                      resize: 'vertical'
-                    }}
+                    className={errors.description ? styles.formInputError : styles.formInput}
+                    style={{ resize: 'vertical' }}
                   />
-                  {errors.description && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.description}</div>}
+                  {errors.description && <div className={styles.errorText}>{errors.description}</div>}
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Country *</label>
+                <div className={styles.row}>
+                  <div className={styles.col}>
+                    <label className={styles.formLabel}>Country *</label>
                     <select
                       value={formData.countryCode}
                       onChange={e => setFormData({ ...formData, countryCode: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: 10,
-                        borderRadius: 8,
-                        border: errors.countryCode ? '1px solid #dc2626' : '1px solid #e5e7eb',
-                        fontSize: '14px'
-                      }}
+                      className={errors.countryCode ? styles.formInputError : styles.formInput}
                       disabled={isInternationalFlag}
                     >
                       <option value="">Select country</option>
                       {countries.filter(c => !(isInternationalFlag && c.code === 'IN')).map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                     </select>
-                    {errors.countryCode && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.countryCode}</div>}
+                    {errors.countryCode && <div className={styles.errorText}>{errors.countryCode}</div>}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Min Age</label>
+                  <div className={styles.col}>
+                    <label className={styles.formLabel}>Min Age</label>
                     <input
                       type="number"
                       min="18"
@@ -555,18 +385,12 @@ const Exams = () => {
                         const value = parseInt(e.target.value || '18');
                         if (value >= 18 && value <= 60) setFormData({ ...formData, minAge: value });
                       }}
-                      style={{
-                        width: '100%',
-                        padding: 10,
-                        borderRadius: 8,
-                        border: errors.minAge ? '1px solid #dc2626' : '1px solid #e5e7eb',
-                        fontSize: '14px'
-                      }}
+                      className={errors.minAge ? styles.formInputError : styles.formInput}
                     />
-                    {errors.minAge && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.minAge}</div>}
+                    {errors.minAge && <div className={styles.errorText}>{errors.minAge}</div>}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Max Age</label>
+                  <div className={styles.col}>
+                    <label className={styles.formLabel}>Max Age</label>
                     <input
                       type="number"
                       min="18"
@@ -576,24 +400,18 @@ const Exams = () => {
                         const value = parseInt(e.target.value || '60');
                         if (value >= 18 && value <= 60) setFormData({ ...formData, maxAge: value });
                       }}
-                      style={{
-                        width: '100%',
-                        padding: 10,
-                        borderRadius: 8,
-                        border: errors.maxAge ? '1px solid #dc2626' : '1px solid #e5e7eb',
-                        fontSize: '14px'
-                      }}
+                      className={errors.maxAge ? styles.formInputError : styles.formInput}
                     />
-                    {errors.maxAge && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.maxAge}</div>}
+                    {errors.maxAge && <div className={styles.errorText}>{errors.maxAge}</div>}
                   </div>
-                  {errors.ageRange && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4, flex: '1 1 100%' }}>{errors.ageRange}</div>}
+                  {errors.ageRange && <div className={styles.errorText} style={{ flex: '1 1 100%' }}>{errors.ageRange}</div>}
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Select Qualifications *</label>
-                  <div style={{ border: errors.qualificationIds ? '1px solid #dc2626' : '1px solid #e5e7eb', borderRadius: 8, padding: 10, maxHeight: 300, overflowY: 'auto' }}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Qualifications *</label>
+                  <div className={errors.qualificationIds ? styles.checkboxGroupError : styles.checkboxGroup}>
                     {qualifications.map(q => (
-                      <label key={q.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 0', cursor: 'pointer' }}>
+                      <label key={q.id} className={styles.checkboxLabel}>
                         <input
                           type="checkbox"
                           checked={formData.qualificationIds.includes(q.id)}
@@ -601,20 +419,20 @@ const Exams = () => {
                             const arr = formData.qualificationIds.includes(q.id) ? formData.qualificationIds.filter(id => id !== q.id) : [...formData.qualificationIds, q.id];
                             setFormData({ ...formData, qualificationIds: arr });
                           }}
-                          style={{ width: '16px', height: '16px' }}
+                          className={styles.checkboxItem}
                         />
                         <span style={{ fontSize: '14px' }}>{q.name}</span>
                       </label>
                     ))}
                   </div>
-                  {errors.qualificationIds && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: 4 }}>{errors.qualificationIds}</div>}
+                  {errors.qualificationIds && <div className={styles.errorText}>{errors.qualificationIds}</div>}
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Select Streams</label>
-                  <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10, maxHeight: 200, overflowY: 'auto' }}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Streams</label>
+                  <div className={styles.checkboxGroup}>
                     {streams.map(s => (
-                      <label key={s.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
+                      <label key={s.id} className={styles.checkboxLabel}>
                         <input
                           type="checkbox"
                           checked={formData.streamIds.includes(s.id)}
@@ -622,7 +440,7 @@ const Exams = () => {
                             const arr = formData.streamIds.includes(s.id) ? formData.streamIds.filter(id => id !== s.id) : [...formData.streamIds, s.id];
                             setFormData({ ...formData, streamIds: arr });
                           }}
-                          style={{ width: '16px', height: '16px' }}
+                          className={styles.checkboxItem}
                         />
                         <span style={{ fontSize: '14px' }}>{s.name}</span>
                       </label>
@@ -630,20 +448,20 @@ const Exams = () => {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '14px', fontWeight: '500' }}>Select Languages *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Languages *</label>
                   {languagesLoading ? (
                     <div style={{ textAlign: 'center', padding: '20px', fontSize: '14px', color: '#6b7280' }}>Loading languages...</div>
                   ) : (
-                    <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10, maxHeight: 120, overflowY: 'auto' }}>
+                    <div className={styles.checkboxGroup} style={{ maxHeight: '120px' }}>
                       {languages.map(lang => (
-                        <label key={lang.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
+                        <label key={lang.id} className={styles.checkboxLabel}>
                           <input
                             type="checkbox"
                             checked={selectedLanguages.includes(lang.id)}
                             onChange={() => handleLanguageToggle(lang.id)}
                             disabled={isTranslating}
-                            style={{ width: '16px', height: '16px' }}
+                            className={styles.checkboxItem}
                           />
                           <span style={{ fontSize: '14px' }}>{lang.name} ({lang.code})</span>
                         </label>
@@ -653,19 +471,19 @@ const Exams = () => {
                 </div>
 
                 {(formData.names || []).length > 0 && (
-                  <div style={{ marginBottom: 16, padding: 12, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
-                    <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>Translated Content:</h4>
+                  <div className={styles.translationBox}>
+                    <h4 className={styles.translationBoxTitle}>Translated Content:</h4>
                     {(formData.names || []).map((name, idx) => {
                       const lang = languages.find(l => l.id === name.languageId);
                       return (
-                        <div key={idx} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #bfdbfe' }}>
-                          <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#1e40af' }}>
+                        <div key={idx} className={styles.translationItem}>
+                          <p className={styles.translationLang}>
                             {lang?.name} ({lang?.code})
                           </p>
-                          <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#374151' }}>
+                          <p className={styles.translationText}>
                             <strong>Name:</strong> {name.name}
                           </p>
-                          <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>
+                          <p className={styles.translationText}>
                             <strong>Description:</strong> {name.description}
                           </p>
                         </div>
@@ -674,31 +492,31 @@ const Exams = () => {
                   </div>
                 )}
 
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <div className={styles.formGroup}>
+                  <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
                       checked={isInternationalFlag}
                       disabled={formData.countryCode === 'IN'}
                       onChange={e => setIsInternationalFlag(e.target.checked)}
-                      style={{ width: '16px', height: '16px' }}
+                      className={styles.checkboxItem}
                     />
                     <span style={{ fontSize: '14px' }}>International Exam</span>
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 20 }}>
+                <div className={styles.modalActions}>
                   <button
                     type="button"
                     onClick={() => { setShowModal(false); setEditingExam(null); setErrors({}); }}
-                    style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', fontSize: '14px', cursor: 'pointer' }}
+                    className={styles.secondaryButton}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isTranslating}
-                    style={{ padding: '10px 20px', borderRadius: 8, background: 'linear-gradient(90deg, #2B5DBC 0%, #073081 100%)', color: '#fff', fontSize: '14px', cursor: 'pointer', fontWeight: '500', opacity: isTranslating ? 0.6 : 1 }}
+                    className={`${styles.primaryButton} ${isTranslating ? styles.primaryButtonDisabled : ''}`}
                   >
                     {isTranslating ? 'Translating...' : (editingExam ? 'Update Exam' : 'Create Exam')}
                   </button>
@@ -710,10 +528,10 @@ const Exams = () => {
       </div>
 
       {showCropModal && imageFile && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
-          <div style={{ background: '#fff', borderRadius: 13, padding: 20, width: 600, height: 500 }}>
-            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600' }}>Crop Image</h3>
-            <div style={{ position: 'relative', width: '100%', height: 350, marginBottom: 20 }}>
+        <div className={styles.cropperOverlay}>
+          <div className={styles.cropperModal}>
+            <h3 className={styles.cropperTitle}>Crop Image</h3>
+            <div className={styles.cropperContainer}>
               <Cropper
                 image={URL.createObjectURL(imageFile)}
                 crop={crop}
@@ -725,7 +543,7 @@ const Exams = () => {
               />
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: '14px', fontWeight: '500' }}>Zoom</label>
+              <label className={styles.formLabel}>Zoom</label>
               <input
                 type="range"
                 value={zoom}
@@ -733,21 +551,21 @@ const Exams = () => {
                 max={3}
                 step={0.1}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                style={{ width: '100%' }}
+                className={styles.zoomInput}
               />
             </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+            <div className={styles.modalActions}>
               <button
                 type="button"
                 onClick={handleCropCancel}
-                style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', fontSize: '14px', cursor: 'pointer' }}
+                className={styles.secondaryButton}
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleCropConfirm}
-                style={{ padding: '10px 20px', borderRadius: 8, background: 'linear-gradient(90deg, #2B5DBC 0%, #073081 100%)', color: '#fff', fontSize: '14px', cursor: 'pointer', fontWeight: '500' }}
+                className={styles.primaryButton}
               >
                 Crop & Save
               </button>

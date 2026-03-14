@@ -2,9 +2,9 @@
  * Auth API calls (login, verify OTP, logout)
  */
 import axios from 'axios';
-import apiClient from '@/core/api/apiClient';
-import { apiEndpoints } from '@/core/api/apiEndpoints';
-import { appConfig } from '@/core/config/appConfig';
+import apiClient from '@/services/apiClient';
+import { apiEndpoints } from '@/services/apiEndpoints';
+import { appConfig } from '@/services/appConfig';
 
 export const authApi = {
   async login(credentials: { email: string; password: string }) {

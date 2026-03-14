@@ -1,0 +1,12 @@
+.languageContainer { display: flex; flex-wrap: wrap; gap: 4px; }
+.languageBadge { padding: 2px 6px; background: #dbeafe; color: #1e40af; border-radius: 8px; font-size: 12px; font-weight: 500; }
+.translatingText { margin-left: 8px; font-size: 12px; color: #6b7280; }
+.translationSection { margin-bottom: 20px; }
+.translationLabel { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
+.translationList { max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; }
+.translationItem { margin-bottom: 12px; padding: 8px; background: #f9fafb; border-radius: 6px; }
+.translationLangName { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+.inputGroup { margin-bottom: 4px; }
+.inputLabel { font-size: 12px; font-weight: 500; }
+.inputField { width: 100%; padding: 4px 6px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; margin-top: 2px; box-sizing: border-box; }
+.textareaField { width: 100%; padding: 4px 6px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; margin-top: 2px; resize: vertical; box-sizing: border-box; }

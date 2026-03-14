@@ -27,8 +27,9 @@ const Breaker: React.FC = () => {
     }),
   ];
 
-  return <Breadcrumb items={breadcrumbItems} />;
+  return <Breadcrumb      // @ts-ignore - antd BreadcrumbItem types misaligned
+      items={breadcrumbItems}
+    />;
 };
 
 export default Breaker;
-

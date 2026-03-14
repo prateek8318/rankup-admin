@@ -81,10 +81,7 @@ const ExamsComponent: React.FC<ExamsComponentProps> = () => {
       setErrors({ image: 'Image size should be less than 5MB' });
       return false;
     }
-    setErrors(prev => {
-      const { image, ...rest } = prev;
-      return rest;
-    });
+    setErrors({});
     return true;
   }, [setErrors]);
 
