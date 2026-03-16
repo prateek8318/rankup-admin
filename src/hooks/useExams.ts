@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 import { getExamsList, createExam, updateExam, updateExamStatus, uploadExamImage, ExamDto } from '@/services/examsApi';
 import { qualificationApi, streamApi, languageApi, countryApi } from '@/services/masterApi';
 import { QualificationDto, StreamDto, LanguageDto } from '@/types/qualification';
@@ -24,7 +24,7 @@ export const useExams = () => {
       const streamsResp = await streamApi.getAll();
       setStreams(Array.isArray(streamsResp.data) ? streamsResp.data : (streamsResp.data?.data || []));
     } catch (err) {
-      toast.error('Failed to fetch exams data');
+      notificationService.error('Failed to fetch exams data');
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export const useExams = () => {
       toast.success('Exam deactivated successfully');
       await fetchData();
     } catch (err) {
-      toast.error('Failed to deactivate exam');
+      notificationService.error('Failed to deactivate exam');
     }
   };
 
@@ -88,7 +88,7 @@ export const useExams = () => {
           const up = await uploadExamImage(editingExam.id, imageFile);
           if (up && (up as any).imageUrl) formData.imageUrl = (up as any).imageUrl;
         }
-        toast.success('Exam updated successfully');
+        notificationService.success('Exam updated successfully');
       } else {
         const createPayload = { ...formData };
         if (isInternationalFlag) createPayload.isInternational = true;
@@ -98,12 +98,12 @@ export const useExams = () => {
           const up = await uploadExamImage(createdId, imageFile);
           if (up && (up as any).imageUrl) formData.imageUrl = (up as any).imageUrl;
         }
-        toast.success('Exam created successfully');
+        notificationService.success('Exam created successfully');
       }
       await fetchData();
       return true;
     } catch (err) {
-      toast.error('Failed to save exam');
+      notificationService.error('Failed to save exam');
       return false;
     }
   };

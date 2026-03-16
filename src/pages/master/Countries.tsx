@@ -3,6 +3,7 @@ import {
   countryApi, languageApi,
   CountryDto, CreateCountryDto, UpdateCountryDto, LanguageDto,
 } from '@/services/masterApi';
+import { errorHandlingService } from '@/services/errorHandlingService';
 import { extractApiData } from '@/utils/apiHelpers';
 import { translateText } from '@/utils/translate';
 import MasterHeader from '@/components/common/MasterHeader';
@@ -32,7 +33,7 @@ const Countries = () => {
       const response = await countryApi.getAll(language);
       setCountries(extractApiData<CountryDto>(response));
     } catch (error) {
-      ;
+      errorHandlingService.handleError(error, 'fetchCountries');
       setCountries([]);
     }
   };
@@ -42,7 +43,7 @@ const Countries = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      ;
+      errorHandlingService.handleError(error, 'fetchLanguages');
       setLanguages([]);
     }
   };
@@ -73,7 +74,7 @@ const Countries = () => {
       fetchCountries(selectedLanguage);
       resetForm();
     } catch (error) {
-      ;
+      errorHandlingService.handleError(error, 'saveCountry');
     }
   };
 
@@ -97,7 +98,7 @@ const Countries = () => {
         await countryApi.updateStatus(id, false);
         fetchCountries(selectedLanguage);
       } catch (error) {
-        ;
+        errorHandlingService.handleError(error, 'deactivateCountry');
       }
     }
   };

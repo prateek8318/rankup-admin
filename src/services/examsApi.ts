@@ -100,9 +100,7 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
       ? `${apiEndpoints.EXAMS.GET_ALL}?${queryParams.toString()}`
       : apiEndpoints.EXAMS.GET_ALL;
 
-    ;
     const response = await apiClient.get(url);
-    ;
     
     // Handle the case where API returns data directly without wrapper
     let apiResponse: ApiResponse<ExamDto[]>;
@@ -128,13 +126,8 @@ export const getExamsList = async (params: ExamListParams = {}): Promise<ApiResp
       apiResponse = response.data;
     }
     
-    ;
     return apiResponse;
   } catch (error: any) {
-    ;
-    ;
-    ;
-    ;
     throw error;
   }
 };

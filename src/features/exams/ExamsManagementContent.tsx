@@ -1,90 +1,12 @@
 import { useState, useEffect } from 'react';
 import { type ExamDto, type ExamListParams } from '@/services';
 import { getExamsList, getExamsCount, deleteExam, updateExamStatus } from '@/services/examsApi';
-import examsIcon from '@/assets/icons/exams.png';
-import totalExamsIcon from '@/assets/icons/total exams.png';
-import vectorIcon from '@/assets/icons/Vector (3).png';
+import { notificationService } from '@/services/notificationService';
+import ExamCard from '@/components/exams/ExamCard';
+import Loader from '@/components/common/Loader';
 import viewIcon from '@/assets/icons/view.png';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
-
-interface ExamCardProps {
-  number: string;
-  label: string;
-  gradient: string;
-}
-
-const ExamCard: React.FC<ExamCardProps> = ({ number, label, gradient }) => {
-  const getIcon = () => {
-    if (label.includes("Total Exams")) return totalExamsIcon;
-    if (label.includes("Active")) return examsIcon;
-    return examsIcon;
-  };
-
-  return (
-    <div
-      style={{
-        width: 240,
-        height: 120,
-        background: gradient,
-        borderRadius: 13,
-        padding: 16,
-        color: "#fff",
-        position: "relative",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        boxSizing: "border-box",
-        overflow: "hidden",
-      }}
-    >
-      <div style={{
-        position: "absolute",
-        top: 16,
-        right: 16,
-        width: 44,
-        height: 44,
-      }}>
-        <img
-          src={getIcon()}
-          alt={label}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-          }}
-        />
-      </div>
-
-      <div style={{ fontSize: 26, fontWeight: 700 }}>
-        {number}
-      </div>
-      <div style={{ fontSize: 18, paddingTop: 10 }}>
-        {label}
-      </div>
-
-      <div style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        height: 160,
-        overflow: "hidden",
-      }}>
-        <img
-          src={vectorIcon}
-          alt="Vector"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: 'cover'
-          }}
-        />
-      </div>
-    </div>
-  );
-};
 
 export const ExamsManagementContent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -274,7 +196,7 @@ export const ExamsManagementContent: React.FC = () => {
         fetchExams();
         fetchTotalExamsCount();
       } catch (error) {
-        alert('Error deleting exam. Please try again.');
+        notificationService.error('Error deleting exam. Please try again.');
       }
     }
   };
@@ -285,7 +207,7 @@ export const ExamsManagementContent: React.FC = () => {
       fetchExams();
       fetchTotalExamsCount();
     } catch (error) {
-      alert('Error updating exam status. Please try again.');
+      notificationService.error('Error updating exam status. Please try again.');
     }
   };
 
@@ -516,9 +438,7 @@ export const ExamsManagementContent: React.FC = () => {
         padding: "1px",
       }}>
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
-            Loading exams...
-          </div>
+          <Loader fullPage={false} message="Loading exams..." />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ 

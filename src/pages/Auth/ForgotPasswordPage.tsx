@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 
 import styles from './ForgotPasswordPage.module.css';
 
@@ -9,17 +9,17 @@ const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { forgotPassword } = useAuth() as any;
+  const { forgotPassword } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const result = await forgotPassword(email);
-    if (result.success) {
+    const result = await forgotPassword?.(email);
+    if (result && result.success) {
       setSubmitted(true);
     } else {
-      toast.error('Failed to send reset link. Please try again.');
+      notificationService.error('Failed to send reset link. Please try again.');
     }
     setLoading(false);
   };

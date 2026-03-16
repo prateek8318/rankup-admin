@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { categoryApi, CategoryDto, CreateCategoryDto } from '@/services/masterApi';
+import { errorHandlingService } from '@/services/errorHandlingService';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
@@ -74,7 +75,7 @@ const Categories = () => {
         setCategories([]);
       }
     } catch (error) {
-      ;
+      errorHandlingService.handleError(error, 'fetchCategories');
       setCategories([]);
     } finally {
       setLoading(false);
@@ -97,7 +98,7 @@ const Categories = () => {
       fetchCategories(selectedLanguage);
       resetForm();
     } catch (error) {
-      ;
+      errorHandlingService.handleError(error, 'saveCategory');
     }
   };
 
@@ -118,7 +119,7 @@ const Categories = () => {
         await categoryApi.updateStatus(id, false);
         fetchCategories(selectedLanguage);
       } catch (error) {
-        ;
+        errorHandlingService.handleError(error, 'deactivateCategory');
       }
     }
   };

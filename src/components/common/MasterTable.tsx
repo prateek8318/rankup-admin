@@ -1,6 +1,7 @@
 import React from 'react';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
+import Loader from '@/components/common/Loader';
 
 export interface TableColumn {
   key: string;
@@ -62,9 +63,7 @@ const MasterTable: React.FC<MasterTableProps> = ({
   if (loading) {
     return (
       <div style={{ background: '#fff', borderRadius: 12, padding: 16 }}>
-        <div style={{ textAlign: 'center', padding: '40px', fontSize: '16px', color: '#6b7280' }}>
-          {loadingMessage}
-        </div>
+        <Loader fullPage={false} message={loadingMessage} />
       </div>
     );
   }

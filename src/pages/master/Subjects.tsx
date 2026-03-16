@@ -3,7 +3,7 @@ import {
   subjectApi, SubjectDto, CreateSubjectDto,
   languageApi, LanguageDto,
 } from '@/services/masterApi';
-import Loader from '@/components/Loader';
+import Loader from '@/components/common/Loader';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import MasterModal from '@/components/common/MasterModal';
@@ -153,7 +153,7 @@ const Subjects = () => {
     { key: 'actions', label: 'Actions' },
   ];
 
-  if (loading) return <Loader text="Loading subjects..." />;
+  if (loading) return <Loader message="Loading subjects..." />;
 
   /* ─── render ─ */
   return (

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { notificationService } from '@/services/notificationService';
+import Loader from '@/components/common/Loader';
 import { languageApi, LanguageDto, CreateLanguageDto, UpdateLanguageDto } from '@/services/masterApi';
 import { useOptimizedApi, useDebounce } from '@/hooks/useOptimizedApi';
 import editIcon from '@/assets/icons/edit.png';
@@ -167,7 +169,7 @@ const Languages = () => {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) {
-      alert('Please fill all required fields with valid data.');
+      notificationService.warning('Please fill all required fields with valid data.');
       return;
     }
     try {
@@ -283,9 +285,7 @@ const Languages = () => {
         boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
       }}>
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
-            Loading languages...
-          </div>
+          <Loader fullPage={false} message="Loading languages..." />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>

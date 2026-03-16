@@ -6,6 +6,7 @@ import { ExamDto, CreateExamDto, UpdateExamDto } from '@/services/examsApi';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
 import { useExams } from '@/hooks/useExams';
+import Loader from '@/components/common/Loader';
 import styles from './Exams.module.css';
 
 const translateText = async (text: string, targetLanguage: string): Promise<string> => {
@@ -249,7 +250,7 @@ const Exams = () => {
         </div>
 
         <div className={styles.tableContainer}>
-          {loading ? <div>Loading exams...</div> : (
+          {loading ? <Loader fullPage={false} message="Loading exams..." /> : (
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -451,7 +452,7 @@ const Exams = () => {
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Select Languages *</label>
                   {languagesLoading ? (
-                    <div style={{ textAlign: 'center', padding: '20px', fontSize: '14px', color: '#6b7280' }}>Loading languages...</div>
+                    <Loader fullPage={false} message="Loading languages..." />
                   ) : (
                     <div className={styles.checkboxGroup} style={{ maxHeight: '120px' }}>
                       {languages.map(lang => (

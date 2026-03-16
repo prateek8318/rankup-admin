@@ -21,6 +21,16 @@ interface UserCardProps {
 }
 
 export const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
+  const getGradientClass = (gradient: string): string => {
+    // Map gradient strings to CSS classes - matching exact original gradients
+    if (gradient.includes('4780CF') || gradient.includes('2B6AEC')) return styles.gradientBlue;
+    if (gradient.includes('FF8C42') || gradient.includes('FF6B1A')) return styles.gradientOrange;
+    if (gradient.includes('8B5CF6') || gradient.includes('7C3AED')) return styles.gradientPurple;
+    if (gradient.includes('EC4899') || gradient.includes('DB2777')) return styles.gradientPink;
+    if (gradient.includes('F59E0B') || gradient.includes('D97706')) return styles.gradientYellow;
+    return styles.gradientBlue; // default fallback
+  };
+
   const getIcon = (label: string) => {
     switch (label) {
       case "Total Users": return usersIcon;
@@ -44,7 +54,7 @@ export const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) =
   };
 
   return (
-    <div className={styles.userCard} style={{ background: gradient }}>
+    <div className={`${styles.userCard} ${getGradientClass(gradient)}`}>
       <div className={styles.cardIconContainer}>
         <img src={getIcon(label)} alt="icon" className={styles.cardIcon} />
       </div>

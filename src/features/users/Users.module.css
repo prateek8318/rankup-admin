@@ -350,3 +350,24 @@
   color: #d1d5db;
   cursor: not-allowed;
 }
+
+/* Gradient utility classes for UserCard - matching exact original gradients */
+.gradientBlue {
+  background: linear-gradient(135deg, #4780CF, #2B6AEC);
+}
+
+.gradientOrange {
+  background: linear-gradient(135deg, #FF8C42, #FF6B1A);
+}
+
+.gradientPurple {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.gradientPink {
+  background: linear-gradient(135deg, #EC4899, #DB2777);
+}
+
+.gradientYellow {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+}

@@ -27,6 +27,7 @@ import Categories from "@/pages/master/Categories";
 import Qualifications from "@/pages/master/Qualifications";
 import Streams from "@/pages/master/Streams";
 import ErrorFallback from '@/components/ErrorFallback';
+import UnauthorizedPage from "@/components/UnauthorizedPage";
 import Exams from "@/pages/master/Exams";
 import Subjects from "@/pages/master/Subjects";
 
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
         ]
       },
     ],
+  },
+  {
+    path: "/unauthorized",
+    element: <UnauthorizedPage />,
   },
 ]);
 

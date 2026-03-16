@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loader from '@/components/common/Loader';
 import viewIcon from '@/assets/icons/view.png';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
@@ -42,11 +43,7 @@ export const CMSTable: React.FC<CMSTableProps> = ({
   };
 
   if (loading) {
-    return (
-      <div style={{ textAlign: "center", padding: "40px", fontSize: "16px", color: "#6b7280" }}>
-        Loading CMS content...
-      </div>
-    );
+    return <Loader fullPage={false} message="Loading CMS content..." />;
   }
 
   return (
