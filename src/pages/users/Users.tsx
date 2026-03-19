@@ -9,6 +9,7 @@ import vectorIcon from '@/assets/icons/Vector.png';
 import vector1Icon from '@/assets/icons/Vector (3).png';
 import vector2Icon from '@/assets/icons/Vector (6).png';
 import Loader from '@/components/Loader';
+import UserTable from '@/components/common/UserTable';
 import vector3Icon from '@/assets/icons/Vector (3).png';
 import vector4Icon from '@/assets/icons/Vector (2).png';
 import vector5Icon from '@/assets/icons/Vector (8).png';
@@ -63,229 +64,30 @@ const UserCard: React.FC<UserCardProps> = ({ number, label, gradient }) => {
         width: 44,
         height: 44,
       }}>
-        <img
-          src={getIcon()}
-          alt={label}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-          }}
-        />
-      </div>
-
-      <div style={{ fontSize: 26, fontWeight: 700 }}>
-        {number}
-      </div>
-      <div style={{ fontSize: 18, paddingTop: 10 }}>
-        {label}
-      </div>
-
-      {/* Bottom left vector image - different for each card based on gradient */}
-      <div style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        height: 160,
-        overflow: "hidden",
-      }}>
-        <img
-          src={getVectorImage()}
-          alt="Vector"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: 'cover'
-          }}
-        />
-      </div>
-    </div>
-  );
-};
-
-const Users = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [filters, setFilters] = useState({
-    userType: 'All Users',
-    status: 'All Status',
-    time: 'All Time'
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userStats, setUserStats] = useState({
-    totalUsers: 0,
-    activeSubscribers: 0,
-    freeUsers: 0,
-    newUsers: 0,
-    noActivity: 0
-  });
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  const userCards = [
-    { number: userStats.totalUsers.toLocaleString(), label: "Total Users", gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)" },
-    { number: userStats.activeSubscribers.toLocaleString(), label: "Active Subscribers", gradient: "linear-gradient(135deg,#FF8C42,#FF6B1A)" },
-    { number: userStats.freeUsers.toLocaleString(), label: "Free Users", gradient: "linear-gradient(135deg,#8B5CF6,#7C3AED)" },
-    { number: userStats.newUsers.toLocaleString(), label: "New Users (Last 7 Days)", gradient: "linear-gradient(135deg,#EC4899,#DB2777)" },
-    { number: userStats.noActivity.toLocaleString(), label: "No Activity (30 days)", gradient: "linear-gradient(135deg,#F59E0B,#D97706)" }
-  ];
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await getUsersList({
-        page: currentPage,
-        pageSize: 10,
-      });
-
-      console.log('API Response:', response); // Debug log
-
-      if (response.items) {
-        // Apply client-side filtering for search and filters
-        let filteredItems = response.items;
-        
-        // Filter by search term if provided
-        if (searchTerm) {
-          filteredItems = filteredItems.filter((user: User) =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.phoneNumber.includes(searchTerm)
-          );
-        }
-        
-        // Apply filters
-        if (filters.userType !== 'All Users') {
-          if (filters.userType === 'Active Users') {
-            filteredItems = filteredItems.filter(user => user.isActive);
-          } else if (filters.userType === 'Blocked Users') {
-            filteredItems = filteredItems.filter(user => !user.isActive);
-          }
-        }
-        
-        if (filters.status !== 'All Status') {
-          if (filters.status === 'Active') {
-            filteredItems = filteredItems.filter(user => user.isActive);
-          } else if (filters.status === 'Blocked') {
-            filteredItems = filteredItems.filter(user => !user.isActive);
-          }
-        }
-        
-        if (filters.time !== 'All Time') {
-          if (filters.time === 'Last 7 days') {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            filteredItems = filteredItems.filter(user => {
-              const createdAt = new Date(user.createdAt);
-              return createdAt > sevenDaysAgo;
-            });
-          } else if (filters.time === 'Last 30 days') {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            filteredItems = filteredItems.filter(user => {
-              const createdAt = new Date(user.createdAt);
-              return createdAt > thirtyDaysAgo;
-            });
-          }
-        }
-        
-        setUsers(filteredItems);
-        
-        // For filtered results, recalculate pagination
-        const filteredTotal = filteredItems.length;
-        const itemsPerPage = 10;
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const paginatedItems = filteredItems.slice(startIndex, endIndex);
-        
-        setUsers(paginatedItems);
-        setTotalUsers(filteredTotal);
-        setTotalPages(Math.ceil(filteredTotal / itemsPerPage));
-
-        // Calculate stats from all users (not filtered)
-        const total = response.totalCount || response.items.length;
-        const active = response.items.filter((user: User) => user.isActive).length;
-        const newUsers = response.items.filter((user: User) => {
-          const createdAt = new Date(user.createdAt);
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          return createdAt > sevenDaysAgo;
-        }).length;
-        const noActivity = response.items.filter((user: User) => {
-          if (!user.lastLoginAt) return true;
-          const lastLogin = new Date(user.lastLoginAt);
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          return lastLogin < thirtyDaysAgo;
-        }).length;
-
-        console.log('Processed users:', response.items); // Debug log
-
-        setUserStats({
-          totalUsers: total,
-          activeSubscribers: active,
-          freeUsers: total - active,
-          newUsers: newUsers,
-          noActivity: noActivity
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      // Set fallback values
-      setUserStats({
-        totalUsers: 0,
-        activeSubscribers: 0,
-        freeUsers: 0,
-        newUsers: 0,
-        noActivity: 0
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-    // Fetch and update user count separately
-    const fetchUserStats = async () => {
-      try {
-        // Get total users count
-        const countData = await getUsersCount();
-        console.log('User count data:', countData);
-        
-        // Get daily active users count
-        const dailyActiveResponse = await fetch('/api/admin/users/daily-active-count', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        let dailyActiveCount = 0;
-        if (dailyActiveResponse.ok) {
-          const dailyActiveData = await dailyActiveResponse.json();
-          console.log('Daily Active Count Response:', dailyActiveData); // Debug log
-          // Handle API response structure: {success, data, message, timestamp}
-          if (dailyActiveData.success && dailyActiveData.data) {
-            dailyActiveCount = dailyActiveData.data.dailyActiveUsers || 0;
-          } else {
-            dailyActiveCount = dailyActiveData.dailyActiveUsers || dailyActiveData.count || 0;
-          }
-        }
-        
-        // Update user stats with count data if available
-        if (countData && typeof countData === 'object') {
-          setUserStats(prev => ({
-            ...prev,
-            totalUsers: countData.totalUsers || countData.count || prev.totalUsers,
-            activeSubscribers: dailyActiveCount || prev.activeSubscribers
+        {/* USER TABLE */}
+        <div style={{ padding: '20px', overflow: 'hidden' }}>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px', fontSize: '16px', color: '#6b7280' }}>
+              Loading users...
+            </div>
+          ) : (
+            <UserTable
+              users={users}
+              selectedUsers={selectedUsers}
+              onSelectUser={handleSelectUser}
+              onSelectAll={handleSelectAll}
+              getUserId={getUserId}
+              formatDate={formatDate}
+              formatLastActive={formatLastActive}
+              getPlan={getPlan}
+              getSubsStatus={getSubsStatus}
+              currentPage={currentPage}
+              totalUsers={totalUsers}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+            />
+          )}
+        </div>
           }));
         }
       } catch (error) {
