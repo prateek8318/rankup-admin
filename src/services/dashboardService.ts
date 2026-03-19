@@ -12,3 +12,4 @@ class DashboardService extends BaseApiService {
 }
 
 export default new DashboardService();
+

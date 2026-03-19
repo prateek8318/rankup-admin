@@ -3,6 +3,7 @@ import {
   countryApi, languageApi,
   CountryDto, CreateCountryDto, UpdateCountryDto, LanguageDto,
 } from '@/services/masterApi';
+import { errorHandlingService } from '@/services/errorHandlingService';
 import { extractApiData } from '@/utils/apiHelpers';
 import { translateText } from '@/utils/translate';
 import MasterHeader from '@/components/common/MasterHeader';
@@ -32,7 +33,7 @@ const Countries = () => {
       const response = await countryApi.getAll(language);
       setCountries(extractApiData<CountryDto>(response));
     } catch (error) {
-      console.error('Error fetching countries:', error);
+      errorHandlingService.handleError(error, 'fetchCountries');
       setCountries([]);
     }
   };
@@ -42,7 +43,7 @@ const Countries = () => {
       const response = await languageApi.getAll();
       setLanguages(extractApiData<LanguageDto>(response));
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      errorHandlingService.handleError(error, 'fetchLanguages');
       setLanguages([]);
     }
   };
@@ -73,7 +74,7 @@ const Countries = () => {
       fetchCountries(selectedLanguage);
       resetForm();
     } catch (error) {
-      console.error('Error saving country:', error);
+      errorHandlingService.handleError(error, 'saveCountry');
     }
   };
 
@@ -97,7 +98,7 @@ const Countries = () => {
         await countryApi.updateStatus(id, false);
         fetchCountries(selectedLanguage);
       } catch (error) {
-        console.error('Error deactivating country:', error);
+        errorHandlingService.handleError(error, 'deactivateCountry');
       }
     }
   };
@@ -123,7 +124,7 @@ const Countries = () => {
         const hindiTranslation = await translateText(value, 'hi');
         setFormData((prev) => ({ ...prev, nameHi: hindiTranslation, name: value }));
       } catch (error) {
-        console.error('Auto-translation failed:', error);
+        ;
       }
     }
   };
@@ -194,14 +195,14 @@ const Countries = () => {
         <form onSubmit={handleSubmit}>
           <FormInput
             label="Country Name (English)"
-            value={formData.nameEn}
+            value={formData.nameEn || ''}
             onChange={handleNameEnChange}
             required
           />
 
           <FormInput
             label="Country Name (Hindi)"
-            value={formData.nameHi}
+            value={formData.nameHi || ''}
             onChange={(val) => setFormData({ ...formData, nameHi: val })}
           />
 
@@ -220,7 +221,7 @@ const Countries = () => {
 
           <FormCheckbox
             label="Active"
-            checked={formData.isActive}
+            checked={formData.isActive || false}
             onChange={(checked) => setFormData({ ...formData, isActive: checked })}
           />
 
@@ -235,3 +236,4 @@ const Countries = () => {
 };
 
 export default Countries;
+

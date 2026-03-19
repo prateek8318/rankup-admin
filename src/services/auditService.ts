@@ -1,5 +1,5 @@
-import BaseApiService from '@/core/api/baseApi';
-import API_CONFIG from '@/core/api/apiConfig';
+import BaseApiService from './baseApi';
+import API_CONFIG from './apiConfig';
 
 class AuditService extends BaseApiService {
   async getLogs() {
@@ -8,3 +8,4 @@ class AuditService extends BaseApiService {
 }
 
 export default new AuditService();
+

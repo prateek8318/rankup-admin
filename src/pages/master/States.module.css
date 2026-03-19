@@ -1,0 +1,6 @@
+.translationSection { margin-bottom: 20px; }
+.translationLabel { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
+.translationItem { margin-bottom: 12px; }
+.translationLangName { display: block; margin-bottom: 4px; font-size: 12px; color: #6b7280; }
+.translationInput { width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+.translatingText { margin-left: 8px; font-size: 12px; color: #6b7280; }

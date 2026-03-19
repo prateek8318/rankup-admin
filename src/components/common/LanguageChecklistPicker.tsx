@@ -1,4 +1,5 @@
 import React from 'react';
+import Loader from '@/components/common/Loader';
 
 /* ─────────────────────────── types ─ */
 export interface LanguageOption {
@@ -64,9 +65,7 @@ const LanguageChecklistPicker: React.FC<LanguageChecklistPickerProps> = ({
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 20, fontSize: '14px', color: '#6b7280' }}>
-          Loading languages...
-        </div>
+        <Loader fullPage={false} message="Loading languages..." />
       ) : (
         <div
           style={{
@@ -112,3 +111,4 @@ const LanguageChecklistPicker: React.FC<LanguageChecklistPickerProps> = ({
 };
 
 export default LanguageChecklistPicker;
+

@@ -1,7 +1,7 @@
 /**
  * Generic GET, POST, PUT, DELETE (fetch-based) + BaseApiService class for legacy services
  */
-import { appConfig } from '@/core/config/appConfig';
+import { appConfig } from './appConfig';
 
 const baseURL = appConfig.apiBaseUrl;
 
@@ -97,3 +97,4 @@ class BaseApiService {
 }
 
 export default BaseApiService;
+

@@ -1,0 +1,54 @@
+.headerContainer { background: #fff; border-radius: 13px; padding: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+.filtersRow { display: flex; align-items: center; gap: 20px; }
+.searchInput { padding: 10px 20px; border: 1px solid #e5e7eb; border-radius: 20px; background: #fff; font-size: 16px; width: 300px; outline: none; }
+.filterSelect { padding: 10px 15px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; font-size: 14px; min-width: 150px; }
+.primaryButton { padding: 10px 24px; border: none; border-radius: 8px; background: linear-gradient(90deg, #2B5DBC 0%, #073081 100%); color: #fff; font-size: 16px; cursor: pointer; font-weight: 500; }
+.primaryButtonDisabled { opacity: 0.6; }
+.secondaryButton { padding: 10px 20px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #374151; font-size: 14px; cursor: pointer; }
+.iconButton { background: none; border: none; margin-right: 8px; cursor: pointer; }
+
+.tableContainer { background: #fff; border-radius: 12px; padding: 16px; }
+.table { width: 100%; border-collapse: collapse; }
+.th { padding: 12px; text-align: left; background: #1e40af; color: #fff; }
+.td { padding: 12px; }
+.trActive { border-bottom: 1px solid #f3f4f6; background-color: transparent; opacity: 1; }
+.trInactive { border-bottom: 1px solid #f3f4f6; background-color: #f3f4f6; opacity: 0.6; }
+.statusActive { padding: 4px 8px; border-radius: 12px; background: #dcfce7; color: #166534; }
+.statusInactive { padding: 4px 8px; border-radius: 12px; background: #fee2e2; color: #991b1b; }
+
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modalContent { background: #fff; border-radius: 13px; padding: 30px; width: 720px; max-height: 90vh; overflow-y: auto; }
+.modalTitle { margin: 0 0 20px 0; font-size: 20px; font-weight: 600; }
+.formGroup { margin-bottom: 16px; }
+.formLabel { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+.formInput { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 14px; box-sizing: border-box; }
+.formInputError { border: 1px solid #dc2626; width: 100%; padding: 10px; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+.errorText { color: #dc2626; font-size: 12px; margin-top: 4px; }
+.helperText { font-size: 12px; color: #6b7280; }
+
+.row { display: flex; gap: 12px; margin-bottom: 16px; }
+.col { flex: 1; }
+
+.checkboxGroup { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto; }
+.checkboxGroupError { border: 1px solid #dc2626; border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto; }
+.checkboxLabel { display: flex; gap: 8px; align-items: center; padding: 4px 0; cursor: pointer; }
+.checkboxItem { width: 16px; height: 16px; }
+
+.translationBox { margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+.translationBoxTitle { margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #1e40af; }
+.translationItem { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #bfdbfe; }
+.translationLang { margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #1e40af; }
+.translationText { margin: 0 0 4px 0; font-size: 13px; color: #374151; }
+
+.imageUploadBox { width: 100px; height: 100px; border: 2px dashed #d1d5db; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f9fafb; position: relative; }
+.imageUploadBoxError { width: 100px; height: 100px; border: 2px dashed #dc2626; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f9fafb; position: relative; }
+.imagePreview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.imagePlaceholder { text-align: center; color: #6b7280; }
+.imageIcon { font-size: 24px; margin-bottom: 4px; }
+
+.cropperOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.cropperModal { background: #fff; border-radius: 13px; padding: 20px; width: 600px; height: 500px; }
+.cropperTitle { margin: 0 0 20px 0; font-size: 18px; font-weight: 600; }
+.cropperContainer { position: relative; width: 100%; height: 350px; margin-bottom: 20px; }
+.zoomInput { width: 100%; }
+.modalActions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }

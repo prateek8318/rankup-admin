@@ -69,3 +69,4 @@ export const LANGUAGE_OPTIONS: LanguageOptionConfig[] = [
   { name: 'Karbi', code: 'mjw', nativeName: 'Karbi' },
   { name: 'Garo', code: 'grt', nativeName: 'Garo' },
 ];
+

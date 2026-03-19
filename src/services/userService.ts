@@ -1,5 +1,5 @@
-import BaseApiService from '@/core/api/baseApi';
-import API_CONFIG from '@/core/api/apiConfig';
+import BaseApiService from './baseApi';
+import API_CONFIG from './apiConfig';
 
 class UserService extends BaseApiService {
   async getAllUsers(params?: any) {
@@ -16,3 +16,4 @@ class UserService extends BaseApiService {
 }
 
 export default new UserService();
+

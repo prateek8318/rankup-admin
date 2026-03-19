@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
-import {
-  stateApi, countryApi, languageApi,
-  StateDto, CreateStateDto, UpdateStateDto, CountryDto, LanguageDto, StateNameDto,
-} from '@/services/masterApi';
-import { extractApiData } from '@/utils/apiHelpers';
+import { useState } from 'react';
+import styles from './States.module.css';
+import { useStates } from '@/hooks/useStates';
+import { StateDto, CreateStateDto, StateNameDto } from '@/services/masterApi';
 import { translateText } from '@/utils/translate';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
@@ -14,14 +12,9 @@ import FormSelect from '@/components/common/FormSelect';
 import FormCheckbox from '@/components/common/FormCheckbox';
 import StatusBadge from '@/components/common/StatusBadge';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
-
 const States = () => {
-  const [states, setStates] = useState<StateDto[]>([]);
-  const [countries, setCountries] = useState<CountryDto[]>([]);
-  const [languages, setLanguages] = useState<LanguageDto[]>([]);
   const [selectedLanguageId, setSelectedLanguageId] = useState<number | undefined>(undefined);
   const [selectedCountryCode, setSelectedCountryCode] = useState<string>('');
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingState, setEditingState] = useState<StateDto | null>(null);
@@ -30,62 +23,14 @@ const States = () => {
     name: '', code: '', countryCode: '', names: [], isActive: true,
   });
 
-  /* ─── data fetching ─ */
-  const fetchStates = async () => {
-    try {
-      setLoading(true);
-      const response = await stateApi.getAll(selectedLanguageId, selectedCountryCode || undefined);
-      setStates(extractApiData<StateDto>(response));
-    } catch (error) {
-      console.error('Error fetching states:', error);
-      setStates([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCountries = async () => {
-    try {
-      const response = await countryApi.getAll();
-      setCountries(extractApiData<CountryDto>(response));
-    } catch (error) {
-      console.error('Error fetching countries:', error);
-      setCountries([]);
-    }
-  };
-
-  const fetchLanguages = async () => {
-    try {
-      const response = await languageApi.getAll();
-      setLanguages(extractApiData<LanguageDto>(response));
-    } catch (error) {
-      console.error('Error fetching languages:', error);
-      setLanguages([]);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      await Promise.all([fetchStates(), fetchCountries(), fetchLanguages()]);
-      setLoading(false);
-    };
-    fetchData();
-  }, [selectedLanguageId, selectedCountryCode]);
+  const { states, countries, languages, loading, deleteState, saveState } = useStates(selectedLanguageId, selectedCountryCode);
 
   /* ─── handlers ─ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (editingState) {
-        await stateApi.update(editingState.id, formData as UpdateStateDto);
-      } else {
-        await stateApi.create(formData);
-      }
-      fetchStates();
+    const success = await saveState(formData, editingState);
+    if (success) {
       resetForm();
-    } catch (error) {
-      console.error('Error saving state:', error);
     }
   };
 
@@ -100,14 +45,7 @@ const States = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to deactivate this state?')) {
-      try {
-        await stateApi.updateStatus(id, false);
-        fetchStates();
-      } catch (error) {
-        console.error('Error deactivating state:', error);
-      }
-    }
+    await deleteState(id);
   };
 
   const resetForm = () => {
@@ -262,7 +200,7 @@ const States = () => {
             required
             labelSuffix={
               isTranslating ? (
-                <span style={{ marginLeft: 8, fontSize: '12px', color: '#6b7280' }}>
+                <span className={styles.translatingText}>
                   (Translating...)
                 </span>
               ) : null
@@ -299,15 +237,15 @@ const States = () => {
           />
 
           {formData.names && formData.names.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: '14px', fontWeight: '500' }}>
+            <div className={styles.translationSection}>
+              <label className={styles.translationLabel}>
                 State Names by Language *
               </label>
               {formData.names.map((nameObj, index) => {
                 const language = languages.find((l) => l.id === nameObj.languageId);
                 return (
-                  <div key={nameObj.languageId} style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', marginBottom: 4, fontSize: '12px', color: '#6b7280' }}>
+                  <div key={nameObj.languageId} className={styles.translationItem}>
+                    <label className={styles.translationLangName}>
                       {language?.name || `Language ${nameObj.languageId}`}
                     </label>
                     <input
@@ -320,11 +258,7 @@ const States = () => {
                         setFormData({ ...formData, names: updatedNames });
                       }}
                       placeholder={`Enter state name in ${language?.name || 'this language'}`}
-                      style={{
-                        width: '100%', padding: 8,
-                        border: '1px solid #e5e7eb', borderRadius: 6,
-                        fontSize: '14px', boxSizing: 'border-box',
-                      }}
+                      className={styles.translationInput}
                     />
                   </div>
                 );
@@ -349,3 +283,4 @@ const States = () => {
 };
 
 export default States;
+

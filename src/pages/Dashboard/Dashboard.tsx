@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React from 'react';
 import usersIcon from '@/assets/icons/user.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
 import examsIcon from '@/assets/icons/total exams.png';
@@ -148,77 +147,6 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 };
 
 const DashboardPage: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [overview, setOverview] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const mockStats = {
-    totalUsers: 1250,
-    activeUsers: 892,
-    totalAdmins: 5,
-    activeAdmins: 4,
-    totalExams: 45,
-    activeExams: 38,
-    totalRevenue: 0,
-    monthlyRevenue: 0
-  };
-
-  const mockOverview = {
-    totalUsers: 1250,
-    activeUsers: 892,
-    totalAdmins: 5,
-    activeAdmins: 4,
-    totalExams: 45,
-    activeExams: 38,
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    recentActivity: [
-      { id: 1, user: "John Doe", action: "Registered", time: "2 mins ago" },
-      { id: 2, user: "Jane Smith", action: "Subscribed", time: "5 mins ago" },
-      { id: 3, user: "Bob Johnson", action: "Completed Exam", time: "10 mins ago" },
-      { id: 4, user: "Alice Brown", action: "Asked Question", time: "15 mins ago" }
-    ],
-    systemHealth: {
-      adminService: "Healthy",
-      database: "Connected",
-      userService: "Connected",
-      examService: "Connected",
-      lastUpdated: "2024-02-17T12:00:00Z"
-    },
-    earningsData: [
-      { month: "Jan", earnings: 45000 },
-      { month: "Feb", earnings: 52000 },
-      { month: "Mar", earnings: 48000 },
-      { month: "Apr", earnings: 61000 },
-      { month: "May", earnings: 58000 },
-      { month: "Jun", earnings: 67000 }
-    ]
-  };
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('🚫 Using mock data only - API disabled');
-      setStats(mockStats);
-      setOverview(mockOverview);
-      
-    } catch (err: any) {
-      setError('Failed to load dashboard data');
-      console.error('Dashboard error:', err);
-      setStats(mockStats);
-      setOverview(mockOverview);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const topRowCards = [
     {
       number: "12.5K",
@@ -228,75 +156,27 @@ const DashboardPage: React.FC = () => {
       topWaveImage: vectorIcon
     },
     {
-      number: stats?.activeUsers?.toString() || mockStats.activeUsers.toString(),
+      number: "892",
       label: "Total Subscribers", 
       icon: activeSubscribersIcon,
       isWhiteBackground: true,
       topWaveImage: vector1Icon
     },
     {
-      number: stats?.totalExams?.toString() || mockStats.totalExams.toString(),
+      number: "45",
       label: "Active Subscribers",
       icon: examsIcon,
       isWhiteBackground: true,
       topWaveImage: vector2Icon
     },
     {
-      number: stats?.activeExams?.toString() || mockStats.activeExams.toString(),
+      number: "38",
       label: "Subscribers Expiring Soon",
       icon: activeSubscribersIcon,
       isWhiteBackground: true,
       topWaveImage: vector3Icon
     }
   ];
-
-  if (loading) {
-    return (
-      <div style={{
-        background: "#E6F5FF",
-        
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 18,
-        color: "#4780CF"
-      }}>
-        Loading dashboard...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{
-        background: "#E6F5FF",
-        
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 18,
-        color: "#ef4444"
-      }}>
-        <div style={{ marginBottom: 20 }}>⚠️ {error}</div>
-        <button 
-          onClick={fetchDashboardData}
-          style={{
-            padding: "10px 20px",
-            background: "#4780CF",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -495,3 +375,4 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+

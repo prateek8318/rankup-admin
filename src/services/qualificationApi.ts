@@ -49,12 +49,7 @@ export const qualificationApi = {
       const response = await apiClient.delete(apiEndpoints.QUALIFICATIONS.DELETE(id));
       return response.data;
     } catch (error: any) {
-      console.error('Delete API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -63,16 +58,11 @@ export const qualificationApi = {
     try {
       // Try object format like Streams API since direct boolean might not work
       const requestData = { isActive };
-      console.log('Toggling qualification status with data:', requestData); // Debug log
+      ; // Debug log
       const response = await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), requestData);
       return response.data;
     } catch (error: any) {
-      console.error('Toggle Status API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -110,12 +100,7 @@ export const qualificationApi = {
       const response = await apiClient.delete(apiEndpoints.STREAMS.DELETE(id));
       return response.data;
     } catch (error: any) {
-      console.error('Delete Stream API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -125,12 +110,7 @@ export const qualificationApi = {
       const response = await apiClient.patch(apiEndpoints.STREAMS.TOGGLE_STATUS(id), { isActive });
       return response.data;
     } catch (error: any) {
-      console.error('Toggle Stream Status API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -200,3 +180,4 @@ export const translateText = async (text: string, targetLanguage: string): Promi
   
   return translations[text]?.[targetLanguage] || `[${targetLanguage.toUpperCase()}] ${text}`;
 };
+
