@@ -1,6 +1,6 @@
 import React from 'react';
 import MDEditor from '@uiw/react-md-editor';
-import styles from '../styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
 
 interface CMSModalProps {
   isModalOpen: boolean;

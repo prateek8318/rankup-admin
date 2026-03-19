@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiPlus, FiFilter } from 'react-icons/fi';
-import styles from '../styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
 
 interface CMSHeaderProps {
   searchTerm: string;

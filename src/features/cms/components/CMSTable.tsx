@@ -4,7 +4,7 @@ import Loader from '@/components/common/Loader';
 import viewIcon from '@/assets/icons/view.png';
 import editIcon from '@/assets/icons/edit.png';
 import deleteIcon from '@/assets/icons/delete.png';
-import styles from '../styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
 import { CMSItem } from '../hooks/useCMSList';
 
 interface CMSTableProps {

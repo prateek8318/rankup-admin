@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
 
 interface CMSPaginationProps {
   currentPage: number;
