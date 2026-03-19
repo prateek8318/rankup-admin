@@ -4,7 +4,8 @@ import { CMSHeader } from '@/features/cms/components/CMSHeader';
 import { CMSTable } from '@/features/cms/components/CMSTable';
 import { CMSPagination } from '@/features/cms/components/CMSPagination';
 import { CMSModal } from '@/features/cms/components/CMSModal';
-import styles from '@/features/cms/styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
+import Loader from '@/components/common/Loader';
 
 const CMSManagement: React.FC = () => {
   const {
@@ -37,7 +38,10 @@ const CMSManagement: React.FC = () => {
   } = useCMSList();
 
   return (
-    <div className={styles.pageContainer}>
+    <>
+      {loading && <Loader message="Loading CMS content..." />}
+      
+      <div className={styles.pageContainer}>
       <div className={styles.innerContainer}>
         <CMSHeader
           searchTerm={searchTerm}
@@ -82,6 +86,7 @@ const CMSManagement: React.FC = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 

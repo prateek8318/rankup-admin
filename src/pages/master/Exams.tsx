@@ -5,7 +5,8 @@ import ExamFormModal from '@/features/master/exams/components/ExamFormModal';
 import ExamTable from '@/features/master/exams/ExamTable';
 import { useExamForm } from '@/features/master/exams/hooks/useExamForm';
 import { filterExams, type RegionFilter } from '@/features/master/exams/examUtils';
-import styles from './Exams.module.css';
+import styles from '@/styles/pages/Exams.module.css';
+import Loader from '@/components/common/Loader';
 
 const Exams = () => {
   const {
@@ -59,6 +60,8 @@ const Exams = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading exams..." />}
+      
       <div className={styles.headerContainer}>
         <div className={styles.filtersRow}>
           <input
@@ -98,7 +101,7 @@ const Exams = () => {
       <ExamTable
         exams={filteredExamRows}
         languages={languages}
-        loading={loading}
+        loading={false}
         onEdit={openEditModal}
         onDelete={removeExam}
       />

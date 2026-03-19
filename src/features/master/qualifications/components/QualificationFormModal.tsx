@@ -7,7 +7,7 @@ import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker
 import MasterModal from '@/components/common/MasterModal';
 import NameDescriptionTranslationFields from '@/features/master/shared/components/NameDescriptionTranslationFields';
 import { CreateQualificationDto, LanguageDto, QualificationDto } from '@/types/qualification';
-import styles from '@/pages/master/Qualifications.module.css';
+import styles from '@/styles/pages/Qualifications.module.css';
 
 interface QualificationFormModalProps {
   isOpen: boolean;

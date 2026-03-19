@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import styles from './LoginForm.module.css';
+import styles from '@/styles/components/LoginForm.module.css';
 
 interface LoginFormProps {
   onSuccess?: () => void;

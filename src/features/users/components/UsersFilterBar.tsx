@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../Users.module.css';
+import styles from '@/styles/features/Users.module.css';
 import exportIcon from '@/assets/icons/export.png';
 
 interface UsersFilterBarProps {

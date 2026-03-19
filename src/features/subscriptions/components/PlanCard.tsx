@@ -4,7 +4,7 @@ import totalExamsIcon from '@/assets/icons/total exams.png';
 import vector1Icon from '@/assets/icons/Vector (3).png';
 import vector2Icon from '@/assets/icons/Vector (6).png';
 import vector3Icon from '@/assets/icons/Vector (2).png';
-import styles from '../styles/Subscriptions.module.css';
+import styles from '@/styles/features/Subscriptions.module.css';
 
 export interface PlanCardProps {
   number: string | number;

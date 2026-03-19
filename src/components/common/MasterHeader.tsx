@@ -79,7 +79,7 @@ const MasterHeader: React.FC<MasterHeaderProps> = ({
               minWidth: "150px"
             }}
           >
-            <option value="">{`All ${filter.label}s`}</option>
+            <option value="">{filter.label === 'Status' ? `All ${filter.label}` : `All ${filter.label}s`}</option>
             {filter.options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}

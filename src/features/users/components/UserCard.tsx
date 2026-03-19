@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../Users.module.css';
+import styles from '@/styles/features/Users.module.css';
 import usersIcon from '@/assets/icons/user.png';
 import activeSubscribersIcon from '@/assets/icons/active-subscribers.png';
 import subscribersIcon from '@/assets/icons/subscribers.png';

@@ -5,7 +5,8 @@ import { SubscriptionsHeader } from './components/SubscriptionsHeader';
 import { SubscriptionsFilterBar } from './components/SubscriptionsFilterBar';
 import { SubscriptionsTable } from './components/SubscriptionsTable';
 import { PlanCard } from './components/PlanCard';
-import styles from './styles/Subscriptions.module.css';
+import styles from '@/styles/features/Subscriptions.module.css';
+import Loader from '@/components/common/Loader';
 
 export const SubscriptionsContent: React.FC = () => {
   const {
@@ -46,6 +47,7 @@ export const SubscriptionsContent: React.FC = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading subscriptions..." />}
       <SubscriptionsHeader setShowCreateModal={setShowCreateModal} />
 
       <div className={styles.cardsContainer}>

@@ -2,7 +2,7 @@ import React from 'react';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { SubscriptionPlanDto } from '@/services/subscriptionPlansApi';
 import { SubscriptionsPagination } from './SubscriptionsPagination';
-import styles from '../styles/Subscriptions.module.css';
+import styles from '@/styles/features/Subscriptions.module.css';
 
 interface SubscriptionsTableProps {
   loading: boolean;

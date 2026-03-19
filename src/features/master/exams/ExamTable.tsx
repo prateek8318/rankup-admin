@@ -3,7 +3,7 @@ import deleteIcon from '@/assets/icons/delete.png';
 import Loader from '@/components/common/Loader';
 import { ExamDto } from '@/services/examsApi';
 import { LanguageDto } from '@/types/qualification';
-import styles from '@/pages/master/Exams.module.css';
+import styles from '@/styles/pages/Exams.module.css';
 import { getExamImageSource } from './examUtils';
 
 interface ExamTableProps {

@@ -187,13 +187,14 @@ const Languages = () => {
 
   const handleEdit = useCallback((language: LanguageDto) => {
     setEditingLanguage(language);
+    const option = languageOptions.find(opt => opt.code === language.code);
     setFormData({
-      name: language.name,
+      name: option ? `${option.name} / ${option.nativeName}` : language.name,
       code: language.code,
       isActive: language.isActive
     });
     setShowModal(true);
-  }, []);
+  }, [languageOptions]);
 
   const handleLanguageSelect = useCallback((selectedCode: string) => {
     if (selectedCode === 'custom') {
@@ -410,7 +411,7 @@ const Languages = () => {
                   <option value="">Choose a language...</option>
                   {dropdownOptions.map((option) => (
                     <option key={option.code} value={option.code}>
-                      {option.name} ({option.code})
+                      {`${option.name} / ${option.nativeName} (${option.code})`}
                     </option>
                   ))}
                   {!editingLanguage && (

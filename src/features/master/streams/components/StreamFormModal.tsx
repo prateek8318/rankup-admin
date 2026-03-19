@@ -6,7 +6,7 @@ import FormTextarea from '@/components/common/FormTextarea';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 import MasterModal from '@/components/common/MasterModal';
 import { CreateStreamDto, LanguageDto, QualificationDto, StreamDto } from '@/types/qualification';
-import styles from '@/pages/master/Streams.module.css';
+import styles from '@/styles/pages/Streams.module.css';
 import StreamTranslationFields from './StreamTranslationFields';
 
 interface StreamFormModalProps {

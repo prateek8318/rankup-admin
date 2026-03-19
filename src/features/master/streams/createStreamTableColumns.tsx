@@ -1,7 +1,7 @@
 import StatusBadge from '@/components/common/StatusBadge';
 import type { TableColumn } from '@/components/common/MasterTable';
 import { LanguageDto, StreamDto, StreamName } from '@/types/qualification';
-import styles from '@/pages/master/Streams.module.css';
+import styles from '@/styles/pages/Streams.module.css';
 import { getLanguageDisplayName, getStreamDescription } from './streamUtils';
 
 export const createStreamTableColumns = (languages: LanguageDto[]): TableColumn[] => [

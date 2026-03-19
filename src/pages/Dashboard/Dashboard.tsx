@@ -13,6 +13,7 @@ import supportIcon from '@/assets/icons/total exams.png';
 import transactionsIcon from '@/assets/icons/transactions.png';
 import totalQuestionsIcon from '@/assets/icons/total questions.png';
 import totalExamsIcon from '@/assets/icons/total exams.png';
+import Loader from '@/components/common/Loader';
 
 interface DashboardCardProps {
   number: string;
@@ -147,6 +148,16 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 };
 
 const DashboardPage: React.FC = () => {
+  const [loading, setLoading] = React.useState(true);
+  
+  // Simulate initial data loading
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const topRowCards = [
     {
       number: "12.5K",
@@ -179,13 +190,16 @@ const DashboardPage: React.FC = () => {
   ];
 
   return (
-    <div
-      style={{
-        background: "#E6F5FF",
-        minHeight: "100vh",
-        width: "100%",
-      }}
-    >
+    <>
+      {loading && <Loader message="Loading dashboard..." />}
+      
+      <div
+        style={{
+          background: "#E6F5FF",
+          minHeight: "100vh",
+          width: "100%",
+        }}
+      >
       <div
         style={{
           width: "100%",
@@ -370,7 +384,8 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import { LanguageDto, StreamName } from '@/types/qualification';
-import styles from '@/pages/master/Streams.module.css';
+import styles from '@/styles/pages/Streams.module.css';
 
 interface StreamTranslationFieldsProps {
   languages: LanguageDto[];

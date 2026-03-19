@@ -5,7 +5,8 @@ import { UserCard } from './components/UserCard';
 import { UsersFilterBar } from './components/UsersFilterBar';
 import { UsersTable } from './components/UsersTable';
 import { UsersPagination } from './components/UsersPagination';
-import styles from './Users.module.css';
+import styles from '@/styles/features/Users.module.css';
+import Loader from '@/components/common/Loader';
 
 export const UsersPageContent: React.FC = () => {
   const {
@@ -38,6 +39,8 @@ export const UsersPageContent: React.FC = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading users..." />}
+      
       <UsersHeader searchTerm={searchTerm} onSearchChange={handleSearch} />
 
       <div className={styles.statCardsContainer}>

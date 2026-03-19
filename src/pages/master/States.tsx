@@ -6,6 +6,7 @@ import { createStateTableColumns } from '@/features/master/states/createStateTab
 import { useStateForm } from '@/features/master/states/hooks/useStateForm';
 import { filterStates } from '@/features/master/states/stateUtils';
 import { useStates } from '@/hooks/useStates';
+import Loader from '@/components/common/Loader';
 
 const States = () => {
   const [selectedLanguageId, setSelectedLanguageId] = useState<number | undefined>(undefined);
@@ -48,6 +49,8 @@ const States = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading states..." />}
+      
       <MasterHeader
         searchPlaceholder="Search states..."
         searchTerm={searchTerm}
@@ -75,7 +78,7 @@ const States = () => {
       <MasterTable
         columns={columns}
         data={filteredStateRows}
-        loading={loading}
+        loading={false}
         onEdit={openEditModal}
         onDelete={deleteState}
         emptyMessage="No states found."

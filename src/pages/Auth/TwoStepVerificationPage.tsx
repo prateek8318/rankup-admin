@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 import inFlag from '@/assets/images/in.png';
 
-import styles from './TwoStepVerificationPage.module.css';
+import styles from '@/styles/auth/TwoStepVerificationPage.module.css';
 
 type LocationState = { email?: string; mobileNumber?: string };
 

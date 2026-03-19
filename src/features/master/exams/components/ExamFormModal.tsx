@@ -2,7 +2,7 @@ import type { FormEvent } from 'react';
 import Loader from '@/components/common/Loader';
 import { ExamDto, CreateExamDto } from '@/services/examsApi';
 import { LanguageDto, QualificationDto, StreamDto } from '@/types/qualification';
-import styles from '@/pages/master/Exams.module.css';
+import styles from '@/styles/pages/Exams.module.css';
 
 interface ExamFormModalProps {
   isOpen: boolean;

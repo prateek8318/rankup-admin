@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/Subscriptions.module.css';
+import styles from '@/styles/features/Subscriptions.module.css';
 
 interface SubscriptionsFilterBarProps {
   searchTerm: string;

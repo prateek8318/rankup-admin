@@ -6,6 +6,7 @@ import { createStreamTableColumns } from '@/features/master/streams/createStream
 import { useStreamForm } from '@/features/master/streams/hooks/useStreamForm';
 import { filterStreams } from '@/features/master/streams/streamUtils';
 import { useStreams } from '@/hooks/useStreams';
+import Loader from '@/components/common/Loader';
 
 const Streams = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,6 +53,8 @@ const Streams = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading streams..." />}
+      
       <MasterHeader
         searchPlaceholder="Search streams..."
         searchTerm={searchTerm}
@@ -75,7 +78,7 @@ const Streams = () => {
       <MasterTable
         columns={columns}
         data={filteredStreams}
-        loading={loading}
+        loading={false}
         onEdit={openEditModal}
         onDelete={deleteStream}
         emptyMessage="No streams found."

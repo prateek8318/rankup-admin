@@ -1,7 +1,7 @@
 import type { TableColumn } from '@/components/common/MasterTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import { LanguageDto, QualificationDto, QualificationName } from '@/types/qualification';
-import styles from '@/pages/master/Qualifications.module.css';
+import styles from '@/styles/pages/Qualifications.module.css';
 import { getQualificationLanguageName } from './qualificationUtils';
 
 export const createQualificationTableColumns = (

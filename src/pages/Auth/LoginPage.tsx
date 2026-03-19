@@ -4,7 +4,7 @@ import 'aos/dist/aos.css';
 import { LoginForm } from '../../features/auth/components/LoginForm';
 import loginIllustration from '@/assets/images/login-illustration.png';
 import rankupLogo from '@/assets/images/rankup-logo.png';
-import styles from './LoginPage.module.css';
+import styles from '@/styles/auth/LoginPage.module.css';
 
 
 

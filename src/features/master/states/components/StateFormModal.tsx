@@ -7,7 +7,7 @@ import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker
 import MasterModal from '@/components/common/MasterModal';
 import NameTranslationFields from '@/features/master/shared/components/NameTranslationFields';
 import { CountryDto, CreateStateDto, LanguageDto, StateDto } from '@/services/masterApi';
-import styles from '@/pages/master/States.module.css';
+import styles from '@/styles/pages/States.module.css';
 
 interface StateFormModalProps {
   isOpen: boolean;

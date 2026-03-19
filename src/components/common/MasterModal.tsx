@@ -6,6 +6,7 @@ export interface MasterModalProps {
   children: React.ReactNode;
   width?: string | number;
   maxWidth?: string;
+  onClose?: () => void;
 }
 
 const MasterModal: React.FC<MasterModalProps> = ({
@@ -13,7 +14,8 @@ const MasterModal: React.FC<MasterModalProps> = ({
   title,
   children,
   width = "500px",
-  maxWidth = "90%"
+  maxWidth = "90%",
+  onClose
 }) => {
   if (!isOpen) return null;
 
@@ -29,7 +31,9 @@ const MasterModal: React.FC<MasterModalProps> = ({
       alignItems: "center",
       justifyContent: "center",
       zIndex: 1000
-    }}>
+    }}
+    onClick={onClose}
+    >
       <div style={{
         background: "#fff",
         borderRadius: 13,
@@ -38,10 +42,41 @@ const MasterModal: React.FC<MasterModalProps> = ({
         maxWidth,
         maxHeight: '90vh',
         overflowY: 'auto'
-      }}>
-        <h3 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "600" }}>
-          {title}
-        </h3>
+      }}
+      onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: "20px", fontWeight: "600" }}>
+            {title}
+          </h3>
+          {onClose && (
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '0',
+                width: '30px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              ×
+            </button>
+          )}
+        </div>
         
         {children}
       </div>

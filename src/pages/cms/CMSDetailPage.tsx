@@ -2,7 +2,7 @@ import React from 'react';
 import { FiEdit, FiTrash2, FiArrowLeft, FiGlobe } from 'react-icons/fi';
 import MDEditor from '@uiw/react-md-editor';
 import { useCMSDetail } from '@/features/cms/hooks/useCMSDetail';
-import styles from '@/features/cms/styles/CMS.module.css';
+import styles from '@/styles/features/CMS.module.css';
 
 const CMSDetailPage: React.FC = () => {
   const {

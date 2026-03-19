@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { notificationService } from '@/services/notificationService';
 
-import styles from './ForgotPasswordPage.module.css';
+import styles from '@/styles/auth/ForgotPasswordPage.module.css';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');

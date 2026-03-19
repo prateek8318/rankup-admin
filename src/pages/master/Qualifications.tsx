@@ -6,6 +6,7 @@ import { createQualificationTableColumns } from '@/features/master/qualification
 import { useQualificationForm } from '@/features/master/qualifications/hooks/useQualificationForm';
 import { filterQualifications } from '@/features/master/qualifications/qualificationUtils';
 import { useQualifications } from '@/hooks/useQualifications';
+import Loader from '@/components/common/Loader';
 
 const Qualifications = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,6 +53,8 @@ const Qualifications = () => {
 
   return (
     <>
+      {loading && <Loader message="Loading qualifications..." />}
+      
       <MasterHeader
         searchPlaceholder="Search qualifications..."
         searchTerm={searchTerm}
@@ -72,7 +75,7 @@ const Qualifications = () => {
       <MasterTable
         columns={columns}
         data={filteredQualifications}
-        loading={loading}
+        loading={false}
         onEdit={openEditModal}
         onDelete={deleteQualification}
         emptyMessage="No qualifications found."

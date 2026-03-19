@@ -1,5 +1,5 @@
 import Cropper from 'react-easy-crop';
-import styles from '@/pages/master/Exams.module.css';
+import styles from '@/styles/pages/Exams.module.css';
 
 interface ExamCropModalProps {
   imageFile: File | null;
