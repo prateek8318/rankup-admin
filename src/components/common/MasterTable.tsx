@@ -14,7 +14,7 @@ export interface MasterTableProps {
   data: any[];
   loading?: boolean;
   onEdit?: (item: any) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (item: any) => void;
   emptyMessage?: string;
   loadingMessage?: string;
 }
@@ -45,7 +45,7 @@ const MasterTable: React.FC<MasterTableProps> = ({
       </button>
       {item.isActive && onDelete && (
         <button
-          onClick={() => onDelete(item.id)}
+          onClick={() => onDelete(item)}
           style={{
             background: 'none',
             border: 'none',

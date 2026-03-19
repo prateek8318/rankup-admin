@@ -1,0 +1,142 @@
+.sidebar {
+  display: flex;
+  width: 310px;
+  height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.sidebarHeader {
+  padding: 25px 15px 20px;
+}
+
+.sidebarHeaderInner {
+  padding: 0 24px 30px;
+  border-bottom: 2px solid #dcdcdc;
+}
+
+.logo {
+  display: block;
+  width: 180px;
+  margin: 0 auto;
+}
+
+.sidebarBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 15px 25px;
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+.section:first-child {
+  margin-top: 0;
+}
+
+.sectionTitle {
+  margin-bottom: 10px;
+  padding: 0 24px;
+  color: #000;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nestedMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 42px;
+}
+
+.menuLink,
+.menuToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #2e2e2e;
+  font-size: 18px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menuLinkActive,
+.menuToggleActive {
+  background: #e8f0fe;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.menuLabel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.caret {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 180ms ease, color 180ms ease;
+  flex-shrink: 0;
+}
+
+.caretOpen {
+  transform: rotate(-135deg);
+}
+
+.navbar {
+  border-bottom: 1px solid #d8ebfa;
+  background: #e6f5ff;
+  padding: 8px 18px;
+}
+
+.navbarInner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.navbarProfile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbarGreeting {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 280px;
+  }
+}

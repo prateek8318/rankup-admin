@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 
 interface UseApiOptions<T> {
   onSuccess?: (data: T) => void;
@@ -37,7 +37,7 @@ export const useApi = <T>(
       }
       
       if (showToast) {
-        toast.success('Data loaded successfully');
+        notificationService.success('Data loaded successfully');
       }
     } catch (err) {
       const error = err as Error;
@@ -48,7 +48,7 @@ export const useApi = <T>(
       }
       
       if (showToast) {
-        toast.error(error.message || 'Failed to load data');
+        notificationService.error(error.message || 'Failed to load data');
       }
     } finally {
       setLoading(false);
@@ -66,4 +66,5 @@ export const useApi = <T>(
     refetch: fetchData
   };
 };
+
 

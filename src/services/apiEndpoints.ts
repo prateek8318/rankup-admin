@@ -5,6 +5,7 @@
 export interface ApiEndpointsShape {
   AUTH: {
     LOGIN: string;
+    FORGOT_PASSWORD: string;
     VERIFY_OTP: string;
     REFRESH: string;
     LOGOUT: string;
@@ -59,6 +60,33 @@ export interface ApiEndpointsShape {
     EXAMS: string;
     SUBSCRIPTIONS: string;
   };
+  LANGUAGES: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    UPDATE_STATUS: (id: string) => string;
+  };
+  COUNTRIES: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    GET_BY_CODE: (code: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    UPDATE_STATUS: (id: string) => string;
+  };
+  STATES: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    UPDATE_STATUS: (id: string) => string;
+    SEED_LANGUAGES: string;
+    DELETE_EMPTY_NAMES: string;
+  };
   QUALIFICATIONS: {
     GET_ALL: string;
     GET_BY_ID: (id: string) => string;
@@ -76,11 +104,34 @@ export interface ApiEndpointsShape {
     TOGGLE_STATUS: (id: string) => string;
     GET_BY_QUALIFICATION: (qualificationId: string) => string;
   };
+  SUBJECTS: {
+    GET_ALL: string;
+    GET_BY_ID: (id: string) => string;
+    GET_ACTIVE: string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    CHECK_EXISTS: (id: string) => string;
+  };
+  CATEGORIES: {
+    GET_ALL: string;
+    GET_QUALIFICATIONS: string;
+    GET_EXAM_CATEGORIES: string;
+    GET_STREAMS: string;
+    GET_ALL_OPTIMIZED: string;
+    GET_ALL_COMBINED: string;
+    GET_BY_ID: (id: string) => string;
+    CREATE: string;
+    UPDATE: (id: string) => string;
+    DELETE: (id: string) => string;
+    UPDATE_STATUS: (id: string) => string;
+  };
 }
 
 export const apiEndpoints = {
   AUTH: {
     LOGIN: '/api/admin/auth/login',
+    FORGOT_PASSWORD: '/api/admin/auth/forgot-password',
     VERIFY_OTP: '/api/admin/auth/verify-otp',
     REFRESH: '/api/admin/auth/refresh',
     LOGOUT: '/api/admin/auth/logout',
@@ -135,6 +186,33 @@ export const apiEndpoints = {
     EXAMS: '/api/admin/exports/exams',
     SUBSCRIPTIONS: '/api/admin/exports/subscriptions',
   },
+  LANGUAGES: {
+    GET_ALL: '/api/languages',
+    GET_BY_ID: (id: string) => `/api/languages/${id}`,
+    CREATE: '/api/languages',
+    UPDATE: (id: string) => `/api/languages/${id}`,
+    DELETE: (id: string) => `/api/languages/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/languages/${id}/status`,
+  },
+  COUNTRIES: {
+    GET_ALL: '/api/countries',
+    GET_BY_ID: (id: string) => `/api/countries/${id}`,
+    GET_BY_CODE: (code: string) => `/api/countries/code/${code}`,
+    CREATE: '/api/countries',
+    UPDATE: (id: string) => `/api/countries/${id}`,
+    DELETE: (id: string) => `/api/countries/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/countries/${id}/status`,
+  },
+  STATES: {
+    GET_ALL: '/api/states',
+    GET_BY_ID: (id: string) => `/api/states/${id}`,
+    CREATE: '/api/states',
+    UPDATE: (id: string) => `/api/states/${id}`,
+    DELETE: (id: string) => `/api/states/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/states/${id}/status`,
+    SEED_LANGUAGES: '/api/states/seed-languages',
+    DELETE_EMPTY_NAMES: '/api/states/empty-names',
+  },
   QUALIFICATIONS: {
     GET_ALL: '/api/qualifications',
     GET_BY_ID: (id: string) => `/api/qualifications/${id}`,
@@ -151,6 +229,28 @@ export const apiEndpoints = {
     DELETE: (id: string) => `/api/streams/${id}`,
     TOGGLE_STATUS: (id: string) => `/api/streams/${id}/status`,
     GET_BY_QUALIFICATION: (qualificationId: string) => `/api/streams?qualificationId=${qualificationId}`,
+  },
+  SUBJECTS: {
+    GET_ALL: '/api/subjects',
+    GET_BY_ID: (id: string) => `/api/subjects/${id}`,
+    GET_ACTIVE: '/api/subjects/active',
+    CREATE: '/api/subjects',
+    UPDATE: (id: string) => `/api/subjects/${id}`,
+    DELETE: (id: string) => `/api/subjects/${id}`,
+    CHECK_EXISTS: (id: string) => `/api/subjects/exists/${id}`,
+  },
+  CATEGORIES: {
+    GET_ALL: '/api/categories',
+    GET_QUALIFICATIONS: '/api/categories/qualifications',
+    GET_EXAM_CATEGORIES: '/api/categories/exam-categories',
+    GET_STREAMS: '/api/categories/streams',
+    GET_ALL_OPTIMIZED: '/api/categories/all-optimized',
+    GET_ALL_COMBINED: '/api/categories/all',
+    GET_BY_ID: (id: string) => `/api/categories/${id}`,
+    CREATE: '/api/categories',
+    UPDATE: (id: string) => `/api/categories/${id}`,
+    DELETE: (id: string) => `/api/categories/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/categories/${id}/status`,
   },
 } as const satisfies ApiEndpointsShape;
 

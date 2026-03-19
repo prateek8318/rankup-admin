@@ -1,5 +1,5 @@
 import { appConfig } from '@/services/appConfig';
-import toast from "react-hot-toast";
+import { notificationService } from "@/services/notificationService";
 
 const BASE_URL = appConfig.apiBaseUrl;
 
@@ -26,7 +26,7 @@ export const getDashboardTotals = async () => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch dashboard totals";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -34,7 +34,7 @@ export const getDashboardTotals = async () => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -56,7 +56,7 @@ export const getDashboardOverview = async () => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch dashboard overview";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -64,7 +64,7 @@ export const getDashboardOverview = async () => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -86,13 +86,13 @@ export const getDashboardStats = async ({ page = 1, rowsPerPage = 10, searchQuer
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch dashboard stats";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
     if (result.Success === false) {
       const errorMessage = result.ErrorMessage || "Failed to fetch dashboard stats";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -100,7 +100,7 @@ export const getDashboardStats = async ({ page = 1, rowsPerPage = 10, searchQuer
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -127,7 +127,7 @@ export const getUsersCount = async () => {
       } catch {
         errorMessage = errorText || errorMessage;
       }
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -143,7 +143,7 @@ export const getUsersCount = async () => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -171,7 +171,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch CMS list";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -179,7 +179,7 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -199,7 +199,7 @@ export const getCMSContent = async (key: string, language: string = "en") => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch CMS content";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -207,7 +207,7 @@ export const getCMSContent = async (key: string, language: string = "en") => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -227,7 +227,7 @@ export const getCMSKeys = async () => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch CMS keys";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -235,7 +235,7 @@ export const getCMSKeys = async () => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -256,16 +256,16 @@ export const createCMS = async (data: unknown) => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to create CMS content";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
-    toast.success("CMS content created successfully!");
+    notificationService.success("CMS content created successfully!");
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -286,16 +286,16 @@ export const updateCMS = async (id: string, data: unknown) => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to update CMS content";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
-    toast.success("CMS content updated successfully!");
+    notificationService.success("CMS content updated successfully!");
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -324,16 +324,16 @@ export const deleteCMS = async (id: string) => {
 
     if (!res.ok) {
       const errorMessage = result?.ErrorMessage || result?.message || "Failed to delete CMS content";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
-    toast.success("CMS content deleted successfully!");
+    notificationService.success("CMS content deleted successfully!");
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -354,16 +354,16 @@ export const updateCMSStatus = async (id: string, status: boolean) => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to update CMS status";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
-    toast.success("CMS status updated successfully!");
+    notificationService.success("CMS status updated successfully!");
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -389,7 +389,7 @@ export const getExams = async ({ page = 1, limit = 10, search = "" }: { page?: n
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch exams";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -397,7 +397,7 @@ export const getExams = async ({ page = 1, limit = 10, search = "" }: { page?: n
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -417,7 +417,7 @@ export const getExamsCount = async () => {
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch exams count";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -425,7 +425,7 @@ export const getExamsCount = async () => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -451,7 +451,7 @@ export const getUsers = async ({ page = 1, limit = 10, search = "" }: { page?: n
 
     if (!res.ok) {
       const errorMessage = result.ErrorMessage || result.message || "Failed to fetch users";
-      toast.error(errorMessage);
+      notificationService.error(errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -459,7 +459,7 @@ export const getUsers = async ({ page = 1, limit = 10, search = "" }: { page?: n
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong!";
     ;
-    toast.error(message);
+    notificationService.error(message);
     throw new Error(message);
   }
 };
@@ -467,4 +467,5 @@ export const getUsers = async ({ page = 1, limit = 10, search = "" }: { page?: n
 export const getAllDeashboard = async ({ page, rowsPerPage, searchQuery }: DashboardParams) => {
   return getDashboardStats({ page, rowsPerPage, searchQuery });
 };
+
 

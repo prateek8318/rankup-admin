@@ -8,6 +8,7 @@ import {
   languageApi,
 } from '@/services/masterApi';
 import { errorHandlingService } from '@/services/errorHandlingService';
+import { notificationService } from '@/services/notificationService';
 import { extractApiData } from '@/utils/apiHelpers';
 
 export type CountryLanguage = 'en' | 'hi';
@@ -53,6 +54,7 @@ export const useCountries = (selectedLanguage: CountryLanguage) => {
     try {
       await countryApi.updateStatus(id, false);
       await fetchCountries();
+      notificationService.success('Country deactivated successfully');
     } catch (error) {
       errorHandlingService.handleError(error, 'deactivateCountry');
     }
@@ -80,6 +82,7 @@ export const useCountries = (selectedLanguage: CountryLanguage) => {
       }
 
       await fetchCountries();
+      notificationService.success(editingCountry ? 'Country updated successfully' : 'Country created successfully');
       return true;
     } catch (error) {
       errorHandlingService.handleError(error, 'saveCountry');

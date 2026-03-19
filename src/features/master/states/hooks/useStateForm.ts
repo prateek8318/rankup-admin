@@ -17,17 +17,20 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
   const [editingState, setEditingState] = useState<StateDto | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [formData, setFormData] = useState<CreateStateDto>(createInitialStateFormData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resetForm = () => {
     setFormData(createInitialStateFormData());
     setEditingState(null);
     setShowModal(false);
+    setErrors({});
   };
 
   const openCreateModal = () => {
     setFormData(createInitialStateFormData());
     setEditingState(null);
     setShowModal(true);
+    setErrors({});
   };
 
   const openEditModal = (state: StateDto) => {
@@ -39,6 +42,7 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
       names: state.names || [],
       isActive: state.isActive,
     });
+    setErrors({});
     setShowModal(true);
   };
 
@@ -51,6 +55,10 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
 
   const handleNameChange = (value: string) => {
     setFormData((prev) => ({ ...prev, name: value }));
+    // Clear error when user starts typing
+    if (errors.name) {
+      setErrors((prev) => ({ ...prev, name: '' }));
+    }
 
     if (!formData.names?.length || !value.trim()) {
       return;
@@ -80,6 +88,55 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
     };
 
     void translateToAllLanguages();
+  };
+
+  const handleCountryChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, countryCode: value }));
+    // Clear error when user starts typing
+    if (errors.countryCode) {
+      setErrors((prev) => ({ ...prev, countryCode: '' }));
+    }
+  };
+
+  const handleCodeChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, code: value.toUpperCase() }));
+    // Clear error when user starts typing
+    if (errors.code) {
+      setErrors((prev) => ({ ...prev, code: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name || formData.name.trim().length === 0) {
+      newErrors.name = 'State name is required';
+    }
+
+    if (!formData.countryCode || formData.countryCode.trim().length === 0) {
+      newErrors.countryCode = 'Country selection is required';
+    }
+
+    if (!formData.code || formData.code.trim().length === 0) {
+      newErrors.code = 'State code is required';
+    } else if (formData.code.length !== 2) {
+      newErrors.code = 'State code must be exactly 2 characters';
+    } else if (!/^[A-Z]{2}$/.test(formData.code)) {
+      newErrors.code = 'State code must be 2 uppercase letters';
+    }
+
+    if (!formData.names || formData.names.length === 0) {
+      newErrors.names = 'At least one language must be selected';
+    } else {
+      // Check if all selected languages have translations
+      const missingTranslations = formData.names.some(name => !name.name || name.name.trim().length === 0);
+      if (missingTranslations) {
+        newErrors.names = 'All selected languages must have translations';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleLanguageToggle = async (languageId: number) => {
@@ -113,6 +170,11 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     const success = await saveState(formData, editingState);
 
     if (success) {
@@ -122,9 +184,12 @@ export const useStateForm = ({ languages, saveState }: UseStateFormParams) => {
 
   return {
     editingState,
+    errors,
     formData,
+    handleCountryChange,
     handleLanguageToggle,
     handleNameChange,
+    handleCodeChange,
     handleSubmit,
     handleTranslationChange,
     isTranslating,

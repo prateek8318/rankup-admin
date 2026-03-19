@@ -8,6 +8,7 @@ import {
   toggleActiveStatus,
   type SubscriptionPlanDto,
 } from '@/services/subscriptionPlansApi';
+import { notificationService } from '@/services/notificationService';
 
 export const useSubscriptions = () => {
   const [plans, setPlans] = useState<SubscriptionPlanDto[]>([]);
@@ -67,6 +68,7 @@ export const useSubscriptions = () => {
         avgPrice: s.avgPrice || 0
       });
     } catch (err) {
+      notificationService.error('Failed to fetch subscriptions data.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -80,8 +82,10 @@ export const useSubscriptions = () => {
   const handleTogglePopular = async (planId: number) => {
     try {
       await togglePopularStatus(planId);
-      fetchData();
+      await fetchData();
+      notificationService.success('Subscription popular status updated');
     } catch (error) {
+      notificationService.error('Failed to update popular status');
       console.error(error);
     }
   };
@@ -89,8 +93,10 @@ export const useSubscriptions = () => {
   const handleToggleRecommended = async (planId: number) => {
     try {
       await toggleRecommendedStatus(planId);
-      fetchData();
+      await fetchData();
+      notificationService.success('Subscription recommended status updated');
     } catch (error) {
+      notificationService.error('Failed to update recommended status');
       console.error(error);
     }
   };
@@ -98,8 +104,10 @@ export const useSubscriptions = () => {
   const handleToggleActive = async (planId: number) => {
     try {
       await toggleActiveStatus(planId);
-      fetchData();
+      await fetchData();
+      notificationService.success('Subscription active status updated');
     } catch (error) {
+      notificationService.error('Failed to update active status');
       console.error(error);
     }
   };

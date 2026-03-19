@@ -1,137 +1,190 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import logo from '@/assets/images/rankup-logo.png';
+import categoryIcon from '@/assets/icons/category.png';
+import cmsIcon from '@/assets/icons/cms.png';
+import couponIcon from '@/assets/icons/coupon.png';
+import dashboardIcon from '@/assets/icons/dashboard.png';
+import examsIcon from '@/assets/icons/exams.png';
+import globeIcon from '@/assets/icons/globe.png';
+import languageIcon from '@/assets/icons/language.png';
+import logoutIcon from '@/assets/icons/logout.png';
+import reportsIcon from '@/assets/icons/reports.png';
+import settingsIcon from '@/assets/icons/settings.png';
+import stateIcon from '@/assets/icons/state.png';
+import subscriptionIcon from '@/assets/icons/subscription.png';
+import supportIcon from '@/assets/icons/support.png';
+import usersIcon from '@/assets/icons/users.png';
+import styles from '@/styles/layouts/AdminShell.module.css';
+
+type MenuLinkItem = {
+  type: 'link';
+  path: string;
+  label: string;
+  icon: string;
+};
+
+type MenuGroupItem = {
+  type: 'group';
+  key: 'master' | 'reports' | 'settings' | 'cms';
+  label: string;
+  icon: string;
+  children: MenuLinkItem[];
+};
+
+type MenuItem = MenuLinkItem | MenuGroupItem;
+
+const mainItems: MenuLinkItem[] = [
+  { type: 'link', path: '/home', label: 'Dashboard', icon: dashboardIcon },
+  { type: 'link', path: '/home/users', label: 'Users', icon: usersIcon },
+  { type: 'link', path: '/home/exams-management', label: 'Exams Management', icon: examsIcon },
+  { type: 'link', path: '/home/subscriptions', label: 'Subscriptions', icon: subscriptionIcon },
+  { type: 'link', path: '/home/coupon', label: 'Coupon', icon: couponIcon },
+];
+
+const otherItems: MenuItem[] = [
+  { type: 'link', path: '/home/support', label: 'Support', icon: supportIcon },
+  { type: 'group', key: 'reports', label: 'Reports', icon: reportsIcon, children: [] },
+  { type: 'group', key: 'settings', label: 'Settings', icon: settingsIcon, children: [] },
+  {
+    type: 'group',
+    key: 'cms',
+    label: 'CMS',
+    icon: cmsIcon,
+    children: [
+      { type: 'link', path: '/home/cms', label: 'Content Management', icon: cmsIcon },
+    ],
+  },
+  { type: 'link', path: '/login', label: 'Logout', icon: logoutIcon },
+];
+
+const masterItems: MenuGroupItem = {
+  type: 'group',
+  key: 'master',
+  label: 'Master',
+  icon: dashboardIcon,
+  children: [
+    { type: 'link', path: '/home/master/languages', label: 'Languages', icon: languageIcon },
+    { type: 'link', path: '/home/master/states', label: 'States', icon: stateIcon },
+    { type: 'link', path: '/home/master/countries', label: 'Countries', icon: globeIcon },
+    { type: 'link', path: '/home/master/categories', label: 'Categories', icon: categoryIcon },
+    { type: 'link', path: '/home/master/qualifications', label: 'Qualifications', icon: categoryIcon },
+    { type: 'link', path: '/home/master/streams', label: 'Streams', icon: examsIcon },
+    { type: 'link', path: '/home/master/exams', label: 'Exams', icon: examsIcon },
+    { type: 'link', path: '/home/master/subjects', label: 'Subjects', icon: categoryIcon },
+  ],
+};
 
 const Sidebar = () => {
   const location = useLocation();
-  const [openReports, setOpenReports] = useState(false);
-  const [openSettings, setOpenSettings] = useState(false);
-  const [openCMS, setOpenCMS] = useState(false);
-  const [openMaster, setOpenMaster] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<MenuGroupItem['key'], boolean>>({
+    master: false,
+    reports: false,
+    settings: false,
+    cms: false,
+  });
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActivePath = (path: string) => location.pathname === path;
 
-  const menuItem = (path: string, label: string, icon: string) => (
-    <Link
-      to={path}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "14px",
-        padding: "12px 18px",
-        borderRadius: "8px",
-        fontSize: "18px",
-        fontWeight: isActive(path) ? 600 : 400,
-        color: isActive(path) ? "#2563EB" : "#2E2E2E",
-        background: isActive(path) ? "#E8F0FE" : "transparent",
-        textDecoration: "none",
-      }}
-    >
-      <img src={icon} alt="" style={{ width: 20, height: 20 }} />
-      {label}
-    </Link>
+  const isGroupActive = (group: MenuGroupItem) => (
+    group.children.some((child) => location.pathname.startsWith(child.path))
   );
 
-  const dropdownItem = (label: string, icon: string, isOpen: boolean, setOpen: (v: boolean) => void) => (
-    <div
-      onClick={() => setOpen(!isOpen)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 18px",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontSize: "18px",
-        color: "#2E2E2E",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        <img src={icon} alt="" style={{ width: 20, height: 20 }} />
-        {label}
+  const groupState = useMemo(
+    () => ({
+      ...openGroups,
+      master: openGroups.master || isGroupActive(masterItems),
+      cms: openGroups.cms || isGroupActive(otherItems.find((item): item is MenuGroupItem => item.type === 'group' && item.key === 'cms')!),
+    }),
+    [location.pathname, openGroups],
+  );
+
+  const toggleGroup = (key: MenuGroupItem['key']) => {
+    setOpenGroups((previous) => ({
+      ...previous,
+      [key]: !groupState[key],
+    }));
+  };
+
+  const renderLink = (item: MenuLinkItem) => {
+    const isActive = isActivePath(item.path);
+
+    return (
+      <Link
+        key={item.path}
+        to={item.path}
+        className={`${styles.menuLink} ${isActive ? styles.menuLinkActive : ''}`}
+      >
+        <span className={styles.menuLabel}>
+          <img src={item.icon} alt="" className={styles.menuIcon} />
+          <span>{item.label}</span>
+        </span>
+      </Link>
+    );
+  };
+
+  const renderGroup = (group: MenuGroupItem) => {
+    const isOpen = groupState[group.key];
+    const isActive = isGroupActive(group);
+
+    return (
+      <div key={group.key}>
+        <button
+          type="button"
+          onClick={() => toggleGroup(group.key)}
+          className={`${styles.menuToggle} ${isActive ? styles.menuToggleActive : ''}`}
+        >
+          <span className={styles.menuLabel}>
+            <img src={group.icon} alt="" className={styles.menuIcon} />
+            <span>{group.label}</span>
+          </span>
+          <span
+            className={`${styles.caret} ${isOpen ? styles.caretOpen : ''}`}
+            aria-hidden="true"
+          />
+        </button>
+
+        {isOpen && group.children.length > 0 ? (
+          <div className={styles.nestedMenuList}>
+            {group.children.map(renderLink)}
+          </div>
+        ) : null}
       </div>
-      <span style={{ fontSize: "12px" }}>{isOpen ? "▲" : "▼"}</span>
-    </div>
-  );
-
-  const sectionTitle: React.CSSProperties = {
-    fontSize: "18px",
-    fontWeight: 600,
-    color: "#000",
-    padding: "0 24px",
-    marginBottom: "10px",
-    textTransform: "uppercase",
+    );
   };
 
   return (
-    <div style={{ 
-      width: "310px", 
-      background: "#F9FAFB", 
-      height: "100vh", 
-      borderRight: "1px solid #E5E7EB", 
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden"
-    }}>
-      {/* Logo Section - Fixed at top */}
-      <div style={{ padding: "25px 15px 20px" }}>
-        <div style={{ padding: "0 24px 30px", borderBottom: "2px solid #DCDCDC" }}>
-          <img src="/src/assets/images/rankup-logo.png" alt="logo" style={{ width: "180px", margin: "auto", alignContent: "center", alignItems: "center" }} />
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>
+        <div className={styles.sidebarHeaderInner}>
+          <img src={logo} alt="RankUp logo" className={styles.logo} />
         </div>
       </div>
-      
-      {/* Scrollable Content */}
-      <div style={{ 
-        flex: 1, 
-        overflowY: "auto", 
-        padding: "0 15px 25px",
-        scrollbarWidth: "thin",
-        scrollbarColor: "#E5E7EB transparent"
-      }}>
-        <div style={sectionTitle}>Main</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {menuItem("/home", "Dashboard", "/src/assets/icons/dashboard.png")}
-          {menuItem("/home/users", "Users", "/src/assets/icons/users.png")}
-          {menuItem("/home/exams-management", "Exams Management", "/src/assets/icons/exams.png")}
-          {menuItem("/home/subscriptions", "Subscriptions", "/src/assets/icons/subscription.png")}
-          {menuItem("/home/coupon", "Coupon", "/src/assets/icons/coupon.png")}
-          {/* {menuItem("/home/daily-video", "Daily Motivational Video", "/src/assets/icons/video.png")} */}
-        </div>
-        
-        {/* MASTER */}
-        <div style={sectionTitle}>Master</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          {dropdownItem("Master", "/src/assets/icons/dashboard.png", openMaster, setOpenMaster)}
-          {openMaster && (
-            <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              {menuItem("/home/master/languages", "Languages", "/src/assets/icons/language.png")}
-              {menuItem("/home/master/states", "States", "/src/assets/icons/state.png")}
-              {menuItem("/home/master/countries", "Countries", "/src/assets/icons/globe.png")}
-              {menuItem("/home/master/categories", "Categories", "/src/assets/icons/category.png")}
-              {menuItem("/home/master/qualifications", "Qualifications", "/src/assets/icons/category.png")}
-              {menuItem("/home/master/streams", "Streams", "/src/assets/icons/exams.png")}
-              {menuItem("/home/master/exams", "Exams", "/src/assets/icons/exams.png")}
-              {menuItem("/home/master/subjects", "Subjects", "/src/assets/icons/category.png")}
-            </div>
-          )}
-        </div>
-        
-        <div style={{ ...sectionTitle, marginTop: "30px" }}>Others</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          {menuItem("/home/support", "Support", "/src/assets/icons/support.png")}
-          {dropdownItem("Reports", "/src/assets/icons/reports.png", openReports, setOpenReports)}
-          {dropdownItem("Settings", "/src/assets/icons/settings.png", openSettings, setOpenSettings)}
-          {dropdownItem("CMS", "/src/assets/icons/cms.png", openCMS, setOpenCMS)}
-          {openCMS && (
-            <div style={{ paddingLeft: "42px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              {menuItem("/home/cms", "Content Management", "/src/assets/icons/cms.png")}
-            </div>
-          )}
-          {menuItem("/login", "Logout", "/src/assets/icons/logout.png")}
-        </div>
+
+      <div className={styles.sidebarBody}>
+        <section className={styles.section}>
+          <div className={styles.sectionTitle}>Main</div>
+          <div className={styles.menuList}>
+            {mainItems.map(renderLink)}
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.sectionTitle}>Master</div>
+          <div className={styles.menuList}>
+            {renderGroup(masterItems)}
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.sectionTitle}>Others</div>
+          <div className={styles.menuList}>
+            {otherItems.map((item) => (item.type === 'link' ? renderLink(item) : renderGroup(item)))}
+          </div>
+        </section>
       </div>
-    </div>
+    </aside>
   );
 };
 
 export default Sidebar;
-

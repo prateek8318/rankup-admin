@@ -13,6 +13,7 @@ interface QualificationFormModalProps {
   isOpen: boolean;
   editingQualification: QualificationDto | null;
   formData: CreateQualificationDto;
+  errors: Record<string, string>;
   countries: Array<{ code: string; name: string }>;
   languages: LanguageDto[];
   selectedLanguages: number[];
@@ -37,6 +38,7 @@ const QualificationFormModal = ({
   isOpen,
   editingQualification,
   formData,
+  errors,
   countries,
   languages,
   selectedLanguages,
@@ -66,6 +68,7 @@ const QualificationFormModal = ({
         labelSuffix={isTranslating ? (
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
+        error={errors.name}
       />
 
       <FormTextarea
@@ -73,6 +76,7 @@ const QualificationFormModal = ({
         value={formData.description}
         onChange={onDescriptionChange}
         required
+        error={errors.description}
       />
 
       <FormSelect
@@ -85,6 +89,7 @@ const QualificationFormModal = ({
         }))}
         required
         placeholder="Choose a country..."
+        error={errors.countryCode}
       />
 
       <LanguageChecklistPicker
@@ -99,6 +104,11 @@ const QualificationFormModal = ({
         onAutoTranslateChange={onAutoTranslateChange}
         helperText="Select multiple languages for qualification name and description translations."
       />
+      {errors.languages && (
+        <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '-10px', marginBottom: '10px' }}>
+          {errors.languages}
+        </div>
+      )}
 
       <NameDescriptionTranslationFields
         label="Qualification Names and Descriptions by Language *"

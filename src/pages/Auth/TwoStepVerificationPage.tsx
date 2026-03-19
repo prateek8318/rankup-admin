@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import toast from 'react-hot-toast';
+import { notificationService } from "@/services/notificationService";
 import inFlag from '@/assets/images/in.png';
 
 import styles from '@/styles/auth/TwoStepVerificationPage.module.css';
@@ -49,7 +49,7 @@ const TwoStepVerificationPage: React.FC = () => {
     setVerifying(true);
     const { success } = await verifyOTP(otp.join(''));
     if (success) navigate('/home');
-    else toast.error('Invalid OTP');
+    else notificationService.error('Invalid OTP');
     setVerifying(false);
   };
 
@@ -94,3 +94,4 @@ const TwoStepVerificationPage: React.FC = () => {
 };
 
 export default TwoStepVerificationPage;
+

@@ -13,6 +13,7 @@ interface StateFormModalProps {
   isOpen: boolean;
   editingState: StateDto | null;
   formData: CreateStateDto;
+  errors: Record<string, string>;
   countries: CountryDto[];
   languages: LanguageDto[];
   isTranslating: boolean;
@@ -30,6 +31,7 @@ const StateFormModal = ({
   isOpen,
   editingState,
   formData,
+  errors,
   countries,
   languages,
   isTranslating,
@@ -55,6 +57,7 @@ const StateFormModal = ({
         labelSuffix={isTranslating ? (
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
+        error={errors.name}
       />
 
       <FormSelect
@@ -68,6 +71,7 @@ const StateFormModal = ({
         required
         placeholder="Choose a country..."
         helperText="Select country from API data. Country code will be auto-filled."
+        error={errors.countryCode}
       />
 
       <FormInput
@@ -78,6 +82,7 @@ const StateFormModal = ({
         placeholder="e.g., BR, MH, UP"
         maxLength={2}
         helperText="2-letter state code (e.g., BR for Bihar)"
+        error={errors.code}
       />
 
       <LanguageChecklistPicker
@@ -88,6 +93,11 @@ const StateFormModal = ({
         disabled={isTranslating}
         helperText="Select multiple languages for state name translations."
       />
+      {errors.names && (
+        <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '-10px', marginBottom: '10px' }}>
+          {errors.names}
+        </div>
+      )}
 
       <NameTranslationFields
         label="State Names by Language *"

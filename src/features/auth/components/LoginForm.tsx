@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { notificationService } from "@/services/notificationService";
 
 import styles from '@/styles/components/LoginForm.module.css';
 
@@ -26,7 +26,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         navigate('/home');
       }
     } else {
-      toast.error(result.error || 'Login failed. Please check credentials.');
+      notificationService.error(result.error || 'Login failed. Please check credentials.');
     }
   };
 
@@ -67,3 +67,4 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     </form>
   );
 };
+

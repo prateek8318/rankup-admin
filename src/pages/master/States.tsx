@@ -24,9 +24,12 @@ const States = () => {
 
   const {
     editingState,
+    errors,
     formData,
+    handleCountryChange,
     handleLanguageToggle,
     handleNameChange,
+    handleCodeChange,
     handleSubmit,
     handleTranslationChange,
     isTranslating,
@@ -80,7 +83,7 @@ const States = () => {
         data={filteredStateRows}
         loading={false}
         onEdit={openEditModal}
-        onDelete={deleteState}
+        onDelete={(item) => deleteState(item.id)}
         emptyMessage="No states found."
         loadingMessage="Loading states..."
       />
@@ -89,14 +92,15 @@ const States = () => {
         isOpen={showModal}
         editingState={editingState}
         formData={formData}
+        errors={errors}
         countries={countries}
         languages={languages}
         isTranslating={isTranslating}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onNameChange={handleNameChange}
-        onCountryChange={(value) => setFormData((prev) => ({ ...prev, countryCode: value }))}
-        onCodeChange={(value) => setFormData((prev) => ({ ...prev, code: value.toUpperCase() }))}
+        onCountryChange={handleCountryChange}
+        onCodeChange={handleCodeChange}
         onLanguageToggle={handleLanguageToggle}
         onTranslationChange={handleTranslationChange}
         onActiveChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}

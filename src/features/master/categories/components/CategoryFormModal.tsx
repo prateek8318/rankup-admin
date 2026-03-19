@@ -8,6 +8,7 @@ interface CategoryFormModalProps {
   isOpen: boolean;
   editingCategory: CategoryDto | null;
   formData: CreateCategoryDto;
+  errors: Record<string, string>;
   autoTranslate: boolean;
   isTranslating: boolean;
   onClose: () => void;
@@ -22,6 +23,7 @@ const CategoryFormModal = ({
   isOpen,
   editingCategory,
   formData,
+  errors,
   autoTranslate,
   isTranslating,
   onClose,
@@ -41,6 +43,7 @@ const CategoryFormModal = ({
         value={formData.nameEn}
         onChange={onNameEnChange}
         required
+        error={errors.nameEn}
       />
 
       <div style={{ marginBottom: 20 }}>
@@ -104,6 +107,7 @@ const CategoryFormModal = ({
         required
         placeholder="e.g., general, obc, sc"
         helperText="Unique key for the category (lowercase, no spaces)"
+        error={errors.key}
       />
 
       <FormActions

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 import {
   stateApi, countryApi, languageApi,
   StateDto, CountryDto, LanguageDto, CreateStateDto, UpdateStateDto
@@ -18,7 +18,7 @@ export const useStates = (selectedLanguageId?: number, selectedCountryCode?: str
       const response = await stateApi.getAll(selectedLanguageId, selectedCountryCode || undefined);
       setStates(extractApiData<StateDto>(response));
     } catch (error) {
-      toast.error('Failed to fetch states');
+      notificationService.error('Failed to fetch states');
       setStates([]);
     } finally {
       setLoading(false);
@@ -56,10 +56,10 @@ export const useStates = (selectedLanguageId?: number, selectedCountryCode?: str
     if (window.confirm('Are you sure you want to deactivate this state?')) {
       try {
         await stateApi.updateStatus(id, false);
-        toast.success('State deactivated successfully');
+        notificationService.success('State deactivated successfully');
         fetchStates();
       } catch (error) {
-        toast.error('Error deactivating state');
+        notificationService.error('Error deactivating state');
       }
     }
   };
@@ -68,15 +68,15 @@ export const useStates = (selectedLanguageId?: number, selectedCountryCode?: str
     try {
       if (editingState) {
         await stateApi.update(editingState.id, formData as UpdateStateDto);
-        toast.success('State updated successfully');
+        notificationService.success('State updated successfully');
       } else {
         await stateApi.create(formData as CreateStateDto);
-        toast.success('State created successfully');
+        notificationService.success('State created successfully');
       }
       fetchStates();
       return true;
     } catch (error) {
-      toast.error('Error saving state');
+      notificationService.error('Error saving state');
       return false;
     }
   };

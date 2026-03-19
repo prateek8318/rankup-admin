@@ -15,6 +15,7 @@ const Categories = () => {
   const {
     autoTranslate,
     editingCategory,
+    errors,
     formData,
     handleKeyChange,
     handleNameEnChange,
@@ -65,7 +66,7 @@ const Categories = () => {
         data={filteredCategories}
         loading={loading}
         onEdit={openEditModal}
-        onDelete={deleteCategory}
+        onDelete={(item) => deleteCategory(item.id)}
         emptyMessage="No categories found."
         loadingMessage="Loading categories..."
       />
@@ -74,6 +75,7 @@ const Categories = () => {
         isOpen={showModal}
         editingCategory={editingCategory}
         formData={formData}
+        errors={errors}
         autoTranslate={autoTranslate}
         isTranslating={isTranslating}
         onClose={resetForm}

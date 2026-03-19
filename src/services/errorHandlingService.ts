@@ -7,6 +7,83 @@ export interface ApiError {
   details?: any;
 }
 
+export const parseApiError = (error: any): ApiError => {
+  if (error?.response) {
+    return {
+      message: error.response.data?.message || error.response.statusText || 'Server error occurred',
+      status: error.response.status,
+      code: error.response.data?.code,
+      details: error.response.data,
+    };
+  }
+
+  if (error?.request) {
+    return {
+      message: 'Network error. Please check your connection.',
+      code: 'NETWORK_ERROR',
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      code: 'JS_ERROR',
+    };
+  }
+
+  return {
+    message: 'An unexpected error occurred',
+    code: 'UNKNOWN_ERROR',
+  };
+};
+
+export const getUserFriendlyErrorMessage = (
+  error: any,
+  fallback = 'Something went wrong. Please try again.',
+): string => {
+  const parsedError = 'message' in (error || {}) ? (error as ApiError) : parseApiError(error);
+
+  switch (parsedError.status) {
+    case 400:
+      return 'Invalid request. Please review the entered details.';
+    case 401:
+      return 'Your session has expired. Please sign in again.';
+    case 403:
+      return 'You do not have permission to perform this action.';
+    case 404:
+      return 'The requested item could not be found.';
+    case 422:
+      return 'Some details are invalid. Please check the form and try again.';
+    case 500:
+      return 'Server error. Please try again in a moment.';
+    case 503:
+      return 'Service is temporarily unavailable. Please try again later.';
+    default:
+      if (parsedError.code === 'NETWORK_ERROR') {
+        return 'Connection failed. Please check your internet connection.';
+      }
+
+      return parsedError.message || fallback;
+  }
+};
+
+export const logError = (error: any, context?: string): ApiError => {
+  const parsedError = 'message' in (error || {}) ? (error as ApiError) : parseApiError(error);
+  const logData = {
+    timestamp: new Date().toISOString(),
+    error: parsedError,
+    context,
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+    url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+  };
+
+  if (import.meta.env.DEV) {
+    console.error('API Error:', logData);
+  }
+
+  return parsedError;
+};
+
 export class ErrorHandlingService {
   private static instance: ErrorHandlingService;
 
@@ -20,110 +97,19 @@ export class ErrorHandlingService {
   }
 
   handleError(error: any, context?: string): ApiError {
-    const apiError: ApiError = this.parseError(error);
-    
-    // Log error for debugging
-    this.logError(apiError, context);
-    
-    // Show user-friendly notification
+    const apiError = parseApiError(error);
+    logError(apiError, context);
     this.showUserNotification(apiError);
-    
     return apiError;
   }
 
-  private parseError(error: any): ApiError {
-    if (error?.response) {
-      // Axios error with response
-      return {
-        message: error.response.data?.message || error.response.statusText || 'Server error occurred',
-        status: error.response.status,
-        code: error.response.data?.code,
-        details: error.response.data
-      };
-    } else if (error?.request) {
-      // Network error
-      return {
-        message: 'Network error. Please check your connection.',
-        code: 'NETWORK_ERROR'
-      };
-    } else if (error instanceof Error) {
-      // JavaScript error
-      return {
-        message: error.message,
-        code: 'JS_ERROR'
-      };
-    } else {
-      // Unknown error
-      return {
-        message: 'An unexpected error occurred',
-        code: 'UNKNOWN_ERROR'
-      };
-    }
-  }
-
-  private logError(error: ApiError, context?: string): void {
-    const logData = {
-      timestamp: new Date().toISOString(),
-      error,
-      context,
-      userAgent: navigator.userAgent,
-      url: window.location.href
-    };
-
-    // In development, log to console
-    if (process.env.NODE_ENV === 'development') {
-      console.error('API Error:', logData);
-    }
-
-    // In production, you might want to send to a logging service
-    // this.sendToLoggingService(logData);
-  }
-
   private showUserNotification(error: ApiError): void {
-    let message = error.message;
-    let type: 'error' | 'warning' | 'info' = 'error';
-
-    // Customize message based on status code
-    switch (error.status) {
-      case 400:
-        message = 'Invalid request. Please check your input.';
-        type = 'warning';
-        break;
-      case 401:
-        message = 'Session expired. Please log in again.';
-        type = 'warning';
-        break;
-      case 403:
-        message = 'You do not have permission to perform this action.';
-        type = 'warning';
-        break;
-      case 404:
-        message = 'The requested resource was not found.';
-        type = 'warning';
-        break;
-      case 422:
-        message = 'Validation failed. Please check your input.';
-        type = 'warning';
-        break;
-      case 500:
-        message = 'Server error. Please try again later.';
-        break;
-      case 503:
-        message = 'Service unavailable. Please try again later.';
-        break;
-      default:
-        if (error.code === 'NETWORK_ERROR') {
-          message = 'Connection failed. Please check your internet connection.';
-        }
-    }
-
+    const message = getUserFriendlyErrorMessage(error);
     notificationService.error(message);
   }
 
-  // Method to handle specific error scenarios
   handleAuthError(): void {
     notificationService.warning('Session expired. Please log in again.');
-    // Redirect to login page
     window.location.href = '/login';
   }
 

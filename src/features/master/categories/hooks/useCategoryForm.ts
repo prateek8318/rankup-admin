@@ -8,6 +8,7 @@ const createInitialFormData = (): CreateCategoryDto => ({
   nameHi: '',
   key: '',
   type: 'category',
+  status: 'active',
 });
 
 interface UseCategoryFormParams {
@@ -20,17 +21,20 @@ export const useCategoryForm = ({ saveCategory }: UseCategoryFormParams) => {
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [isTranslating, setIsTranslating] = useState(false);
   const [formData, setFormData] = useState<CreateCategoryDto>(createInitialFormData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resetForm = () => {
     setFormData(createInitialFormData());
     setEditingCategory(null);
     setShowModal(false);
+    setErrors({});
   };
 
   const openCreateModal = () => {
     setFormData(createInitialFormData());
     setEditingCategory(null);
     setShowModal(true);
+    setErrors({});
   };
 
   const openEditModal = (category: CategoryDto) => {
@@ -41,6 +45,7 @@ export const useCategoryForm = ({ saveCategory }: UseCategoryFormParams) => {
       key: category.key,
       type: category.type,
     });
+    setErrors({});
     setShowModal(true);
   };
 
@@ -80,10 +85,35 @@ export const useCategoryForm = ({ saveCategory }: UseCategoryFormParams) => {
 
   const handleKeyChange = (value: string) => {
     setFormData((prev) => ({ ...prev, key: value.toLowerCase() }));
+    // Clear error when user starts typing
+    if (errors.key) {
+      setErrors((prev) => ({ ...prev, key: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.nameEn || formData.nameEn.trim().length === 0) {
+      newErrors.nameEn = 'Category name is required';
+    }
+
+    if (!formData.key || formData.key.trim().length === 0) {
+      newErrors.key = 'Category key is required';
+    } else if (!/^[a-z0-9_-]+$/.test(formData.key)) {
+      newErrors.key = 'Key must contain only lowercase letters, numbers, underscores, and hyphens';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     const success = await saveCategory(formData, editingCategory);
 
@@ -95,6 +125,7 @@ export const useCategoryForm = ({ saveCategory }: UseCategoryFormParams) => {
   return {
     autoTranslate,
     editingCategory,
+    errors,
     formData,
     handleKeyChange,
     handleNameEnChange,

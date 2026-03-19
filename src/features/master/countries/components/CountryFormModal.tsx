@@ -9,6 +9,7 @@ interface CountryFormModalProps {
   isOpen: boolean;
   editingCountry: CountryDto | null;
   formData: CreateCountryDto;
+  errors: Record<string, string>;
   autoTranslate: boolean;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void | Promise<void>;
@@ -23,6 +24,7 @@ const CountryFormModal = ({
   isOpen,
   editingCountry,
   formData,
+  errors,
   autoTranslate,
   onClose,
   onSubmit,
@@ -42,6 +44,7 @@ const CountryFormModal = ({
         value={formData.nameEn || ''}
         onChange={onNameEnChange}
         required
+        error={errors.nameEn}
       />
 
       <FormInput
@@ -55,6 +58,8 @@ const CountryFormModal = ({
         value={formData.code}
         onChange={onCodeChange}
         required
+        error={errors.code}
+        helperText="2-letter country code (e.g., IN, US, UK)"
       />
 
       <FormCheckbox

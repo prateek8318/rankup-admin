@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 import { qualificationApi } from '@/services/qualificationApi';
 import { languageApi, streamApi } from '@/services/masterApi';
 import { StreamDto, QualificationDto, LanguageDto, CreateStreamDto } from '@/types/qualification';
@@ -24,7 +24,7 @@ export const useStreams = (selectedLanguageFilter?: string) => {
       setStreams(streamsData);
       setQualifications(qualificationsData);
     } catch (error) {
-      toast.error('Failed to fetch data');
+      notificationService.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -51,10 +51,10 @@ export const useStreams = (selectedLanguageFilter?: string) => {
     if (window.confirm('Are you sure you want to delete this stream?')) {
       try {
         await streamApi.delete(id);
-        toast.success('Stream deleted successfully');
+        notificationService.success('Stream deleted successfully');
         fetchData();
       } catch (error) {
-        toast.error('Failed to delete stream');
+        notificationService.error('Failed to delete stream');
       }
     }
   };
@@ -65,15 +65,15 @@ export const useStreams = (selectedLanguageFilter?: string) => {
         await streamApi.update(editingStream.id, {
           ...formData, id: editingStream.id,
         });
-        toast.success('Stream updated successfully');
+        notificationService.success('Stream updated successfully');
       } else {
         await streamApi.create(formData);
-        toast.success('Stream created successfully');
+        notificationService.success('Stream created successfully');
       }
       fetchData();
       return true;
     } catch (error) {
-      toast.error('Failed to save stream');
+      notificationService.error('Failed to save stream');
       return false;
     }
   };

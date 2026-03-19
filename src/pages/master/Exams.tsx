@@ -103,7 +103,7 @@ const Exams = () => {
         languages={languages}
         loading={false}
         onEdit={openEditModal}
-        onDelete={removeExam}
+        onDelete={(id) => removeExam(id)}
       />
 
       <ExamFormModal

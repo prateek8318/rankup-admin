@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 import { getCroppedImg } from '@/utils/cropImage';
 import { CreateExamDto, ExamDto } from '@/services/examsApi';
 import { LanguageDto } from '@/types/qualification';
@@ -147,7 +147,7 @@ export const useExamForm = ({ languages, saveExam }: UseExamFormParams) => {
       setImageFile(croppedFile);
       setShowCropModal(false);
     } catch (error) {
-      toast.error('Failed to crop image');
+      notificationService.error('Failed to crop image');
     }
   };
 

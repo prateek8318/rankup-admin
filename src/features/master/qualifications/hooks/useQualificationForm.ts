@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from "@/services/notificationService";
 import { CreateQualificationDto, LanguageDto, QualificationDto } from '@/types/qualification';
 import { translateText } from '@/utils/translate';
 import {
@@ -26,12 +26,14 @@ export const useQualificationForm = ({
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [isTranslating, setIsTranslating] = useState(false);
   const [formData, setFormData] = useState<CreateQualificationDto>(createInitialQualificationFormData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resetForm = () => {
     setFormData(createInitialQualificationFormData());
     setSelectedLanguages([]);
     setEditingQualification(null);
     setShowModal(false);
+    setErrors({});
   };
 
   const openCreateModal = () => {
@@ -39,6 +41,7 @@ export const useQualificationForm = ({
     setSelectedLanguages([]);
     setEditingQualification(null);
     setShowModal(true);
+    setErrors({});
   };
 
   const openEditModal = (qualification: QualificationDto) => {
@@ -49,7 +52,8 @@ export const useQualificationForm = ({
       countryCode: qualification.countryCode,
       names: qualification.names,
     });
-    setSelectedLanguages(qualification.names.map((name) => name.languageId));
+    setSelectedLanguages(qualification.names?.map((name) => name.languageId) || []);
+    setErrors({});
     setShowModal(true);
   };
 
@@ -89,6 +93,10 @@ export const useQualificationForm = ({
 
   const handleNameChange = (value: string) => {
     setFormData((prev) => ({ ...prev, name: value }));
+    // Clear error when user starts typing
+    if (errors.name) {
+      setErrors((prev) => ({ ...prev, name: '' }));
+    }
 
     if (formData.names.length > 0 && value.trim()) {
       void translateExistingField('name', value);
@@ -97,10 +105,54 @@ export const useQualificationForm = ({
 
   const handleDescriptionChange = (value: string) => {
     setFormData((prev) => ({ ...prev, description: value }));
+    // Clear error when user starts typing
+    if (errors.description) {
+      setErrors((prev) => ({ ...prev, description: '' }));
+    }
 
     if (formData.names.length > 0 && value.trim()) {
       void translateExistingField('description', value);
     }
+  };
+
+  const handleCountryChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, countryCode: value }));
+    // Clear error when user starts typing
+    if (errors.countryCode) {
+      setErrors((prev) => ({ ...prev, countryCode: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name || formData.name.trim().length === 0) {
+      newErrors.name = 'Qualification name is required';
+    }
+
+    if (!formData.description || formData.description.trim().length === 0) {
+      newErrors.description = 'Description is required';
+    }
+
+    if (!formData.countryCode || formData.countryCode.trim().length === 0) {
+      newErrors.countryCode = 'Country selection is required';
+    }
+
+    if (selectedLanguages.length === 0) {
+      newErrors.languages = 'At least one language must be selected';
+    } else {
+      // Check if all selected languages have translations
+      const missingTranslations = selectedLanguages.some(langId => {
+        const translation = formData.names.find(name => name.languageId === langId);
+        return !translation || !translation.name || translation.name.trim().length === 0;
+      });
+      if (missingTranslations) {
+        newErrors.languages = 'All selected languages must have name translations';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleLanguageToggle = async (languageId: number) => {
@@ -160,13 +212,7 @@ export const useQualificationForm = ({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!formData.name || !formData.description || !formData.countryCode) {
-      toast.error('Please fill all required fields');
-      return;
-    }
-
-    if (selectedLanguages.length === 0) {
-      toast.error('Please select at least one language');
+    if (!validateForm()) {
       return;
     }
 
@@ -180,7 +226,9 @@ export const useQualificationForm = ({
   return {
     autoTranslate,
     editingQualification,
+    errors,
     formData,
+    handleCountryChange,
     handleDescriptionChange,
     handleLanguageToggle,
     handleNameChange,
@@ -196,3 +244,4 @@ export const useQualificationForm = ({
     showModal,
   };
 };
+

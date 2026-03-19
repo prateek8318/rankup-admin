@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { notificationService } from '@/services/notificationService';
 import { CreateStreamDto, LanguageDto, StreamDto } from '@/types/qualification';
 import { translateText } from '@/utils/translate';
 import {
@@ -164,12 +164,12 @@ export const useStreamForm = ({ languages, saveStream }: UseStreamFormParams) =>
     event.preventDefault();
 
     if (!formData.name || !formData.description || !formData.qualificationId) {
-      toast.error('Please fill all required fields');
+      notificationService.error('Please fill all required fields');
       return;
     }
 
     if (selectedLanguages.length === 0) {
-      toast.error('Please select at least one language');
+      notificationService.error('Please select at least one language');
       return;
     }
 

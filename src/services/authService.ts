@@ -1,6 +1,6 @@
 import BaseApiService from '@/services/baseApi';
 import API_CONFIG from '@/services/apiConfig';
-import toast from 'react-hot-toast';
+import { notificationService } from "@/services/notificationService";
 
 interface LoginCredentials {
   email: string;
@@ -26,7 +26,7 @@ class AuthService extends BaseApiService {
         localStorage.setItem('refreshToken', response.RefreshToken || '');
         localStorage.setItem('admin', JSON.stringify(response.Admin));
 
-        toast.success(response.Message || 'Login successful');
+        notificationService.success(response.Message || 'Login successful');
         return response;
       }
 
@@ -46,7 +46,7 @@ class AuthService extends BaseApiService {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('admin');
-      toast.success('Logged out successfully');
+      notificationService.success('Logged out successfully');
     }
   }
 
@@ -94,4 +94,5 @@ class AuthService extends BaseApiService {
 }
 
 export default new AuthService();
+
 

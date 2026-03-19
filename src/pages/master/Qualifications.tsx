@@ -25,7 +25,9 @@ const Qualifications = () => {
   const {
     autoTranslate,
     editingQualification,
+    errors,
     formData,
+    handleCountryChange,
     handleDescriptionChange,
     handleLanguageToggle,
     handleNameChange,
@@ -77,7 +79,7 @@ const Qualifications = () => {
         data={filteredQualifications}
         loading={false}
         onEdit={openEditModal}
-        onDelete={deleteQualification}
+        onDelete={(item) => deleteQualification(item.id)}
         emptyMessage="No qualifications found."
         loadingMessage="Loading qualifications..."
       />
@@ -86,6 +88,7 @@ const Qualifications = () => {
         isOpen={showModal}
         editingQualification={editingQualification}
         formData={formData}
+        errors={errors}
         countries={countries}
         languages={languages}
         selectedLanguages={selectedLanguages}
@@ -96,7 +99,7 @@ const Qualifications = () => {
         onSubmit={handleSubmit}
         onNameChange={handleNameChange}
         onDescriptionChange={handleDescriptionChange}
-        onCountryChange={(value) => setFormData((prev) => ({ ...prev, countryCode: value }))}
+        onCountryChange={handleCountryChange}
         onLanguageToggle={handleLanguageToggle}
         onAutoTranslateChange={setAutoTranslate}
         onTranslationChange={handleTranslationFieldChange}

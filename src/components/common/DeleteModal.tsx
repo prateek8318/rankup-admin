@@ -1,46 +1,51 @@
-import React, { useState } from 'react';
-import { Button, Modal } from 'antd';
+import React from 'react';
+import { Modal, Button } from 'antd';
 
-const DeleteModel: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState('Content of the modal');
-  
-  const showModal = () => {
-    setOpen(true);
-  };
-  
-  const handleOk = () => {
-    setModalText('Do you want to delete ');
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  
-  const handleCancel = () => {
-    ;
-    setOpen(false);
-  };
-  
+interface DeleteModalProps {
+  open: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading?: boolean;
+  title?: string;
+  content?: string;
+  itemName?: string;
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  open,
+  onConfirm,
+  onCancel,
+  loading = false,
+  title = "Confirm Delete",
+  content,
+  itemName
+}) => {
+  const modalContent = content || `Are you sure you want to delete "${itemName}"? This action cannot be undone.`;
+
   return (
-    <>
-      <Button type="primary" onClick={showModal}>
-        Open Modal with async logic
-      </Button>
-      <Modal
-        title="Title"
-        open={open}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-      >
-        <p>{modalText}</p>
-      </Modal>
-    </>
+    <Modal
+      title={title}
+      open={open}
+      onOk={onConfirm}
+      onCancel={onCancel}
+      confirmLoading={loading}
+      okText="Delete"
+      cancelText="Cancel"
+      okButtonProps={{
+        danger: true,
+        style: { backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' }
+      }}
+      centered
+    >
+      <p style={{ fontSize: '16px', marginBottom: '16px' }}>
+        {modalContent}
+      </p>
+      <p style={{ color: '#666', fontSize: '14px' }}>
+        This action is permanent and cannot be undone.
+      </p>
+    </Modal>
   );
 };
 
-export default DeleteModel;
+export default DeleteModal;
 

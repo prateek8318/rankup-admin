@@ -15,8 +15,11 @@ const Countries = () => {
   const {
     autoTranslate,
     editingCountry,
+    errors,
     formData,
     handleNameEnChange,
+    handleNameHiChange,
+    handleCodeChange,
     handleSubmit,
     openCreateModal,
     openEditModal,
@@ -63,7 +66,7 @@ const Countries = () => {
         data={filteredCountries}
         loading={loading}
         onEdit={openEditModal}
-        onDelete={deleteCountry}
+        onDelete={(item) => deleteCountry(item.id)}
         emptyMessage="No countries found."
         loadingMessage="Loading countries..."
       />
@@ -72,12 +75,13 @@ const Countries = () => {
         isOpen={showModal}
         editingCountry={editingCountry}
         formData={formData}
+        errors={errors}
         autoTranslate={autoTranslate}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onNameEnChange={handleNameEnChange}
-        onNameHiChange={(value) => setFormData((prev) => ({ ...prev, nameHi: value }))}
-        onCodeChange={(value) => setFormData((prev) => ({ ...prev, code: value }))}
+        onNameHiChange={handleNameHiChange}
+        onCodeChange={handleCodeChange}
         onAutoTranslateChange={setAutoTranslate}
         onActiveChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
       />

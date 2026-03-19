@@ -6,6 +6,7 @@ import {
   SubjectDto,
   CreateSubjectDto,
 } from '@/services/masterApi';
+import { notificationService } from '@/services/notificationService';
 
 const normalizeArray = <T,>(response: any): T[] => {
   const data = response?.data?.data || response?.data || response || [];
@@ -55,15 +56,17 @@ export const useSubjects = (selectedLanguageIdFilter: number | null) => {
   }, [fetchLanguages, fetchSubjects, selectedLanguageIdFilter]);
 
   const deleteSubject = async (id: number) => {
-    if (!window.confirm('Disable this subject?')) {
+    if (!window.confirm('Are you sure you want to delete this subject?')) {
       return;
     }
 
     try {
-      await subjectApi.updateStatus(id, false);
+      await subjectApi.delete(id);
       await fetchSubjects();
+      notificationService.success('Subject deleted successfully');
     } catch (error) {
-      ;
+      notificationService.error('Failed to delete subject. Please try again.');
+      console.error('Failed to delete subject:', error);
     }
   };
 
@@ -76,13 +79,16 @@ export const useSubjects = (selectedLanguageIdFilter: number | null) => {
 
       if (editingSubject) {
         await subjectApi.update(editingSubject.id, payload);
+        notificationService.success('Subject updated successfully');
       } else {
         await subjectApi.create(payload);
+        notificationService.success('Subject created successfully');
       }
 
       await fetchSubjects();
       return true;
     } catch (error) {
+      notificationService.error('Failed to save subject. Please try again.');
       return false;
     }
   };

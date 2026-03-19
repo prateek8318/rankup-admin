@@ -74,7 +74,7 @@ const Subjects = () => {
         columns={columns}
         data={filteredSubjects}
         onEdit={openEditModal}
-        onDelete={deleteSubject}
+        onDelete={(item) => deleteSubject(item.id)}
         emptyMessage="No subjects found."
         loadingMessage="Loading subjects..."
       />

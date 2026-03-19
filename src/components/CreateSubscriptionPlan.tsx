@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createSubscriptionPlan, type CreateSubscriptionPlanDto, type SubscriptionPlanTranslationDto } from '@/services/subscriptionPlansApi';
 import { getExamsList, type ExamDto } from '@/services/examsApi';
 import { languageApi, type LanguageDto } from '@/services/masterApi';
-import toast from 'react-hot-toast';
+import { notificationService } from "@/services/notificationService";
 
 const COLOR_THEMES = [
   '#DBEAFE', '#F3E8FF', '#DBFCE7', '#FFEDD4', '#FCE7F3', '#FEF9C2'
@@ -181,12 +181,12 @@ const CreateSubscriptionPlan: React.FC<CreateSubscriptionPlanProps> = ({ onClose
       };
       
       await createSubscriptionPlan(requestData);
-      toast.success('Subscription plan created successfully!');
+      notificationService.success('Subscription plan created successfully!');
       onSuccess();
       onClose();
     } catch (error: any) {
       ;
-      toast.error(error.message || 'Failed to create subscription plan');
+      notificationService.error(error.message || 'Failed to create subscription plan');
     } finally {
       setLoading(false);
     }
@@ -447,3 +447,4 @@ const CreateSubscriptionPlan: React.FC<CreateSubscriptionPlanProps> = ({ onClose
 };
 
 export default CreateSubscriptionPlan;
+

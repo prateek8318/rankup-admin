@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { notificationService } from '@/services/notificationService';
 import { getExamsList, createExam, updateExam, updateExamStatus, uploadExamImage, ExamDto } from '@/services/examsApi';
-import { qualificationApi, streamApi, languageApi, countryApi } from '@/services/masterApi';
+import { qualificationApi, streamApi, languageApi, countryApi, examApi } from '@/services/masterApi';
 import { QualificationDto, StreamDto, LanguageDto } from '@/types/qualification';
 
 export const useExams = () => {
@@ -69,12 +69,16 @@ export const useExams = () => {
   }, [fetchData, fetchLanguages, fetchCountries]);
 
   const removeExam = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this exam?')) {
+      return;
+    }
+
     try {
-      await updateExamStatus(id, false);
-      toast.success('Exam deactivated successfully');
+      await examApi.delete(id);
+      notificationService.success('Exam deleted successfully');
       await fetchData();
     } catch (err) {
-      notificationService.error('Failed to deactivate exam');
+      notificationService.error('Failed to delete exam');
     }
   };
 

@@ -80,7 +80,7 @@ const Streams = () => {
         data={filteredStreams}
         loading={false}
         onEdit={openEditModal}
-        onDelete={deleteStream}
+        onDelete={(item) => deleteStream(item.id)}
         emptyMessage="No streams found."
         loadingMessage="Loading streams..."
       />

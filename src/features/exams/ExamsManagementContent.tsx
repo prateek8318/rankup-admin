@@ -1,233 +1,62 @@
-import { useState, useEffect } from 'react';
-import { type ExamDto, type ExamListParams } from '@/services';
-import { getExamsList, getExamsCount, deleteExam, updateExamStatus } from '@/services/examsApi';
-import { notificationService } from '@/services/notificationService';
+import type { ExamDto } from '@/services';
+import DeleteModal from '@/components/common/DeleteModal';
 import ExamCard from '@/components/exams/ExamCard';
 import Loader from '@/components/common/Loader';
-import viewIcon from '@/assets/icons/view.png';
-import editIcon from '@/assets/icons/edit.png';
-import deleteIcon from '@/assets/icons/delete.png';
+import { formatExamDate, formatExamDuration, useExamsManagement } from '@/features/exams/hooks/useExamsManagement';
+import { notificationService } from '@/services/notificationService';
+import styles from '@/styles/features/ExamsManagement.module.css';
 
 export const ExamsManagementContent: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedExams, setSelectedExams] = useState<string[]>([]);
-  const [allExams, setAllExams] = useState<ExamDto[]>([]);
-  const [filters, setFilters] = useState({
-    sortBy: '',
-    category: 'All Categories',
-    course: '',
-    examType: '',
-    status: '',
-    dateRange: '',
-    all: '',
-    attempt: ''
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalExams, setTotalExams] = useState(0);
-  const [exams, setExams] = useState<ExamDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [examStats, setExamStats] = useState({
-    totalExams: 0,
-    activeExams: 0,
-    inactiveExams: 0,
-    totalQuestions: 0,
-    avgDuration: 0
-  });
-
-  const examCards = [
-    { number: examStats.totalExams.toLocaleString(), label: "Total Exams", gradient: "linear-gradient(135deg,#4780CF,#2B6AEC)" },
-    { number: examStats.activeExams.toLocaleString(), label: "Active Exams", gradient: "linear-gradient(135deg,#FF8C42,#FF6B1A)" },
-    { number: examStats.inactiveExams.toLocaleString(), label: "Inactive Exams", gradient: "linear-gradient(135deg,#8B5CF6,#7C3AED)" },
-    { number: examStats.totalQuestions.toLocaleString(), label: "Total Questions", gradient: "linear-gradient(135deg,#EC4899,#DB2777)" },
-    { number: `${examStats.avgDuration} min`, label: "Avg Duration", gradient: "linear-gradient(135deg,#F59E0B,#D97706)" }
-  ];
-
-  const fetchExams = async () => {
-    try {
-      setLoading(true);
-      const examsPerPage = 10; 
-
-      const response = await getExamsList({ page: currentPage, limit: examsPerPage, search: searchTerm, ...filters });
-
-      if (response.success && response.data) {
-        setExams(response.data);
-        
-        if (response.totalCount) {
-          setTotalExams(response.totalCount);
-        } else {
-          if (allExams.length === 0) {
-            setTotalExams(response.data.length);
-          }
-        }
-
-        if (allExams.length === 0) {
-          setAllExams(response.data);
-        }
-
-        const total = totalExams || response.data.length;
-        const active = response.data.filter((exam: ExamDto) => exam.isActive).length;
-        const inactive = response.data.filter((exam: ExamDto) => !exam.isActive).length;
-        const totalQuestions = response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.totalMarks || 0), 0);
-        const avgDuration = response.data.length > 0 ? Math.round(response.data.reduce((sum: number, exam: ExamDto) => sum + (exam.durationInMinutes || 0), 0) / response.data.length) : 0;
-
-        setExamStats({
-          totalExams: total,
-          activeExams: active,
-          inactiveExams: inactive,
-          totalQuestions: totalQuestions,
-          avgDuration: avgDuration
-        });
-      } else {
-        setExams([]);
-        setExamStats({
-          totalExams: 0,
-          activeExams: 0,
-          inactiveExams: 0,
-          totalQuestions: 0,
-          avgDuration: 0
-        });
-      }
-    } catch (error: unknown) {
-      setExams([]);
-      setExamStats({
-        totalExams: 0,
-        activeExams: 0,
-        inactiveExams: 0,
-        totalQuestions: 0,
-        avgDuration: 0
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTotalExamsCount = async () => {
-    try {
-      const response = await getExamsCount();
-
-      if (response.success && response.data) {
-        setTotalExams(response.data.totalExams || 0);
-      }
-    } catch (error) {
-      setTotalExams(0);
-    }
-  };
-
-  useEffect(() => {
-    fetchExams();
-    fetchTotalExamsCount();
-  }, [currentPage, searchTerm]);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
-  };
-
-  const getExamId = (exam: ExamDto) => `EXM${String(exam.id).padStart(3, '0')}`;
-  const getStatus = (exam: ExamDto) => exam.isActive ? 'Active' : 'Inactive';
-
-  const handleSelectExam = (examId: string) => {
-    setSelectedExams(prev =>
-      prev.includes(examId)
-        ? prev.filter(id => id !== examId)
-        : [...prev, examId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedExams.length === exams.length) {
-      setSelectedExams([]);
-    } else {
-      setSelectedExams(exams.map(exam => getExamId(exam)));
-    }
-  };
-
-  const handleApply = () => {
-    fetchExams();
-  };
-
-  const handleReset = () => {
-    setFilters({
-      sortBy: '',
-      category: 'All Categories',
-      course: '',
-      examType: '',
-      status: '',
-      dateRange: '',
-      all: '',
-      attempt: ''
-    });
-    setSearchTerm('');
-    setSelectedExams([]);
-    setCurrentPage(1);
-  };
+  const {
+    currentPage,
+    deleteLoading,
+    examCards,
+    examToDelete,
+    exams,
+    filters,
+    getExamId,
+    handleApply,
+    handleDeleteCancel,
+    handleDeleteConfirm,
+    handleDeleteRequest,
+    handleReset,
+    handleSelectAll,
+    handleSelectExam,
+    handleToggleStatus,
+    isDeleteModalOpen,
+    loading,
+    searchTerm,
+    selectedExams,
+    setCurrentPage,
+    setFilters,
+    setSearchTerm,
+    totalExams,
+    totalPages,
+    visiblePages,
+  } = useExamsManagement();
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    notificationService.info('Export coming soon', 'Export flow is being aligned with the shared reporting pattern.');
   };
 
   const handleViewExam = (exam: ExamDto) => {
-    // Implement view functionality
+    notificationService.info('View exam', `Detailed view for "${exam.name}" will be connected next.`);
   };
 
   const handleEditExam = (exam: ExamDto) => {
-    // Implement edit functionality
-  };
-
-  const handleDeleteExam = async (exam: ExamDto) => {
-    if (window.confirm(`Are you sure you want to delete "${exam.name}"?`)) {
-      try {
-        await deleteExam(exam.id);
-        fetchExams();
-        fetchTotalExamsCount();
-      } catch (error) {
-        notificationService.error('Error deleting exam. Please try again.');
-      }
-    }
-  };
-
-  const handleToggleStatus = async (exam: ExamDto) => {
-    try {
-      await updateExamStatus(exam.id, !exam.isActive);
-      fetchExams();
-      fetchTotalExamsCount();
-    } catch (error) {
-      notificationService.error('Error updating exam status. Please try again.');
-    }
+    notificationService.info('Edit exam', `Edit flow for "${exam.name}" will be connected next.`);
   };
 
   return (
     <>
-      <div style={{ marginBottom: "30px" }}>
-        <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>
-          Exams Management
-        </h1>
-        <p style={{ fontSize: "16px", color: "#64748b", lineHeight: "1.5" }}>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>Exams Management</h1>
+        <p className={styles.pageSubtitle}>
           Create and manage exams, questions, and assessments
         </p>
       </div>
 
-      <div style={{ 
-        display: "flex", 
-        gap: "20px", 
-        marginBottom: "30px",
-        flexWrap: "wrap"
-      }}>
+      <div className={styles.cardsRow}>
         {examCards.map((card, index) => (
           <ExamCard
             key={index}
@@ -238,339 +67,209 @@ export const ExamsManagementContent: React.FC = () => {
         ))}
       </div>
 
-      <div style={{
-        padding: "20px",
-        marginBottom: 4,
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-            <select
-              value={filters.sortBy}
-              onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "120px"
-              }}
-            >
-              <option value="">Sort By</option>
-              <option value="name">Name</option>
-              <option value="date">Date</option>
-              <option value="marks">Marks</option>
-            </select>
+      <div className={styles.filterSection}>
+        <div className={styles.filterRow}>
+          <input
+            type="text"
+            placeholder="Search exams..."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className={styles.pillInput}
+          />
 
-            <select
-              value={filters.category}
-              onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "140px"
-              }}
-            >
-              <option value="All Categories">All Categories</option>
-              <option value="Mock Test">Mock Test</option>
-              <option value="Practice Test">Practice Test</option>
-              <option value="Previous Year">Previous Year</option>
-            </select>
+          <select
+            value={filters.sortBy}
+            onChange={(event) => setFilters((previous) => ({ ...previous, sortBy: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">Sort By</option>
+            <option value="name">Name</option>
+            <option value="date">Date</option>
+            <option value="marks">Marks</option>
+          </select>
 
-            <select
-              value={filters.course}
-              onChange={(e) => setFilters(prev => ({ ...prev, course: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "120px"
-              }}
-            >
-              <option value="">Course</option>
-              <option value="JEE">JEE</option>
-              <option value="NEET">NEET</option>
-              <option value="UPSC">UPSC</option>
-            </select>
+          <select
+            value={filters.category}
+            onChange={(event) => setFilters((previous) => ({ ...previous, category: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="All Categories">All Categories</option>
+            <option value="Mock Test">Mock Test</option>
+            <option value="Practice Test">Practice Test</option>
+            <option value="Previous Year">Previous Year</option>
+          </select>
 
-            <select
-              value={filters.examType}
-              onChange={(e) => setFilters(prev => ({ ...prev, examType: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "120px"
-              }}
-            >
-              <option value="">Exam Type</option>
-              <option value="International">International</option>
-              <option value="National">National</option>
-            </select>
+          <select
+            value={filters.course}
+            onChange={(event) => setFilters((previous) => ({ ...previous, course: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">Course</option>
+            <option value="JEE">JEE</option>
+            <option value="NEET">NEET</option>
+            <option value="UPSC">UPSC</option>
+          </select>
 
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "100px"
-              }}
-            >
-              <option value="">Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
+          <select
+            value={filters.examType}
+            onChange={(event) => setFilters((previous) => ({ ...previous, examType: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">Exam Type</option>
+            <option value="International">International</option>
+            <option value="National">National</option>
+          </select>
 
-            <input
-              type="text"
-              value={filters.dateRange}
-              onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
-              placeholder="16 jan 2026 - 23 jan 2026"
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "200px"
-              }}
-            />
+          <select
+            value={filters.status}
+            onChange={(event) => setFilters((previous) => ({ ...previous, status: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
 
-            <select
-              value={filters.all}
-              onChange={(e) => setFilters(prev => ({ ...prev, all: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "80px"
-              }}
-            >
-              <option value="">All</option>
-              <option value="paid">Paid</option>
-              <option value="free">Free</option>
-            </select>
+          <input
+            type="text"
+            value={filters.dateRange}
+            onChange={(event) => setFilters((previous) => ({ ...previous, dateRange: event.target.value }))}
+            placeholder="16 Jan 2026 - 23 Jan 2026"
+            className={`${styles.pillInput} ${styles.dateRangeInput}`}
+          />
 
-            <select
-              value={filters.attempt}
-              onChange={(e) => setFilters(prev => ({ ...prev, attempt: e.target.value }))}
-              style={{
-                padding: "8px 16px",
-                border: "1.5px solid #C0C0C0",
-                borderRadius: "25px",
-                background: "#fff",
-                fontSize: "16px",
-                minWidth: "100px"
-              }}
-            >
-              <option value="">Attempt</option>
-              <option value="single">Single</option>
-              <option value="multiple">Multiple</option>
-            </select>
-            <button
-              onClick={handleApply}
-              style={{
-                padding: "8px 48px",
-                border: "none",
-                borderRadius: "20px",
-                background: "linear-gradient(90deg, #2B5DBC 0%, #073081 100%)",
-                color: "#fff",
-                fontSize: "18px",
-                cursor: "pointer",
-                fontWeight: "500"
-              }}
-            >
-              Apply
-            </button>
-          </div>
+          <select
+            value={filters.all}
+            onChange={(event) => setFilters((previous) => ({ ...previous, all: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">All</option>
+            <option value="paid">Paid</option>
+            <option value="free">Free</option>
+          </select>
+
+          <select
+            value={filters.attempt}
+            onChange={(event) => setFilters((previous) => ({ ...previous, attempt: event.target.value }))}
+            className={styles.pillInput}
+          >
+            <option value="">Attempt</option>
+            <option value="single">Single</option>
+            <option value="multiple">Multiple</option>
+          </select>
+
+          <button type="button" onClick={handleApply} className={styles.applyButton}>
+            Apply
+          </button>
         </div>
       </div>
-      
-      <div style={{ display: "flex", gap: "10px",justifyContent: "flex-end",marginBottom: "10px" }}>
-        <button
-          onClick={handleReset}
-          style={{
-            padding: "8px 24px",
-            border: "1.5px solid #C0C0C0",
-            borderRadius: "8px",
-            background: "#fff",
-            fontSize: "16px",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
+
+      <div className={styles.toolbar}>
+        <button type="button" onClick={handleReset} className={styles.secondaryButton}>
           Reset
         </button>
-
-        <button
-          onClick={handleExport}
-          style={{
-            padding: "8px 24px",
-            border: "1.5px solid #C0C0C0",
-            borderRadius: "8px",
-            background: "#fff",
-            fontSize: "16px",
-            cursor: "pointer",
-            fontWeight: "500",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          <span>↑</span> Export
+        <button type="button" onClick={handleExport} className={styles.secondaryButton}>
+          Export
         </button>
       </div>
 
-      <div style={{
-        padding: "1px",
-      }}>
+      <div className={styles.tableSection}>
         {loading ? (
           <Loader fullPage={false} message="Loading exams..." />
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ 
-              width: "100%", 
-              borderCollapse: "separate",
-              borderSpacing: "0 8px"
-            }}>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
               <thead>
-                <tr style={{ 
-                  background: "linear-gradient(135deg, #1e3a8a, #1e40af)",
-                  borderWidth:"1px",borderColor:"#C0C0C0"
-                }}>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
+                <tr className={styles.tableHeadRow}>
+                  <th className={styles.tableHeadCell}>
                     <input
                       type="checkbox"
-                      checked={selectedExams.length === exams.length}
+                      checked={exams.length > 0 && selectedExams.length === exams.length}
                       onChange={handleSelectAll}
-                      style={{ width: "16px", height: "16px" }}
+                      className={styles.checkbox}
                     />
                   </th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
-                    Test Category
-                    <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
+                  <th className={styles.tableHeadCell}>
+                    <span className={styles.sortableLabel}>
+                      Test Category
+                      <span aria-hidden="true">v</span>
+                    </span>
                   </th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Name</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Subject</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Access</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Ques.</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Difficulty</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Total Marks</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Exam Date</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Duration</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Language</th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>
-                    Status
-                    <span style={{ marginLeft: "4px", fontSize: "12px" }}>▼</span>
+                  <th className={styles.tableHeadCell}>Exam Name</th>
+                  <th className={styles.tableHeadCell}>Subject</th>
+                  <th className={styles.tableHeadCell}>Access</th>
+                  <th className={styles.tableHeadCell}>Total Ques.</th>
+                  <th className={styles.tableHeadCell}>Difficulty</th>
+                  <th className={styles.tableHeadCell}>Total Marks</th>
+                  <th className={styles.tableHeadCell}>Exam Date</th>
+                  <th className={styles.tableHeadCell}>Duration</th>
+                  <th className={styles.tableHeadCell}>Language</th>
+                  <th className={styles.tableHeadCell}>
+                    <span className={styles.sortableLabel}>
+                      Status
+                      <span aria-hidden="true">v</span>
+                    </span>
                   </th>
-                  <th style={{ padding: "16px", textAlign: "left", color: "#fff", fontSize: "14px", fontWeight: "600" }}>Action</th>
+                  <th className={styles.tableHeadCell}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {exams.map((exam: ExamDto) => {
+                {exams.map((exam) => {
                   const examId = getExamId(exam);
-                  const status = getStatus(exam);
-                  const duration = formatDuration(exam.durationInMinutes || 0);
+                  const access = (exam as any).access;
 
                   return (
-                    <tr key={exam.id} style={{ background: "#f8fafc", borderColor: "#C0C0C0", borderWidth: "1.5px" }}>
-                      <td style={{ padding: "16px" }}>
+                    <tr key={exam.id} className={styles.tableBodyRow}>
+                      <td className={styles.tableCell}>
                         <input
                           type="checkbox"
                           checked={selectedExams.includes(examId)}
                           onChange={() => handleSelectExam(examId)}
-                          style={{ width: "16px", height: "16px" }}
+                          className={styles.checkbox}
                         />
                       </td>
-                      <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>
-                        <span style={{
-                          padding: "6px 14px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          background: "#E9D5FF",
-                          color: "#7C3AED"
-                        }}>
-                          {(exam as any).category || "NA"}
+                      <td className={styles.tableCellStrong}>
+                        <span className={styles.categoryBadge}>
+                          {(exam as any).category || 'NA'}
                         </span>
                       </td>
-                      <td style={{ padding: "16px", fontSize: "14px", fontWeight: "500" }}>{exam.name}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).subject || "NA"}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>
-                        {(exam as any).access ? (
-                          <div style={{
-                            width: "24px",
-                            height: "24px",
-                            borderRadius: "50%",
-                            background: (exam as any).access === "Paid" ? "#10b981" : "#f59e0b",
-                            color: "#fff",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "12px",
-                            fontWeight: "bold"
-                          }}>
-                            {(exam as any).access === "Paid" ? "P" : "F"}
-                          </div>
-                        ) : "NA"}
+                      <td className={styles.tableCellStrong}>{exam.name}</td>
+                      <td className={styles.tableCell}>{(exam as any).subject || 'NA'}</td>
+                      <td className={styles.tableCell}>
+                        {access ? (
+                          <span className={`${styles.accessDot} ${access === 'Paid' ? styles.accessDotPaid : styles.accessDotFree}`}>
+                            {access === 'Paid' ? 'P' : 'F'}
+                          </span>
+                        ) : 'NA'}
                       </td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).totalQuestions || "NA"}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).difficulty || "NA"}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{exam.totalMarks}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{formatDate(exam.createdAt)}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{duration}</td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>{(exam as any).language || "English"}</td>
-                      <td style={{ padding: "16px" }}>
-                        <span 
+                      <td className={styles.tableCell}>{(exam as any).totalQuestions || 'NA'}</td>
+                      <td className={styles.tableCell}>{(exam as any).difficulty || 'NA'}</td>
+                      <td className={styles.tableCell}>{exam.totalMarks ?? 'NA'}</td>
+                      <td className={styles.tableCell}>{formatExamDate(exam.createdAt)}</td>
+                      <td className={styles.tableCell}>{formatExamDuration(exam.durationInMinutes || 0)}</td>
+                      <td className={styles.tableCell}>{(exam as any).language || 'English'}</td>
+                      <td className={styles.tableCell}>
+                        <button
+                          type="button"
                           onClick={() => handleToggleStatus(exam)}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: "20px",
-                            fontSize: "12px",
-                            fontWeight: "600",
-                            background: status === "Active" ? "#dcfce7" : "#fee2e2",
-                            color: status === "Active" ? "#166534" : "#991b1b",
-                            cursor: "pointer",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px"
-                          }}
+                          className={`${styles.statusToggle} ${exam.isActive ? styles.statusActive : styles.statusInactive}`}
                         >
-                          {status}
-                          <span style={{ fontSize: "12px" }}>▼</span>
-                        </span>
+                          {exam.isActive ? 'Active' : 'Inactive'}
+                          <span aria-hidden="true">v</span>
+                        </button>
                       </td>
-                      <td style={{ padding: "16px", fontSize: "14px" }}>
-                        <button style={{
-                          background: "none",
-                          border: "none",
-                          color: "#2563eb",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          marginRight: "8px",
-                          fontWeight: "500"
-                        }} onClick={() => handleEditExam(exam)}>Edit</button>
-                        <button style={{
-                          background: "none",
-                          border: "none",
-                          color: "#dc2626",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "500"
-                        }} onClick={() => handleDeleteExam(exam)}>Delete</button>
+                      <td className={styles.tableCell}>
+                        <div className={styles.actionButtons}>
+                          <button type="button" className={styles.linkButton} onClick={() => handleViewExam(exam)}>
+                            View
+                          </button>
+                          <button type="button" className={styles.linkButton} onClick={() => handleEditExam(exam)}>
+                            Edit
+                          </button>
+                          <button type="button" className={styles.dangerLinkButton} onClick={() => handleDeleteRequest(exam)}>
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -580,85 +279,51 @@ export const ExamsManagementContent: React.FC = () => {
           </div>
         )}
 
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: "20px",
-          paddingTop: "20px",
-          borderTop: "1px solid #f3f4f6"
-        }}>
-          <div style={{ fontSize: "14px", color: "#6b7280" }}>
-            Showing {((currentPage - 1) * 10) + 1} to {Math.min(currentPage * 10, totalExams)} of {totalExams} exams
+        <div className={styles.pagination}>
+          <div className={styles.paginationText}>
+            Showing {totalExams === 0 ? 0 : ((currentPage - 1) * 10) + 1} to {Math.min(currentPage * 10, totalExams)} of {totalExams} exams
           </div>
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div className={styles.paginationButtons}>
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
+              type="button"
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              style={{
-                padding: "6px 12px",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                background: currentPage === 1 ? "#f9fafb" : "#fff",
-                color: currentPage === 1 ? "#d1d5db" : "#374151",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                fontSize: "14px"
-              }}
+              className={`${styles.pageButton} ${currentPage === 1 ? styles.pageButtonDisabled : ''}`}
             >
               &lt; Prev
             </button>
 
-            {(() => {
-              const totalPages = Math.ceil(totalExams / 10);
-              const maxVisiblePages = 5;
-              let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-              let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-              if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-              }
-
-              const pages = [];
-              for (let i = startPage; i <= endPage; i++) {
-                pages.push(i);
-              }
-              return pages.map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  style={{
-                    padding: "6px 12px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "6px",
-                    background: currentPage === page ? "#2563eb" : "#fff",
-                    color: currentPage === page ? "#fff" : "#374151",
-                    cursor: "pointer",
-                    fontSize: "14px"
-                  }}
-                >
-                  {page}
-                </button>
-              ));
-            })()}
+            {visiblePages.map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setCurrentPage(page)}
+                className={`${styles.pageButton} ${currentPage === page ? styles.pageButtonActive : ''}`}
+              >
+                {page}
+              </button>
+            ))}
 
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage >= Math.ceil(totalExams / 10)}
-              style={{
-                padding: "6px 12px",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                background: currentPage >= Math.ceil(totalExams / 10) ? "#f9fafb" : "#fff",
-                color: currentPage >= Math.ceil(totalExams / 10) ? "#d1d5db" : "#374151",
-                cursor: currentPage >= Math.ceil(totalExams / 10) ? "not-allowed" : "pointer",
-                fontSize: "14px"
-              }}
+              type="button"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className={`${styles.pageButton} ${currentPage >= totalPages ? styles.pageButtonDisabled : ''}`}
             >
               Next &gt;
             </button>
           </div>
         </div>
       </div>
+
+      <DeleteModal
+        open={isDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        loading={deleteLoading}
+        itemName={examToDelete?.name}
+        title="Delete Exam"
+      />
     </>
   );
 };

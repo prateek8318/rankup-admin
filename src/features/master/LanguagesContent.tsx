@@ -5,9 +5,11 @@ import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable, { TableColumn } from '@/components/common/MasterTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import LanguageSelectionModal from '@/components/common/LanguageSelectionModal';
+import DeleteModal from '@/components/common/DeleteModal';
 import { LANGUAGE_OPTIONS } from '@/constants/languageOptions';
 import { useLanguages } from '@/hooks/useLanguages';
 import Loader from '@/components/common/Loader';
+import { notificationService } from '@/services/notificationService';
 
 
 export const LanguagesContent: React.FC = () => {
@@ -15,6 +17,9 @@ export const LanguagesContent: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState<LanguageDto | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | undefined>(undefined);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [languageToDelete, setLanguageToDelete] = useState<LanguageDto | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { languages, loading, deleteLanguage, toggleLanguageStatus, saveLanguage } = useLanguages(selectedStatusFilter);
 
@@ -45,10 +50,48 @@ export const LanguagesContent: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (language: LanguageDto) => {
-    if (window.confirm(`Are you sure you want to delete "${language.name}"?`)) {
-      await deleteLanguage(language.id);
+  const handleDelete = (language: LanguageDto) => {
+    setLanguageToDelete(language);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!languageToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      const result = await deleteLanguage(languageToDelete.id);
+      
+      if (result.success) {
+        // Show stylish success notification
+        notificationService.success(
+          'Language Deleted Successfully!',
+          `"${languageToDelete.name}" has been removed from the system.`
+        );
+        setDeleteModalOpen(false);
+        setLanguageToDelete(null);
+      } else {
+        // Show error notification
+        notificationService.error(
+          'Delete Failed',
+          result.error || 'Failed to delete language. Please try again.'
+        );
+      }
+    } catch (error) {
+      // Show error notification for unexpected errors
+      notificationService.error(
+        'Delete Failed',
+        'An unexpected error occurred. Please try again.'
+      );
+      console.error('Delete failed:', error);
+    } finally {
+      setDeleteLoading(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setLanguageToDelete(null);
   };
 
 
@@ -111,6 +154,15 @@ export const LanguagesContent: React.FC = () => {
         } : undefined}
         existingLanguageCodes={languages.map(lang => lang.code)}
         title={editingLanguage ? 'Edit Language' : 'Add New Language'}
+      />
+
+      <DeleteModal
+        open={deleteModalOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        loading={deleteLoading}
+        itemName={languageToDelete?.name}
+        title="Delete Language"
       />
     </>
   );
