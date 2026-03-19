@@ -108,7 +108,7 @@ export function useBatchApi() {
           })
         );
       } catch (error) {
-        console.error('Batch processing error:', error);
+        ;
       }
     };
 
@@ -130,3 +130,4 @@ export function useMemoizedComponent<T extends (...args: any[]) => any>(
 
   return useCallback((...args: Parameters<T>) => fnRef.current(...args), deps) as T;
 }
+

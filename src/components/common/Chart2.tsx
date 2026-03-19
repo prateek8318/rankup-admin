@@ -13,3 +13,4 @@ const Chart2: React.FC = () => {
 };
 
 export default Chart2;
+

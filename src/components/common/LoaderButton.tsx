@@ -12,3 +12,4 @@ const CircularSize: React.FC = () => {
 };
 
 export default CircularSize;
+

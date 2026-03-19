@@ -40,3 +40,4 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isOn, onToggle, disabled = 
 };
 
 export default ToggleSwitch;
+

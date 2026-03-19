@@ -13,9 +13,10 @@ import {
 
 export const qualificationApi = {
 
-  getAllQualifications: async (params?: { languageId?: number; countryCode?: string }): Promise<QualificationDto[]> => {
+  getAllQualifications: async (params?: { languageId?: number; language?: string; countryCode?: string }): Promise<QualificationDto[]> => {
     const searchParams = new URLSearchParams();
     if (params?.languageId) searchParams.append('languageId', params.languageId.toString());
+    if (params?.language) searchParams.append('language', params.language);
     if (params?.countryCode) searchParams.append('countryCode', params.countryCode);
     
     const response = await apiClient.get(
@@ -24,9 +25,12 @@ export const qualificationApi = {
     return response.data;
   },
 
-  getQualificationById: async (id: string, languageId?: number): Promise<QualificationDto> => {
-    const searchParams = languageId ? `?languageId=${languageId}` : '';
-    const response = await apiClient.get(`${apiEndpoints.QUALIFICATIONS.GET_BY_ID(id)}${searchParams}`);
+  getQualificationById: async (id: string, languageId?: number, language?: string): Promise<QualificationDto> => {
+    const searchParams = new URLSearchParams();
+    if (languageId) searchParams.append('languageId', languageId.toString());
+    if (language) searchParams.append('language', language);
+    const queryString = searchParams.toString();
+    const response = await apiClient.get(`${apiEndpoints.QUALIFICATIONS.GET_BY_ID(id)}${queryString ? `?${queryString}` : ''}`);
     return response.data;
   },
 
@@ -45,12 +49,7 @@ export const qualificationApi = {
       const response = await apiClient.delete(apiEndpoints.QUALIFICATIONS.DELETE(id));
       return response.data;
     } catch (error: any) {
-      console.error('Delete API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -59,23 +58,19 @@ export const qualificationApi = {
     try {
       // Try object format like Streams API since direct boolean might not work
       const requestData = { isActive };
-      console.log('Toggling qualification status with data:', requestData); // Debug log
+      ; // Debug log
       const response = await apiClient.patch(apiEndpoints.QUALIFICATIONS.TOGGLE_STATUS(id), requestData);
       return response.data;
     } catch (error: any) {
-      console.error('Toggle Status API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
 
-  getAllStreams: async (params?: { languageId?: number; qualificationId?: number }): Promise<StreamDto[]> => {
+  getAllStreams: async (params?: { languageId?: number; language?: string; qualificationId?: number }): Promise<StreamDto[]> => {
     const searchParams = new URLSearchParams();
     if (params?.languageId) searchParams.append('languageId', params.languageId.toString());
+    if (params?.language) searchParams.append('language', params.language);
     if (params?.qualificationId) searchParams.append('qualificationId', params.qualificationId.toString());
     
     const response = await apiClient.get(
@@ -105,12 +100,7 @@ export const qualificationApi = {
       const response = await apiClient.delete(apiEndpoints.STREAMS.DELETE(id));
       return response.data;
     } catch (error: any) {
-      console.error('Delete Stream API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -120,12 +110,7 @@ export const qualificationApi = {
       const response = await apiClient.patch(apiEndpoints.STREAMS.TOGGLE_STATUS(id), { isActive });
       return response.data;
     } catch (error: any) {
-      console.error('Toggle Stream Status API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      ;
       throw error;
     }
   },
@@ -195,3 +180,4 @@ export const translateText = async (text: string, targetLanguage: string): Promi
   
   return translations[text]?.[targetLanguage] || `[${targetLanguage.toUpperCase()}] ${text}`;
 };
+

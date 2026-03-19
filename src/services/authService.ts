@@ -19,7 +19,7 @@ interface LoginResponse {
 class AuthService extends BaseApiService {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
-      const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials);
+      const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials) as LoginResponse;
 
       if (response.Success && response.Token) {
         localStorage.setItem('token', response.Token);
@@ -32,7 +32,7 @@ class AuthService extends BaseApiService {
 
       throw new Error(response.ErrorMessage || 'Login failed');
     } catch (error) {
-      console.error('Login Error:', error);
+      ;
       throw error;
     }
   }
@@ -41,7 +41,7 @@ class AuthService extends BaseApiService {
     try {
       await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
-      console.error('Logout Error:', error);
+      ;
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -59,7 +59,7 @@ class AuthService extends BaseApiService {
 
       const response = await this.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH, {
         RefreshToken: refreshToken
-      });
+      }) as LoginResponse;
 
       if (response.Success && response.Token) {
         localStorage.setItem('token', response.Token);
@@ -71,7 +71,7 @@ class AuthService extends BaseApiService {
 
       throw new Error('Token refresh failed');
     } catch (error) {
-      console.error('Token Refresh Error:', error);
+      ;
       this.logout();
       throw error;
     }
@@ -94,3 +94,4 @@ class AuthService extends BaseApiService {
 }
 
 export default new AuthService();
+

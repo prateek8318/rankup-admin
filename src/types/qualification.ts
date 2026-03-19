@@ -71,3 +71,4 @@ export interface LanguageDto {
   nativeName?: string;
   isActive: boolean;
 }
+

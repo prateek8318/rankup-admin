@@ -7,11 +7,18 @@ import type { AuthState, TwoFactorData } from "@/types";
 
 interface AuthContextType {
   auth: AuthState;
-  login: (credentials: { email: string; password: string }) => Promise<{ success: boolean; requiresTwoFactor?: boolean; mobileNumber?: string; message?: string; error?: string }>;
+  login: (credentials: { email: string; password: string }) => Promise<{
+    success: boolean;
+    requiresTwoFactor?: boolean;
+    mobileNumber?: string;
+    message?: string;
+    error?: string;
+  }>;
   logout: () => void;
   hasPermission: (sectionName: string, action: string) => boolean;
   loading: boolean;
   verifyOTP: (otp: string) => Promise<{ success: boolean; error?: string }>;
+  forgotPassword?: (email: string) => Promise<{ success: boolean }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,18 +67,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("Token not found in response");
       }
     } catch (error: unknown) {
-      console.error('Login error:', error);
+      ;
       const err = error as { code?: string; message?: string; response?: { data?: { message?: string } } };
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
         return {
           success: false,
-          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.15:56924'
+          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.21:56924'
         };
       }
       return {
         success: false,
         error: err.response?.data?.message || err.message || 'Login failed. Please check your credentials.'
       };
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    try {
+      await apiClient.post(apiEndpoints.AUTH.FORGOT_PASSWORD, { email });
+      return { success: true };
+    } catch (error) {
+      return { success: false };
     }
   };
 
@@ -100,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } }; message?: string };
-      console.error("OTP verification failed:", error);
+      ;
       return { success: false, error: err.response?.data?.message || err.message };
     }
   };
@@ -122,7 +138,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, hasPermission, loading, verifyOTP }}>
+    <AuthContext.Provider
+      value={{ auth, login, logout, hasPermission, loading, verifyOTP, forgotPassword }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -136,3 +154,4 @@ export function useAuthContext() {
   }
   return context;
 }
+

@@ -19,3 +19,4 @@ export function extractApiData<T = any>(response: any): T[] {
 
   return [];
 }
+

@@ -50,3 +50,4 @@ const MasterModal: React.FC<MasterModalProps> = ({
 };
 
 export default MasterModal;
+

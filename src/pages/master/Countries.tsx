@@ -1,163 +1,41 @@
-import { useState, useEffect } from 'react';
-import {
-  countryApi, languageApi,
-  CountryDto, CreateCountryDto, UpdateCountryDto, LanguageDto,
-} from '@/services/masterApi';
-import { extractApiData } from '@/utils/apiHelpers';
-import { translateText } from '@/utils/translate';
+import { useMemo, useState } from 'react';
 import MasterHeader from '@/components/common/MasterHeader';
-import MasterTable, { TableColumn } from '@/components/common/MasterTable';
-import MasterModal from '@/components/common/MasterModal';
-import FormActions from '@/components/common/FormActions';
-import FormInput from '@/components/common/FormInput';
-import FormCheckbox from '@/components/common/FormCheckbox';
-import StatusBadge from '@/components/common/StatusBadge';
+import MasterTable from '@/components/common/MasterTable';
+import CountryFormModal from '@/features/master/countries/components/CountryFormModal';
+import { createCountryTableColumns } from '@/features/master/countries/createCountryTableColumns';
+import { useCountries, type CountryLanguage } from '@/features/master/countries/hooks/useCountries';
+import { useCountryForm } from '@/features/master/countries/hooks/useCountryForm';
+import { filterCountries } from '@/features/master/countries/countryUtils';
 
 const Countries = () => {
-  const [countries, setCountries] = useState<CountryDto[]>([]);
-  const [languages, setLanguages] = useState<LanguageDto[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi'>('en');
-  const [showModal, setShowModal] = useState(false);
-  const [editingCountry, setEditingCountry] = useState<CountryDto | null>(null);
-  const [autoTranslate, setAutoTranslate] = useState(true);
-  const [formData, setFormData] = useState<CreateCountryDto>({
-    name: '', nameEn: '', nameHi: '', code: '',
-    subdivisionLabelEn: 'State', subdivisionLabelHi: 'राज्य', isActive: true,
-  });
+  const [selectedLanguage, setSelectedLanguage] = useState<CountryLanguage>('en');
 
-  /* ─── data fetching ─ */
-  const fetchCountries = async (language?: string) => {
-    try {
-      const response = await countryApi.getAll(language);
-      setCountries(extractApiData<CountryDto>(response));
-    } catch (error) {
-      console.error('Error fetching countries:', error);
-      setCountries([]);
-    }
-  };
+  const { countries, deleteCountry, loading, saveCountry } = useCountries(selectedLanguage);
+  const {
+    autoTranslate,
+    editingCountry,
+    formData,
+    handleNameEnChange,
+    handleSubmit,
+    openCreateModal,
+    openEditModal,
+    resetForm,
+    setAutoTranslate,
+    setFormData,
+    showModal,
+  } = useCountryForm({ saveCountry });
 
-  const fetchLanguages = async () => {
-    try {
-      const response = await languageApi.getAll();
-      setLanguages(extractApiData<LanguageDto>(response));
-    } catch (error) {
-      console.error('Error fetching languages:', error);
-      setLanguages([]);
-    }
-  };
-
-  useEffect(() => {
-    fetchCountries(selectedLanguage);
-    fetchLanguages();
-  }, [selectedLanguage]);
-
-  /* ─── handlers ─ */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingCountry) {
-        const updateData: UpdateCountryDto = {
-          id: editingCountry.id,
-          nameEn: formData.nameEn || formData.name || '',
-          nameHi: formData.nameHi || '',
-          code: formData.code || '',
-          subdivisionLabelEn: formData.subdivisionLabelEn || 'State',
-          subdivisionLabelHi: formData.subdivisionLabelHi || 'राज्य',
-          isActive: formData.isActive !== undefined ? formData.isActive : true,
-        };
-        await countryApi.update(editingCountry.id, updateData);
-      } else {
-        await countryApi.create(formData);
-      }
-      fetchCountries(selectedLanguage);
-      resetForm();
-    } catch (error) {
-      console.error('Error saving country:', error);
-    }
-  };
-
-  const handleEdit = (country: CountryDto) => {
-    setEditingCountry(country);
-    setFormData({
-      name: country.nameEn || country.name,
-      nameEn: country.nameEn || country.name,
-      nameHi: country.nameHi || '',
-      code: country.code,
-      subdivisionLabelEn: (country as any).subdivisionLabelEn || 'State',
-      subdivisionLabelHi: (country as any).subdivisionLabelHi || 'राज्य',
-      isActive: country.isActive,
-    });
-    setShowModal(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to deactivate this country?')) {
-      try {
-        await countryApi.updateStatus(id, false);
-        fetchCountries(selectedLanguage);
-      } catch (error) {
-        console.error('Error deactivating country:', error);
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '', nameEn: '', nameHi: '', code: '',
-      subdivisionLabelEn: 'State', subdivisionLabelHi: 'राज्य', isActive: true,
-    });
-    setEditingCountry(null);
-    setShowModal(false);
-  };
-
-  const getCountryDisplayName = (country: CountryDto) => {
-    if (selectedLanguage === 'hi') return country.nameHi || country.nameEn || country.name;
-    return country.nameEn || country.name;
-  };
-
-  const handleNameEnChange = async (value: string) => {
-    setFormData((prev) => ({ ...prev, name: value, nameEn: value }));
-    if (autoTranslate && value.trim()) {
-      try {
-        const hindiTranslation = await translateText(value, 'hi');
-        setFormData((prev) => ({ ...prev, nameHi: hindiTranslation, name: value }));
-      } catch (error) {
-        console.error('Auto-translation failed:', error);
-      }
-    }
-  };
-
-  /* ─── table config ─ */
-  const filteredCountries = countries.filter(
-    (country) =>
-      getCountryDisplayName(country).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      country.code.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredCountries = useMemo(
+    () => filterCountries(countries, searchTerm, selectedLanguage),
+    [countries, searchTerm, selectedLanguage],
   );
 
-  const columns: TableColumn[] = [
-    { key: 'id', label: 'ID' },
-    {
-      key: 'name', label: 'Name',
-      render: (country) => (
-        <div>
-          <div>{getCountryDisplayName(country)}</div>
-          {selectedLanguage === 'en' && country.nameHi && (
-            <div style={{ fontSize: '12px', color: '#6b7280' }}>{country.nameHi}</div>
-          )}
-          {selectedLanguage === 'hi' && (
-            <div style={{ fontSize: '12px', color: '#6b7280' }}>{country.nameEn}</div>
-          )}
-        </div>
-      ),
-    },
-    { key: 'code', label: 'Code' },
-    { key: 'status', label: 'Status', render: (row) => <StatusBadge isActive={row.isActive} /> },
-    { key: 'createdAt', label: 'Created', render: (row) => new Date(row.createdAt).toLocaleDateString() },
-    { key: 'actions', label: 'Actions' },
-  ];
+  const columns = useMemo(
+    () => createCountryTableColumns(selectedLanguage),
+    [selectedLanguage],
+  );
 
-  /* ─── render ─ */
   return (
     <>
       <MasterHeader
@@ -165,15 +43,17 @@ const Countries = () => {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         addButtonLabel="Add Country"
-        onAddClick={() => setShowModal(true)}
+        onAddClick={openCreateModal}
         filters={[
           {
-            key: 'language', label: 'Language', value: selectedLanguage,
+            key: 'language',
+            label: 'Language',
+            value: selectedLanguage,
             options: [
               { value: 'en', label: 'English' },
-              { value: 'hi', label: 'हिन्दी' },
+              { value: 'hi', label: 'Hindi' },
             ],
-            onChange: (value) => setSelectedLanguage(value as 'en' | 'hi'),
+            onChange: (value) => setSelectedLanguage(value as CountryLanguage),
           },
         ]}
       />
@@ -181,55 +61,26 @@ const Countries = () => {
       <MasterTable
         columns={columns}
         data={filteredCountries}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        loading={loading}
+        onEdit={openEditModal}
+        onDelete={deleteCountry}
         emptyMessage="No countries found."
         loadingMessage="Loading countries..."
       />
 
-      <MasterModal
+      <CountryFormModal
         isOpen={showModal}
-        title={editingCountry ? 'Edit Country' : 'Add Country'}
-      >
-        <form onSubmit={handleSubmit}>
-          <FormInput
-            label="Country Name (English)"
-            value={formData.nameEn}
-            onChange={handleNameEnChange}
-            required
-          />
-
-          <FormInput
-            label="Country Name (Hindi)"
-            value={formData.nameHi}
-            onChange={(val) => setFormData({ ...formData, nameHi: val })}
-          />
-
-          <FormInput
-            label="Code"
-            value={formData.code}
-            onChange={(val) => setFormData({ ...formData, code: val })}
-            required
-          />
-
-          <FormCheckbox
-            label="Auto-translate to Hindi"
-            checked={autoTranslate}
-            onChange={setAutoTranslate}
-          />
-
-          <FormCheckbox
-            label="Active"
-            checked={formData.isActive}
-            onChange={(checked) => setFormData({ ...formData, isActive: checked })}
-          />
-
-          <FormActions
-            onCancel={resetForm}
-            submitLabel={editingCountry ? 'Update' : 'Create'}
-          />
-        </form>
-      </MasterModal>
+        editingCountry={editingCountry}
+        formData={formData}
+        autoTranslate={autoTranslate}
+        onClose={resetForm}
+        onSubmit={handleSubmit}
+        onNameEnChange={handleNameEnChange}
+        onNameHiChange={(value) => setFormData((prev) => ({ ...prev, nameHi: value }))}
+        onCodeChange={(value) => setFormData((prev) => ({ ...prev, code: value }))}
+        onAutoTranslateChange={setAutoTranslate}
+        onActiveChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
+      />
     </>
   );
 };

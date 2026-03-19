@@ -12,3 +12,4 @@ export const axiosBase = axios.create({
   },
   timeout: appConfig.requestTimeout,
 });
+

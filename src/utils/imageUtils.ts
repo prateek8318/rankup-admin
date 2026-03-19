@@ -7,3 +7,4 @@ export const getImageUrl = (imagePath: string): string => {
   }
   return `${BASE_URL}/${imagePath}`;
 };
+

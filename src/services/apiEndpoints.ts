@@ -153,3 +153,4 @@ export const apiEndpoints = {
     GET_BY_QUALIFICATION: (qualificationId: string) => `/api/streams?qualificationId=${qualificationId}`,
   },
 } as const satisfies ApiEndpointsShape;
+

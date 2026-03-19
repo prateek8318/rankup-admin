@@ -1,5 +1,5 @@
-import BaseApiService from '@/core/api/baseApi';
-import API_CONFIG from '@/core/api/apiConfig';
+import BaseApiService from './baseApi';
+import API_CONFIG from './apiConfig';
 
 class ExamService extends BaseApiService {
   async getAllExams() {
@@ -20,3 +20,4 @@ class ExamService extends BaseApiService {
 }
 
 export default new ExamService();
+

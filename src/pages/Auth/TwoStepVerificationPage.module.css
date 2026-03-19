@@ -1,0 +1,17 @@
+.page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0B3EA8 0%, #0A2E82 100%); font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+.card { width: 480px; background: #ffffff; border-radius: 18px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); text-align: center; }
+.title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+.label { text-align: left; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.mobileInputWrapper { display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.flag { font-size: 20px; margin-right: 8px; width: 28px; height: 28px; }
+.verticalLine { width: 1px; height: 24px; background-color: #d1d5db; margin: 0 8px; }
+.mobileInput { border: none; outline: none; flex: 1; font-size: 16px; }
+.resend { text-align: right; font-size: 14px; color: #2563eb; cursor: pointer; margin-bottom: 10px; }
+.timer { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+.mobileText { font-weight: 600; margin-bottom: 16px; }
+.countdown { color: #f59e0b; font-weight: 600; }
+.otpContainer { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; }
+.otpInput { width: 48px; height: 48px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 20px; text-align: center; outline: none; }
+.button { width: 100%; padding: 14px; border-radius: 999px; border: none; background: linear-gradient(135deg, #2B5DBC 0%, #073081 100%); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+.buttonDisabled { cursor: not-allowed; }

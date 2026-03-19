@@ -1,0 +1,373 @@
+.headerContainer {
+  margin-bottom: 30px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.pageSubtitle {
+  color: #000;
+  margin: 0;
+  padding-top: 20px;
+  font-size: 18px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  padding: 10px 20px;
+  border: 1px solid #C0C0C0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 18px;
+  width: 300px;
+  outline: none;
+}
+
+.statCardsContainer {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.userCard {
+  width: 255px;
+  height: 124px;
+  border-radius: 13px;
+  padding: 16px;
+  color: #fff;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cardIconContainer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+}
+
+.cardIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardNumber {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.cardLabel {
+  font-size: 18px;
+  padding-top: 10px;
+}
+
+.cardVectorContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.cardVector {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.filtersContainer {
+  border-radius: 13px;
+  padding: 20px;
+}
+
+.filtersRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.manageLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid #C0C0C0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+}
+
+.manageCheckbox {
+  width: 18px;
+  height: 18px;
+}
+
+.manageText {
+  font-size: 16px;
+}
+
+.filterSelect {
+  padding: 8px 20px;
+  border: 1.5px solid #C0C0C0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+}
+
+.actionsGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.resetButton {
+  padding: 8px 24px;
+  border: 1.5px solid #C0C0C0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.exportButton {
+  padding: 8px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.tableContainerWrapper {
+  padding: 20px;
+  overflow: hidden;
+}
+
+.loadingText {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.tableResponsive {
+  overflow-x: auto;
+}
+
+.usersTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.tableHeadRow {
+  background: linear-gradient(135deg, #1e3a8a, #1e40af);
+}
+
+.tableHeadCell {
+  padding: 16px;
+  text-align: left;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-width: 1px;
+  border-color: #C0C0C0;
+}
+
+.tableHeadCellCheckbox {
+  padding: 16px;
+  text-align: left;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tableCheckbox {
+  width: 16px;
+  height: 16px;
+}
+
+.tableBodyRow {
+  background: #f8fafc;
+}
+
+.tableBodyCell {
+  padding: 16px;
+  font-size: 14px;
+  border-width: 1.5px 0;
+  border-color: #C0C0C0;
+  border-style: solid;
+}
+
+.tableBodyCellFirst {
+  padding: 16px;
+  border-width: 1.5px 0 1.5px 1.5px;
+  border-color: #C0C0C0;
+  border-style: solid;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.tableBodyCellLast {
+  padding: 16px;
+  border-width: 1.5px 1.5px 1.5px 0;
+  border-color: #C0C0C0;
+  border-style: solid;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.fontWeight500 {
+  font-weight: 500;
+}
+
+.contactEmail {
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.contactPhone {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusBlocked {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.actionButtonEdit {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.actionButtonDelete {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.paginationText {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.paginationButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pageButton {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.pageButtonActive {
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pageButtonInactive {
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.pageButtonDisabled {
+  background: #f9fafb;
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* Gradient utility classes for UserCard - matching exact original gradients */
+.gradientBlue {
+  background: linear-gradient(135deg, #4780CF, #2B6AEC);
+}
+
+.gradientOrange {
+  background: linear-gradient(135deg, #FF8C42, #FF6B1A);
+}
+
+.gradientPurple {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.gradientPink {
+  background: linear-gradient(135deg, #EC4899, #DB2777);
+}
+
+.gradientYellow {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+}
