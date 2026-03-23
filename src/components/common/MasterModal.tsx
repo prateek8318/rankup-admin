@@ -7,6 +7,7 @@ export interface MasterModalProps {
   width?: string | number;
   maxWidth?: string;
   onClose?: () => void;
+  disableClose?: boolean;
 }
 
 const MasterModal: React.FC<MasterModalProps> = ({
@@ -15,7 +16,8 @@ const MasterModal: React.FC<MasterModalProps> = ({
   children,
   width = "500px",
   maxWidth = "90%",
-  onClose
+  onClose,
+  disableClose = false,
 }) => {
   if (!isOpen) return null;
 
@@ -32,7 +34,7 @@ const MasterModal: React.FC<MasterModalProps> = ({
       justifyContent: "center",
       zIndex: 1000
     }}
-    onClick={onClose}
+    onClick={disableClose ? undefined : onClose}
     >
       <div style={{
         background: "#fff",
@@ -51,12 +53,13 @@ const MasterModal: React.FC<MasterModalProps> = ({
           </h3>
           {onClose && (
             <button
-              onClick={onClose}
+              onClick={disableClose ? undefined : onClose}
+              disabled={disableClose}
               style={{
                 background: 'none',
                 border: 'none',
                 fontSize: '24px',
-                cursor: 'pointer',
+                cursor: disableClose ? 'not-allowed' : 'pointer',
                 color: '#6b7280',
                 padding: '0',
                 width: '30px',
@@ -64,7 +67,8 @@ const MasterModal: React.FC<MasterModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '4px'
+                borderRadius: '4px',
+                opacity: disableClose ? 0.5 : 1,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#f3f4f6';

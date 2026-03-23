@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import DeleteModal from '@/components/common/DeleteModal';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable from '@/components/common/MasterTable';
 import StreamFormModal from '@/features/master/streams/components/StreamFormModal';
@@ -6,11 +7,12 @@ import { createStreamTableColumns } from '@/features/master/streams/createStream
 import { useStreamForm } from '@/features/master/streams/hooks/useStreamForm';
 import { filterStreams } from '@/features/master/streams/streamUtils';
 import { useStreams } from '@/hooks/useStreams';
-import Loader from '@/components/common/Loader';
+import { useDebounce } from '@/hooks/useOptimizedApi';
 
 const Streams = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguageFilter, setSelectedLanguageFilter] = useState<string | undefined>(undefined);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const {
     streams,
@@ -18,7 +20,15 @@ const Streams = () => {
     languages,
     loading,
     languagesLoading,
-    deleteStream,
+    requestDeleteStream,
+    confirmDeleteStream,
+    cancelDeleteStream,
+    pendingDeleteId,
+    pendingDeleteLabel,
+    deletingId,
+    saving,
+    successMessage,
+    clearSuccessMessage,
     saveStream,
   } = useStreams(selectedLanguageFilter);
 
@@ -42,8 +52,8 @@ const Streams = () => {
   } = useStreamForm({ languages, saveStream });
 
   const filteredStreams = useMemo(
-    () => filterStreams(streams, searchTerm),
-    [searchTerm, streams],
+    () => filterStreams(streams, debouncedSearchTerm),
+    [debouncedSearchTerm, streams],
   );
 
   const columns = useMemo(
@@ -51,10 +61,20 @@ const Streams = () => {
     [languages],
   );
 
+  useEffect(() => {
+    if (!successMessage) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      clearSuccessMessage();
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [clearSuccessMessage, successMessage]);
+
   return (
     <>
-      {loading && <Loader message="Loading streams..." />}
-      
       <MasterHeader
         searchPlaceholder="Search streams..."
         searchTerm={searchTerm}
@@ -78,11 +98,22 @@ const Streams = () => {
       <MasterTable
         columns={columns}
         data={filteredStreams}
-        loading={false}
+        loading={loading}
         onEdit={openEditModal}
-        onDelete={(item) => deleteStream(item.id)}
+        onDelete={requestDeleteStream}
+        actionLoadingId={deletingId}
+        actionsDisabled={saving || Boolean(pendingDeleteId)}
         emptyMessage="No streams found."
         loadingMessage="Loading streams..."
+      />
+
+      <DeleteModal
+        open={Boolean(pendingDeleteId)}
+        onConfirm={confirmDeleteStream}
+        onCancel={cancelDeleteStream}
+        loading={Boolean(deletingId)}
+        title="Confirm Delete"
+        content={`Are you sure you want to delete${pendingDeleteLabel ? ` "${pendingDeleteLabel}"` : ' this'}? This action cannot be undone.`}
       />
 
       <StreamFormModal
@@ -95,6 +126,7 @@ const Streams = () => {
         languagesLoading={languagesLoading}
         autoTranslate={autoTranslate}
         isTranslating={isTranslating}
+        isSubmitting={saving}
         onClose={closeModal}
         onSubmit={handleSubmit}
         onNameChange={handleNameChange}

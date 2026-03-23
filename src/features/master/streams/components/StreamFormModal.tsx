@@ -19,6 +19,7 @@ interface StreamFormModalProps {
   languagesLoading: boolean;
   autoTranslate: boolean;
   isTranslating: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void | Promise<void>;
   onNameChange: (value: string) => void;
@@ -43,6 +44,7 @@ const StreamFormModal = ({
   languagesLoading,
   autoTranslate,
   isTranslating,
+  isSubmitting,
   onClose,
   onSubmit,
   onNameChange,
@@ -56,6 +58,8 @@ const StreamFormModal = ({
     isOpen={isOpen}
     title={editingStream ? 'Edit Stream' : 'Add Stream'}
     width={600}
+    onClose={isSubmitting ? undefined : onClose}
+    disableClose={isSubmitting}
   >
     <form onSubmit={onSubmit}>
       <FormInput
@@ -108,8 +112,8 @@ const StreamFormModal = ({
 
       <FormActions
         onCancel={onClose}
-        submitLabel={isTranslating ? 'Translating...' : editingStream ? 'Update' : 'Create'}
-        disabled={isTranslating}
+        submitLabel={isSubmitting ? 'Saving...' : isTranslating ? 'Translating...' : editingStream ? 'Update' : 'Create'}
+        disabled={isSubmitting || isTranslating}
       />
     </form>
   </MasterModal>

@@ -1,10 +1,5 @@
-/**
- * Auth API calls (login, verify OTP, logout)
- */
-import axios from 'axios';
 import apiClient from '@/services/apiClient';
 import { apiEndpoints } from '@/services/apiEndpoints';
-import { appConfig } from '@/services/appConfig';
 
 export const authApi = {
   async login(credentials: { email: string; password: string }) {
@@ -13,11 +8,16 @@ export const authApi = {
   },
 
   async verifyOTP(email: string, otp: string) {
-    const { data } = await axios.post(
-      `${appConfig.apiBaseUrl}${apiEndpoints.AUTH.VERIFY_OTP}`,
-      { email, otp },
-      { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }
-    );
+    const { data } = await apiClient.post(apiEndpoints.AUTH.VERIFY_OTP, { email, otp }, {
+      skipGlobalErrorHandler: true,
+    });
+    return data;
+  },
+
+  async forgotPassword(email: string) {
+    const { data } = await apiClient.post(apiEndpoints.AUTH.FORGOT_PASSWORD, { email }, {
+      skipGlobalErrorHandler: true,
+    });
     return data;
   },
 

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import apiClient from "@/services/apiClient";
 import { apiEndpoints } from "@/services/apiEndpoints";
-import { appConfig } from "@/services/appConfig";
 import type { AuthState, TwoFactorData } from "@/types";
+import { authApi } from "@/features/auth/services/authApi";
+import { parseApiError } from "@/services/errorHandlingService";
 
 interface AuthContextType {
   auth: AuthState;
@@ -37,9 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async ({ email, password }: { email: string; password: string }) => {
     try {
-      const response = await apiClient.post(apiEndpoints.AUTH.LOGIN, {
-        email,
-        password,
+      const response = await apiClient.post(apiEndpoints.AUTH.LOGIN, { email, password }, {
+        skipGlobalErrorHandler: true,
       });
 
       if (response.data.requiresTwoFactor) {
@@ -67,24 +66,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("Token not found in response");
       }
     } catch (error: unknown) {
-      ;
-      const err = error as { code?: string; message?: string; response?: { data?: { message?: string } } };
-      if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+      const parsedError = parseApiError(error);
+      if (parsedError.code === 'NETWORK_ERROR') {
         return {
           success: false,
-          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.21:56924'
+          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.22:56924'
         };
       }
       return {
         success: false,
-        error: err.response?.data?.message || err.message || 'Login failed. Please check your credentials.'
+        error: parsedError.message || 'Login failed. Please check your credentials.'
       };
     }
   };
 
   const forgotPassword = async (email: string) => {
     try {
-      await apiClient.post(apiEndpoints.AUTH.FORGOT_PASSWORD, { email });
+      await authApi.forgotPassword(email);
       return { success: true };
     } catch (error) {
       return { success: false };
@@ -96,28 +94,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: "No two-factor session found" };
     }
     try {
-      const response = await axios.post(
-        `${appConfig.apiBaseUrl}${apiEndpoints.AUTH.VERIFY_OTP}`,
-        { email: twoFactorData.email, otp },
-        { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }
-      );
+      const response = await authApi.verifyOTP(twoFactorData.email, otp);
 
-      if (response.data.success && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        if (response.data.refreshToken) {
-          localStorage.setItem("refreshToken", response.data.refreshToken);
+      if (response.success && response.token) {
+        localStorage.setItem("token", response.token);
+        if (response.refreshToken) {
+          localStorage.setItem("refreshToken", response.refreshToken);
         }
-        localStorage.setItem("admin", JSON.stringify(response.data.admin));
-        setAuth({ token: response.data.token, user: response.data.admin });
+        localStorage.setItem("admin", JSON.stringify(response.admin));
+        setAuth({ token: response.token, user: response.admin });
         setTwoFactorData(null);
         return { success: true };
       } else {
-        throw new Error(response.data.message || "OTP verification failed");
+        throw new Error(response.message || "OTP verification failed");
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      ;
-      return { success: false, error: err.response?.data?.message || err.message };
+      const parsedError = parseApiError(error);
+      return { success: false, error: parsedError.message };
     }
   };
 

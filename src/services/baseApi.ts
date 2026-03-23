@@ -1,76 +1,41 @@
 /**
- * Generic GET, POST, PUT, DELETE (fetch-based) + BaseApiService class for legacy services
+ * Generic GET, POST, PUT, DELETE helpers + BaseApiService class for legacy services.
+ * Auth and global error handling are delegated to the shared Axios client.
  */
-import { appConfig } from './appConfig';
-
-const baseURL = appConfig.apiBaseUrl;
-
-function getAuthHeaders(): HeadersInit {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
-}
+import apiClient from './apiClient';
+import API_CONFIG from './apiConfig';
+import { createApiClient } from './axios';
 
 export async function get<T = unknown>(endpoint: string): Promise<T> {
-  const res = await fetch(`${baseURL}${endpoint}`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error((data as { message?: string }).message || `HTTP ${res.status}`);
-  return data as T;
+  const response = await apiClient.get<T>(endpoint);
+  return response.data;
 }
 
 export async function post<T = unknown>(endpoint: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${baseURL}${endpoint}`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error((data as { message?: string }).message || `HTTP ${res.status}`);
-  return data as T;
+  const response = await apiClient.post<T>(endpoint, body);
+  return response.data;
 }
 
 export async function put<T = unknown>(endpoint: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${baseURL}${endpoint}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error((data as { message?: string }).message || `HTTP ${res.status}`);
-  return data as T;
+  const response = await apiClient.put<T>(endpoint, body);
+  return response.data;
 }
 
 export async function del<T = unknown>(endpoint: string): Promise<T> {
-  const res = await fetch(`${baseURL}${endpoint}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error((data as { message?: string }).message || `HTTP ${res.status}`);
-  return data as T;
+  const response = await apiClient.delete<T>(endpoint);
+  return response.data;
 }
 
-/** Legacy: class-based service (use get/post/put/del or apiClient for new code) */
-import API_CONFIG from './apiConfig';
-
 class BaseApiService {
-  protected baseURL = API_CONFIG.BASE_URL;
+  protected client = createApiClient(API_CONFIG.BASE_URL);
 
-  protected async request(endpoint: string, options: RequestInit = {}): Promise<unknown> {
-    const url = `${this.baseURL}${endpoint}`;
-    const config: RequestInit = {
-      headers: getAuthHeaders() as HeadersInit,
-      ...options,
-    };
-    const response = await fetch(url, config);
-    const data = await response.json();
-    if (!response.ok) throw new Error((data as { message?: string }).message || `HTTP ${response.status}`);
-    return data;
+  protected async request(endpoint: string, options: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; data?: unknown } = {}): Promise<unknown> {
+    const response = await this.client.request({
+      url: endpoint,
+      method: options.method ?? 'GET',
+      data: options.data,
+    });
+    return response.data;
   }
 
   async get(endpoint: string): Promise<unknown> {
@@ -78,17 +43,11 @@ class BaseApiService {
   }
 
   async post(endpoint: string, data?: unknown): Promise<unknown> {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    return this.request(endpoint, { method: 'POST', data });
   }
 
   async put(endpoint: string, data?: unknown): Promise<unknown> {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    return this.request(endpoint, { method: 'PUT', data });
   }
 
   async delete(endpoint: string): Promise<unknown> {
@@ -97,4 +56,3 @@ class BaseApiService {
 }
 
 export default BaseApiService;
-

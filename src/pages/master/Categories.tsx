@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import DeleteModal from '@/components/common/DeleteModal';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable from '@/components/common/MasterTable';
 import CategoryFormModal from '@/features/master/categories/components/CategoryFormModal';
@@ -6,12 +7,27 @@ import { createCategoryTableColumns } from '@/features/master/categories/createC
 import { useCategories, type CategoryLanguage } from '@/features/master/categories/hooks/useCategories';
 import { useCategoryForm } from '@/features/master/categories/hooks/useCategoryForm';
 import { filterCategories } from '@/features/master/categories/categoryUtils';
+import { useDebounce } from '@/hooks/useOptimizedApi';
 
 const Categories = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<CategoryLanguage>('en');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const { categories, deleteCategory, loading, saveCategory } = useCategories(selectedLanguage);
+  const {
+    categories,
+    requestDeleteCategory,
+    confirmDeleteCategory,
+    cancelDeleteCategory,
+    pendingDeleteId,
+    pendingDeleteLabel,
+    loading,
+    saving,
+    deletingId,
+    successMessage,
+    clearSuccessMessage,
+    saveCategory,
+  } = useCategories(selectedLanguage);
   const {
     autoTranslate,
     editingCategory,
@@ -30,14 +46,26 @@ const Categories = () => {
   } = useCategoryForm({ saveCategory });
 
   const filteredCategories = useMemo(
-    () => filterCategories(categories, searchTerm, selectedLanguage),
-    [categories, searchTerm, selectedLanguage],
+    () => filterCategories(categories, debouncedSearchTerm, selectedLanguage),
+    [categories, debouncedSearchTerm, selectedLanguage],
   );
 
   const columns = useMemo(
     () => createCategoryTableColumns(selectedLanguage),
     [selectedLanguage],
   );
+
+  useEffect(() => {
+    if (!successMessage) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      clearSuccessMessage();
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [clearSuccessMessage, successMessage]);
 
   return (
     <>
@@ -66,9 +94,20 @@ const Categories = () => {
         data={filteredCategories}
         loading={loading}
         onEdit={openEditModal}
-        onDelete={(item) => deleteCategory(item.id)}
+        onDelete={requestDeleteCategory}
+        actionLoadingId={deletingId}
+        actionsDisabled={saving || Boolean(pendingDeleteId)}
         emptyMessage="No categories found."
         loadingMessage="Loading categories..."
+      />
+
+      <DeleteModal
+        open={Boolean(pendingDeleteId)}
+        onConfirm={confirmDeleteCategory}
+        onCancel={cancelDeleteCategory}
+        loading={Boolean(deletingId)}
+        title="Confirm Delete"
+        content={`Are you sure you want to delete${pendingDeleteLabel ? ` "${pendingDeleteLabel}"` : ' this'}? This action cannot be undone.`}
       />
 
       <CategoryFormModal
@@ -78,6 +117,7 @@ const Categories = () => {
         errors={errors}
         autoTranslate={autoTranslate}
         isTranslating={isTranslating}
+        isSubmitting={saving}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onNameEnChange={handleNameEnChange}

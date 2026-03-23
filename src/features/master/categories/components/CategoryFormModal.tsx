@@ -11,6 +11,7 @@ interface CategoryFormModalProps {
   errors: Record<string, string>;
   autoTranslate: boolean;
   isTranslating: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void | Promise<void>;
   onNameEnChange: (value: string) => void | Promise<void>;
@@ -26,6 +27,7 @@ const CategoryFormModal = ({
   errors,
   autoTranslate,
   isTranslating,
+  isSubmitting,
   onClose,
   onSubmit,
   onNameEnChange,
@@ -36,6 +38,8 @@ const CategoryFormModal = ({
   <MasterModal
     isOpen={isOpen}
     title={editingCategory ? 'Edit Category' : 'Add Category'}
+    onClose={isSubmitting ? undefined : onClose}
+    disableClose={isSubmitting}
   >
     <form onSubmit={onSubmit}>
       <FormInput
@@ -112,7 +116,8 @@ const CategoryFormModal = ({
 
       <FormActions
         onCancel={onClose}
-        submitLabel={editingCategory ? 'Update' : 'Create'}
+        submitLabel={isSubmitting ? 'Saving...' : editingCategory ? 'Update' : 'Create'}
+        disabled={isSubmitting || isTranslating}
       />
     </form>
   </MasterModal>

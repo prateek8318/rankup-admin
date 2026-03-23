@@ -15,6 +15,8 @@ export interface MasterTableProps {
   loading?: boolean;
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
+  actionLoadingId?: number | null;
+  actionsDisabled?: boolean;
   emptyMessage?: string;
   loadingMessage?: string;
 }
@@ -25,6 +27,8 @@ const MasterTable: React.FC<MasterTableProps> = ({
   loading = false,
   onEdit,
   onDelete,
+  actionLoadingId = null,
+  actionsDisabled = false,
   emptyMessage = "No data found.",
   loadingMessage = "Loading..."
 }) => {
@@ -32,12 +36,14 @@ const MasterTable: React.FC<MasterTableProps> = ({
     <td key={key} style={{ padding: 12 }}>
       <button
         onClick={() => onEdit?.(item)}
+        disabled={actionsDisabled || actionLoadingId === item.id}
         style={{
           background: 'none',
           border: 'none',
           marginRight: 8,
           padding: '4px',
-          cursor: 'pointer'
+          cursor: actionsDisabled || actionLoadingId === item.id ? 'not-allowed' : 'pointer',
+          opacity: actionsDisabled || actionLoadingId === item.id ? 0.6 : 1,
         }}
         title="Edit"
       >
@@ -46,11 +52,13 @@ const MasterTable: React.FC<MasterTableProps> = ({
       {item.isActive && onDelete && (
         <button
           onClick={() => onDelete(item)}
+          disabled={actionsDisabled || actionLoadingId === item.id}
           style={{
             background: 'none',
             border: 'none',
             padding: '4px',
-            cursor: 'pointer'
+            cursor: actionsDisabled || actionLoadingId === item.id ? 'not-allowed' : 'pointer',
+            opacity: actionsDisabled || actionLoadingId === item.id ? 0.6 : 1,
           }}
           title="Delete"
         >
