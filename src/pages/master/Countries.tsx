@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable from '@/components/common/MasterTable';
 import CountryFormModal from '@/features/master/countries/components/CountryFormModal';
@@ -6,12 +6,36 @@ import { createCountryTableColumns } from '@/features/master/countries/createCou
 import { useCountries, type CountryLanguage } from '@/features/master/countries/hooks/useCountries';
 import { useCountryForm } from '@/features/master/countries/hooks/useCountryForm';
 import { filterCountries } from '@/features/master/countries/countryUtils';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { DeleteConfirmation } from '@/components/common/DeleteConfirmation';
+import { createDeleteConfirmationConfig } from '@/utils/deleteUtils';
+import { useLanguageFilterForMasterHeader } from '@/components/common/LanguageFilter';
 
 const Countries = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<CountryLanguage>('en');
 
   const { countries, deleteCountry, loading, saveCountry } = useCountries(selectedLanguage);
+
+  // Create language filter for Countries
+  const languageFilterOptions = [
+    { value: 'en', label: 'English' },
+    { value: 'hi', label: 'Hindi' },
+  ];
+
+  const {
+    pendingDeleteId,
+    pendingDeleteLabel,
+    isDeleting,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
+  } = useDeleteConfirmation(
+    createDeleteConfirmationConfig(
+      deleteCountry,
+      (country: any) => country.name || country.nameEn || 'Country'
+    )
+  );
   const {
     autoTranslate,
     editingCountry,
@@ -52,10 +76,7 @@ const Countries = () => {
             key: 'language',
             label: 'Language',
             value: selectedLanguage,
-            options: [
-              { value: 'en', label: 'English' },
-              { value: 'hi', label: 'Hindi' },
-            ],
+            options: languageFilterOptions,
             onChange: (value) => setSelectedLanguage(value as CountryLanguage),
           },
         ]}
@@ -66,9 +87,17 @@ const Countries = () => {
         data={filteredCountries}
         loading={loading}
         onEdit={openEditModal}
-        onDelete={(item) => deleteCountry(item.id)}
+        onDelete={requestDelete}
         emptyMessage="No countries found."
         loadingMessage="Loading countries..."
+      />
+
+      <DeleteConfirmation
+        pendingDeleteId={pendingDeleteId}
+        pendingDeleteLabel={pendingDeleteLabel}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
 
       <CountryFormModal

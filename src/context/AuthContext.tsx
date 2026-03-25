@@ -4,6 +4,7 @@ import { apiEndpoints } from "@/services/apiEndpoints";
 import type { AuthState, TwoFactorData } from "@/types";
 import { authApi } from "@/features/auth/services/authApi";
 import { parseApiError } from "@/services/errorHandlingService";
+import { notificationService } from "@/services/notificationService";
 
 interface AuthContextType {
   auth: AuthState;
@@ -70,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (parsedError.code === 'NETWORK_ERROR') {
         return {
           success: false,
-          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.22:56924'
+          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.23:56924'
         };
       }
       return {
@@ -104,21 +105,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem("admin", JSON.stringify(response.admin));
         setAuth({ token: response.token, user: response.admin });
         setTwoFactorData(null);
+        
+        // Show success message for OTP verification
+        notificationService.success(
+          '✅ Verification Successful!',
+          'Two-factor authentication completed successfully.',
+          { duration: 3000 }
+        );
+        
         return { success: true };
       } else {
         throw new Error(response.message || "OTP verification failed");
       }
     } catch (error: unknown) {
       const parsedError = parseApiError(error);
+      notificationService.error(
+        '❌ Verification Failed',
+        parsedError.message || 'Invalid OTP. Please try again.'
+      );
       return { success: false, error: parsedError.message };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setAuth({ token: null, user: null });
-    setTwoFactorData(null);
-  };
+  // Show logout success message using the global service
+  try {
+    notificationService.success(
+      '👋 Goodbye!', 
+      'You have been successfully logged out.',
+      { duration: 3000 }
+    );
+  } catch (error) {
+    // Fallback: simple alert
+    alert('👋 You have been successfully logged out.');
+  }
+  
+  // Clear auth state
+  localStorage.removeItem("token");
+  setAuth({ token: null, user: null });
+  setTwoFactorData(null);
+};
 
   const hasPermission = (sectionName: string, action: string) => {
     if (!auth.user?.role?.permission) return false;

@@ -1,4 +1,5 @@
 import React from 'react';
+import dotIcon from '@/assets/icons/dot.png';
 import styles from '@/styles/features/Users.module.css';
 import { User } from '../hooks/useUsers';
 
@@ -120,8 +121,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                 <td className={styles.tableBodyCell}>{examsAttempted}</td>
                 <td className={styles.tableBodyCell}>{total}</td>
                 <td className={styles.tableBodyCellLast}>
-                  <button className={styles.actionButtonEdit}>Edit</button>
-                  <button className={styles.actionButtonDelete}>Delete</button>
+                  <img src={dotIcon} alt="More" style={{ width: 8, height: 22, cursor: 'pointer' }} />
                 </td>
               </tr>
             );

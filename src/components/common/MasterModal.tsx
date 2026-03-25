@@ -1,4 +1,5 @@
 import React from 'react';
+import { CrossIcon } from './CrossIcon';
 
 export interface MasterModalProps {
   isOpen: boolean;
@@ -52,33 +53,10 @@ const MasterModal: React.FC<MasterModalProps> = ({
             {title}
           </h3>
           {onClose && (
-            <button
-              onClick={disableClose ? undefined : onClose}
+            <CrossIcon
+              onClick={onClose}
               disabled={disableClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: disableClose ? 'not-allowed' : 'pointer',
-                color: '#6b7280',
-                padding: '0',
-                width: '30px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '4px',
-                opacity: disableClose ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              ×
-            </button>
+            />
           )}
         </div>
         

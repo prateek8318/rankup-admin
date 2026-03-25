@@ -1,5 +1,6 @@
 import React from 'react';
 import MDEditor from '@uiw/react-md-editor';
+import { CrossIcon } from '@/components/common/CrossIcon';
 import styles from '@/styles/features/CMS.module.css';
 
 interface CMSModalProps {
@@ -36,7 +37,10 @@ export const CMSModal: React.FC<CMSModalProps> = ({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <h2 className={styles.modalTitle}>Add New CMS Content</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 className={styles.modalTitle}>Add New CMS Content</h2>
+          <CrossIcon onClick={() => setIsModalOpen(false)} />
+        </div>
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>

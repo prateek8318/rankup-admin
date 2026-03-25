@@ -32,6 +32,16 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        '/api/user/subscriptions': {
+          target: `${API_BASE_URL}:56925`,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/api/admin/user-subscriptions': {
+          target: `${API_BASE_URL}:56925`,
+          changeOrigin: true,
+          secure: false,
+        },
         '/api/admin/users': {
           target: `${API_BASE_URL}:5002`,
           changeOrigin: true,

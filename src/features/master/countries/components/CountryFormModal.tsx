@@ -3,6 +3,7 @@ import FormActions from '@/components/common/FormActions';
 import FormCheckbox from '@/components/common/FormCheckbox';
 import FormInput from '@/components/common/FormInput';
 import MasterModal from '@/components/common/MasterModal';
+import { pageValidations } from '@/utils/validationConfig';
 import { CountryDto, CreateCountryDto } from '@/services/masterApi';
 
 interface CountryFormModalProps {
@@ -37,6 +38,7 @@ const CountryFormModal = ({
   <MasterModal
     isOpen={isOpen}
     title={editingCountry ? 'Edit Country' : 'Add Country'}
+    onClose={onClose}
   >
     <form onSubmit={onSubmit}>
       <FormInput
@@ -45,12 +47,14 @@ const CountryFormModal = ({
         onChange={onNameEnChange}
         required
         error={errors.nameEn}
+        validationConfig={pageValidations.countries.nameEn}
       />
 
       <FormInput
         label="Country Name (Hindi)"
         value={formData.nameHi || ''}
         onChange={onNameHiChange}
+        validationConfig={pageValidations.countries.nameHi}
       />
 
       <FormInput
@@ -59,7 +63,7 @@ const CountryFormModal = ({
         onChange={onCodeChange}
         required
         error={errors.code}
-        helperText="2-letter country code (e.g., IN, US, UK)"
+        validationConfig={pageValidations.countries.code}
       />
 
       <FormCheckbox

@@ -32,6 +32,9 @@ export const SubscriptionsContent: React.FC = () => {
     handleTogglePopular,
     handleToggleRecommended,
     handleToggleActive,
+    handleView,
+    handleEdit,
+    handleDelete,
     getPlanId,
     handleSelect,
     handleSelectAll,
@@ -81,6 +84,9 @@ export const SubscriptionsContent: React.FC = () => {
         handleTogglePopular={handleTogglePopular}
         handleToggleRecommended={handleToggleRecommended}
         handleToggleActive={handleToggleActive}
+        handleView={handleView}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
         currentPage={currentPage}
         totalPlans={totalPlans}
       />

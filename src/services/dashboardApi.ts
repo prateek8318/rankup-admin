@@ -57,7 +57,7 @@ export const getUsersCount = async () => {
 };
 
 export const getCMSList = async ({ page = 1, limit = 10, search = "", language = "", languages = "" }: { page?: number; limit?: number; search?: string; language?: string; languages?: string } = {}) =>
-  request(buildUrl('http://192.168.1.22:5009/api/cms', {
+  request(buildUrl('http://192.168.1.23:5009/api/cms', {
     page,
     limit,
     search,
@@ -66,12 +66,12 @@ export const getCMSList = async ({ page = 1, limit = 10, search = "", language =
   }));
 
 export const getCMSContent = async (key: string, language: string = "en") =>
-  request(buildUrl(`http://192.168.1.22:5009/api/cms/${key}`, { language }));
+  request(buildUrl(`http://192.168.1.23:5009/api/cms/${key}`, { language }));
 
-export const getCMSKeys = async () => request('http://192.168.1.22:5008/api/cms/keys');
+export const getCMSKeys = async () => request('http://192.168.1.23:5008/api/cms/keys');
 
 export const createCMS = async (data: unknown) => {
-  const result = await request('http://192.168.1.22:5009/api/cms', {
+  const result = await request('http://192.168.1.23:5009/api/cms', {
     method: 'POST',
     data,
   });
@@ -80,7 +80,7 @@ export const createCMS = async (data: unknown) => {
 };
 
 export const updateCMS = async (id: string, data: unknown) => {
-  const result = await request(`http://192.168.1.22:5009/api/cms/${id}`, {
+  const result = await request(`http://192.168.1.23:5009/api/cms/${id}`, {
     method: 'PUT',
     data,
   });
@@ -89,7 +89,7 @@ export const updateCMS = async (id: string, data: unknown) => {
 };
 
 export const deleteCMS = async (id: string) => {
-  const result = await request(`http://192.168.1.22:5009/api/cms/${id}`, {
+  const result = await request(`http://192.168.1.23:5009/api/cms/${id}`, {
     method: 'DELETE',
   });
   notificationService.success("CMS content deleted successfully!");
@@ -97,7 +97,7 @@ export const deleteCMS = async (id: string) => {
 };
 
 export const updateCMSStatus = async (id: string, status: boolean) => {
-  const result = await request(`http://192.168.1.22:5009/api/cms/${id}/status`, {
+  const result = await request(`http://192.168.1.23:5009/api/cms/${id}/status`, {
     method: 'PATCH',
     data: { isActive: status },
   });

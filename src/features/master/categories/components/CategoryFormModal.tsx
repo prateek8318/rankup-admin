@@ -2,6 +2,7 @@ import type { FormEvent } from 'react';
 import FormActions from '@/components/common/FormActions';
 import FormInput from '@/components/common/FormInput';
 import MasterModal from '@/components/common/MasterModal';
+import { pageValidations } from '@/utils/validationConfig';
 import { CategoryDto, CreateCategoryDto } from '@/services/masterApi';
 
 interface CategoryFormModalProps {
@@ -48,6 +49,7 @@ const CategoryFormModal = ({
         onChange={onNameEnChange}
         required
         error={errors.nameEn}
+        validationConfig={pageValidations.categories.nameEn}
       />
 
       <div style={{ marginBottom: 20 }}>
@@ -86,6 +88,8 @@ const CategoryFormModal = ({
           }}
           placeholder={isTranslating ? 'Translating...' : ''}
           disabled={isTranslating}
+          maxLength={pageValidations.categories.nameHi.maxLength}
+          minLength={pageValidations.categories.nameHi.minLength}
           style={{
             width: '100%',
             padding: '10px',
@@ -97,6 +101,11 @@ const CategoryFormModal = ({
             boxSizing: 'border-box',
           }}
         />
+        {formData.nameHi && (
+          <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+            {formData.nameHi.length}/{pageValidations.categories.nameHi.maxLength} characters
+          </p>
+        )}
         {isTranslating && (
           <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
             Auto-translating...
@@ -110,8 +119,8 @@ const CategoryFormModal = ({
         onChange={onKeyChange}
         required
         placeholder="e.g., general, obc, sc"
-        helperText="Unique key for the category (lowercase, no spaces)"
         error={errors.key}
+        validationConfig={pageValidations.categories.key}
       />
 
       <FormActions

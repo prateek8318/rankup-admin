@@ -6,6 +6,7 @@ import FormSelect from '@/components/common/FormSelect';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 import MasterModal from '@/components/common/MasterModal';
 import NameTranslationFields from '@/features/master/shared/components/NameTranslationFields';
+import { pageValidations } from '@/utils/validationConfig';
 import { CountryDto, CreateStateDto, LanguageDto, StateDto } from '@/services/masterApi';
 import styles from '@/styles/pages/States.module.css';
 
@@ -58,6 +59,7 @@ const StateFormModal = ({
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
         error={errors.name}
+        validationConfig={pageValidations.states.name}
       />
 
       <FormSelect
@@ -80,9 +82,8 @@ const StateFormModal = ({
         onChange={onCodeChange}
         required
         placeholder="e.g., BR, MH, UP"
-        maxLength={2}
-        helperText="2-letter state code (e.g., BR for Bihar)"
         error={errors.code}
+        validationConfig={pageValidations.states.code}
       />
 
       <LanguageChecklistPicker

@@ -4,6 +4,7 @@ import FormCheckbox from '@/components/common/FormCheckbox';
 import FormInput from '@/components/common/FormInput';
 import FormTextarea from '@/components/common/FormTextarea';
 import MasterModal from '@/components/common/MasterModal';
+import { pageValidations } from '@/utils/validationConfig';
 import { CreateSubjectDto, LanguageDto, SubjectDto } from '@/services/masterApi';
 import SubjectTranslationFields from './SubjectTranslationFields';
 
@@ -47,6 +48,7 @@ const SubjectFormModal = ({
         value={formData.name}
         onChange={onNameChange}
         required
+        validationConfig={pageValidations.subjects.name}
       />
 
       <FormTextarea

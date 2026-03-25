@@ -1,4 +1,7 @@
 import React from 'react';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
+import viewIcon from '@/assets/icons/view.png';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { SubscriptionPlanDto } from '@/services/subscriptionPlansApi';
 import { SubscriptionsPagination } from './SubscriptionsPagination';
@@ -14,6 +17,9 @@ interface SubscriptionsTableProps {
   handleTogglePopular: (id: number) => void;
   handleToggleRecommended: (id: number) => void;
   handleToggleActive: (id: number) => void;
+  handleView: (plan: SubscriptionPlanDto) => void;
+  handleEdit: (plan: SubscriptionPlanDto) => void;
+  handleDelete: (id: number) => void;
   currentPage: number;
   totalPlans: number;
 }
@@ -28,6 +34,9 @@ export const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
   handleTogglePopular,
   handleToggleRecommended,
   handleToggleActive,
+  handleView,
+  handleEdit,
+  handleDelete,
   currentPage,
   totalPlans,
 }) => {
@@ -101,9 +110,15 @@ export const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
                     />
                   </td>
                   <td className={styles.tableBodyCell}>
-                    <button className={styles.tableActionBtn}>View</button>
-                    <button className={styles.tableActionBtn}>Edit</button>
-                    <button className={styles.tableActionBtnDanger}>Delete</button>
+                    <button onClick={() => handleView(p)} className={styles.iconButton} title="View">
+                      <img src={viewIcon} alt="View" style={{ width: 16 }} />
+                    </button>
+                    <button onClick={() => handleEdit(p)} className={styles.iconButton} title="Edit">
+                      <img src={editIcon} alt="Edit" style={{ width: 16 }} />
+                    </button>
+                    <button onClick={() => handleDelete(p.id)} className={styles.iconButton} title="Delete">
+                      <img src={deleteIcon} alt="Delete" style={{ width: 16 }} />
+                    </button>
                   </td>
                 </tr>
               );

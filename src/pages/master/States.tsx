@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import MasterHeader from '@/components/common/MasterHeader';
 import MasterTable from '@/components/common/MasterTable';
 import StateFormModal from '@/features/master/states/components/StateFormModal';
@@ -7,6 +7,10 @@ import { useStateForm } from '@/features/master/states/hooks/useStateForm';
 import { filterStates } from '@/features/master/states/stateUtils';
 import { useStates } from '@/hooks/useStates';
 import Loader from '@/components/common/Loader';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { DeleteConfirmation } from '@/components/common/DeleteConfirmation';
+import { createDeleteConfirmationConfig } from '@/utils/deleteUtils';
+import { useLanguageFilterForMasterHeader } from '@/components/common/LanguageFilter';
 
 const States = () => {
   const [selectedLanguageId, setSelectedLanguageId] = useState<number | undefined>(undefined);
@@ -21,6 +25,32 @@ const States = () => {
     deleteState,
     saveState,
   } = useStates(selectedLanguageId, selectedCountryCode);
+
+  // Use global language filter
+  const languageFilter = useLanguageFilterForMasterHeader<number | null>(languages, {
+    valueType: 'id',
+    initialValue: null,
+    includeAll: true,
+  });
+
+  // Sync language filter with selectedLanguageId
+  useEffect(() => {
+    setSelectedLanguageId(languageFilter.selectedValue === null ? undefined : languageFilter.selectedValue);
+  }, [languageFilter.selectedValue]);
+
+  const {
+    pendingDeleteId,
+    pendingDeleteLabel,
+    isDeleting,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
+  } = useDeleteConfirmation(
+    createDeleteConfirmationConfig(
+      deleteState,
+      (state: any) => state.name || 'State'
+    )
+  );
 
   const {
     editingState,
@@ -41,13 +71,13 @@ const States = () => {
   } = useStateForm({ languages, saveState });
 
   const filteredStateRows = useMemo(
-    () => filterStates(states, searchTerm, selectedLanguageId),
-    [searchTerm, selectedLanguageId, states],
+    () => filterStates(states, searchTerm, languageFilter.selectedValue || undefined),
+    [searchTerm, languageFilter.selectedValue, states],
   );
 
   const columns = useMemo(
-    () => createStateTableColumns(countries, languages, selectedLanguageId),
-    [countries, languages, selectedLanguageId],
+    () => createStateTableColumns(countries, languages, languageFilter.selectedValue || undefined),
+    [countries, languages, languageFilter.selectedValue],
   );
 
   return (
@@ -61,13 +91,7 @@ const States = () => {
         addButtonLabel="Add State"
         onAddClick={openCreateModal}
         filters={[
-          {
-            key: 'language',
-            label: 'Language',
-            value: selectedLanguageId ?? null,
-            options: languages.map((language) => ({ value: language.id, label: language.name })),
-            onChange: (value) => setSelectedLanguageId(value ? Number(value) : undefined),
-          },
+          languageFilter.filter,
           {
             key: 'country',
             label: 'Country',
@@ -83,9 +107,17 @@ const States = () => {
         data={filteredStateRows}
         loading={false}
         onEdit={openEditModal}
-        onDelete={(item) => deleteState(item.id)}
+        onDelete={requestDelete}
         emptyMessage="No states found."
         loadingMessage="Loading states..."
+      />
+
+      <DeleteConfirmation
+        pendingDeleteId={pendingDeleteId}
+        pendingDeleteLabel={pendingDeleteLabel}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
 
       <StateFormModal

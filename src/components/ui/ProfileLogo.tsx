@@ -24,7 +24,13 @@ const ProfileLogo: React.FC = () => {
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
-  const handleLogout = () => { logout(); navigate('/'); };
+  const handleLogout = () => { 
+  logout(); 
+  // Small delay to let the user see the success message
+  setTimeout(() => {
+    navigate('/');
+  }, 500);
+};
   const handleProfileOpen = () => { setOpenProfile(true); handleCloseMenu(); };
   const handleProfileClose = () => setOpenProfile(false);
 

@@ -5,6 +5,7 @@ import FormSelect from '@/components/common/FormSelect';
 import FormTextarea from '@/components/common/FormTextarea';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 import MasterModal from '@/components/common/MasterModal';
+import { pageValidations } from '@/utils/validationConfig';
 import { CreateStreamDto, LanguageDto, QualificationDto, StreamDto } from '@/types/qualification';
 import styles from '@/styles/pages/Streams.module.css';
 import StreamTranslationFields from './StreamTranslationFields';
@@ -67,6 +68,7 @@ const StreamFormModal = ({
         value={formData.name}
         onChange={onNameChange}
         required
+        validationConfig={pageValidations.streams.name}
         labelSuffix={isTranslating ? (
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
