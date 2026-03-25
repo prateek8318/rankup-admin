@@ -236,6 +236,13 @@
   font-weight: 500;
 }
 
+.iconButton {
+  background: none;
+  border: none;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
 .paginationContainer {
   display: flex;
   justify-content: space-between;

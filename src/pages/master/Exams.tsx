@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import DeleteModal from '@/components/common/DeleteModal';
 import { useExams } from '@/hooks/useExams';
 import ExamCropModal from '@/features/master/exams/components/ExamCropModal';
 import ExamFormModal from '@/features/master/exams/components/ExamFormModal';
@@ -9,6 +10,12 @@ import styles from '@/styles/pages/Exams.module.css';
 import Loader from '@/components/common/Loader';
 
 const Exams = () => {
+  const [filterLanguageId, setFilterLanguageId] = useState<number | null>(null);
+  const [regionFilter, setRegionFilter] = useState<RegionFilter>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingDeleteLabel, setPendingDeleteLabel] = useState<string | null>(null);
+
   const {
     exams,
     qualifications,
@@ -20,10 +27,6 @@ const Exams = () => {
     removeExam,
     saveExam,
   } = useExams();
-
-  const [filterLanguageId, setFilterLanguageId] = useState<number | null>(null);
-  const [regionFilter, setRegionFilter] = useState<RegionFilter>('all');
-  const [searchTerm, setSearchTerm] = useState('');
 
   const {
     crop,
@@ -57,6 +60,24 @@ const Exams = () => {
     () => filterExams(exams, searchTerm, regionFilter),
     [exams, regionFilter, searchTerm],
   );
+
+  const requestDeleteExam = (exam: any) => {
+    setPendingDeleteId(exam.id);
+    setPendingDeleteLabel(exam.name || 'Exam');
+  };
+
+  const confirmDeleteExam = async () => {
+    if (pendingDeleteId) {
+      await removeExam(Number(pendingDeleteId));
+      setPendingDeleteId(null);
+      setPendingDeleteLabel(null);
+    }
+  };
+
+  const cancelDeleteExam = () => {
+    setPendingDeleteId(null);
+    setPendingDeleteLabel(null);
+  };
 
   return (
     <>
@@ -103,7 +124,15 @@ const Exams = () => {
         languages={languages}
         loading={false}
         onEdit={openEditModal}
-        onDelete={(id) => removeExam(id)}
+        onDelete={requestDeleteExam}
+      />
+
+      <DeleteModal
+        open={Boolean(pendingDeleteId)}
+        onConfirm={confirmDeleteExam}
+        onCancel={cancelDeleteExam}
+        title="Confirm Delete"
+        content={`Are you sure you want to delete${pendingDeleteLabel ? ` "${pendingDeleteLabel}"` : ' this'}? This action cannot be undone.`}
       />
 
       <ExamFormModal

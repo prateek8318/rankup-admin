@@ -6,6 +6,7 @@ import FormTextarea from '@/components/common/FormTextarea';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 import MasterModal from '@/components/common/MasterModal';
 import NameDescriptionTranslationFields from '@/features/master/shared/components/NameDescriptionTranslationFields';
+import { pageValidations } from '@/utils/validationConfig';
 import { CreateQualificationDto, LanguageDto, QualificationDto } from '@/types/qualification';
 import styles from '@/styles/pages/Qualifications.module.css';
 
@@ -69,6 +70,7 @@ const QualificationFormModal = ({
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
         error={errors.name}
+        validationConfig={pageValidations.qualifications.name}
       />
 
       <FormTextarea

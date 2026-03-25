@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
-import {
-  getSubscriptionPlansList,
-  getSubscriptionPlanStats,
-  getFilteredSubscriptionPlans,
-  togglePopularStatus,
-  toggleRecommendedStatus,
-  toggleActiveStatus,
-  type SubscriptionPlanDto,
-} from '@/services/subscriptionPlansApi';
+import subscriptionService from '@/services/subscriptionService';
 import { notificationService } from '@/services/notificationService';
+
+interface SubscriptionPlanDto {
+  id: number;
+  name: string;
+  price: number;
+  duration: number;
+  durationType: string;
+  examType?: string;
+  isPopular: boolean;
+  isRecommended: boolean;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export const useSubscriptions = () => {
   const [plans, setPlans] = useState<SubscriptionPlanDto[]>([]);
@@ -42,31 +48,54 @@ export const useSubscriptions = () => {
       if (recommended !== '') params.isRecommended = recommended === 'true';
 
       const res = (examType || popular || recommended)
-        ? await getFilteredSubscriptionPlans(params)
-        : await getSubscriptionPlansList({ page: currentPage, pageSize: 10 });
+        ? await subscriptionService.getFilteredPlans(params)
+        : await subscriptionService.getAllPlans();
 
-      if (res.success) {
-        let filtered = res.data || [];
+      let filtered: SubscriptionPlanDto[] = [];
+      if (res && Array.isArray(res)) {
+        filtered = res;
         if (searchTerm) {
-          filtered = filtered.filter(p =>
+          filtered = filtered.filter((p: SubscriptionPlanDto) =>
             p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.examType?.toLowerCase().includes(searchTerm.toLowerCase())
           );
         }
         setPlans(filtered);
-        setTotalPlans(res.pagination?.totalCount || filtered.length);
+        setTotalPlans(filtered.length);
       }
 
-      const s = await getSubscriptionPlanStats();
-      setStats({
-        totalPlans: s.totalPlans || 0,
-        activePlans: s.activePlans || 0,
-        popularPlans: s.popularPlans || 0,
-        recommendedPlans: s.recommendedPlans || 0,
-        expiringSoon: s.expiringSoon || 0,
-        newSubscribers: s.newSubscribers || 0,
-        avgPrice: s.avgPrice || 0
-      });
+      // Try to get stats, but handle error gracefully if endpoint doesn't exist
+      try {
+        const statsResponse = await subscriptionService.getPlanStats();
+        const stats = statsResponse as any;
+        setStats({
+          totalPlans: stats.totalPlans || filtered.length || 0,
+          activePlans: stats.activePlans || 0,
+          popularPlans: stats.popularPlans || 0,
+          recommendedPlans: stats.recommendedPlans || 0,
+          expiringSoon: stats.expiringSoon || 0,
+          newSubscribers: stats.newSubscribers || 0,
+          avgPrice: stats.avgPrice || 0
+        });
+      } catch (statsError) {
+        console.warn('Stats endpoint not available, using calculated stats:', statsError);
+        // Calculate stats from the plans data if API fails
+        const currentPlans = filtered.length > 0 ? filtered : plans;
+        const activePlans = currentPlans.filter((p: SubscriptionPlanDto) => p.isActive).length;
+        const popularPlans = currentPlans.filter((p: SubscriptionPlanDto) => p.isPopular).length;
+        const recommendedPlans = currentPlans.filter((p: SubscriptionPlanDto) => p.isRecommended).length;
+        const avgPrice = currentPlans.length > 0 ? currentPlans.reduce((sum: number, p: SubscriptionPlanDto) => sum + p.price, 0) / currentPlans.length : 0;
+        
+        setStats({
+          totalPlans: currentPlans.length,
+          activePlans,
+          popularPlans,
+          recommendedPlans,
+          expiringSoon: 0,
+          newSubscribers: 0,
+          avgPrice
+        });
+      }
     } catch (err) {
       notificationService.error('Failed to fetch subscriptions data.');
       console.error(err);
@@ -81,7 +110,7 @@ export const useSubscriptions = () => {
 
   const handleTogglePopular = async (planId: number) => {
     try {
-      await togglePopularStatus(planId);
+      await subscriptionService.togglePopular(planId.toString());
       await fetchData();
       notificationService.success('Subscription popular status updated');
     } catch (error) {
@@ -92,7 +121,7 @@ export const useSubscriptions = () => {
 
   const handleToggleRecommended = async (planId: number) => {
     try {
-      await toggleRecommendedStatus(planId);
+      await subscriptionService.toggleRecommended(planId.toString());
       await fetchData();
       notificationService.success('Subscription recommended status updated');
     } catch (error) {
@@ -103,7 +132,7 @@ export const useSubscriptions = () => {
 
   const handleToggleActive = async (planId: number) => {
     try {
-      await toggleActiveStatus(planId);
+      await subscriptionService.toggleStatus(planId.toString());
       await fetchData();
       notificationService.success('Subscription active status updated');
     } catch (error) {
@@ -131,6 +160,29 @@ export const useSubscriptions = () => {
     setPrice('');
   };
 
+  const handleView = (plan: SubscriptionPlanDto) => {
+    console.log('View plan:', plan);
+    // TODO: Implement view functionality (e.g., open modal with plan details)
+  };
+
+  const handleEdit = (plan: SubscriptionPlanDto) => {
+    console.log('Edit plan:', plan);
+    // TODO: Implement edit functionality (e.g., open edit modal)
+  };
+
+  const handleDelete = async (planId: number) => {
+    if (window.confirm('Are you sure you want to delete this subscription plan?')) {
+      try {
+        await subscriptionService.deletePlan(planId.toString());
+        notificationService.success('Subscription plan deleted successfully');
+        await fetchData();
+      } catch (error) {
+        notificationService.error('Failed to delete subscription plan');
+        console.error(error);
+      }
+    }
+  };
+
   return {
     plans,
     loading,
@@ -156,6 +208,9 @@ export const useSubscriptions = () => {
     handleTogglePopular,
     handleToggleRecommended,
     handleToggleActive,
+    handleView,
+    handleEdit,
+    handleDelete,
     getPlanId,
     handleSelect,
     handleSelectAll,

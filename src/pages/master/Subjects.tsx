@@ -7,6 +7,9 @@ import { createSubjectTableColumns } from '@/features/master/subjects/createSubj
 import { useSubjectForm } from '@/features/master/subjects/hooks/useSubjectForm';
 import { useSubjects } from '@/features/master/subjects/hooks/useSubjects';
 import { filterSubjects } from '@/features/master/subjects/subjectUtils';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { DeleteConfirmation } from '@/components/common/DeleteConfirmation';
+import { createDeleteConfirmationConfig } from '@/utils/deleteUtils';
 
 const Subjects = () => {
   const [selectedLanguageIdFilter, setSelectedLanguageIdFilter] = useState<number | null>(null);
@@ -19,6 +22,20 @@ const Subjects = () => {
     saveSubject,
     subjects,
   } = useSubjects(selectedLanguageIdFilter);
+
+  const {
+    pendingDeleteId,
+    pendingDeleteLabel,
+    isDeleting,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
+  } = useDeleteConfirmation(
+    createDeleteConfirmationConfig(
+      deleteSubject,
+      (subject: any) => subject.name || 'Subject'
+    )
+  );
 
   const {
     autoTranslate,
@@ -74,9 +91,17 @@ const Subjects = () => {
         columns={columns}
         data={filteredSubjects}
         onEdit={openEditModal}
-        onDelete={(item) => deleteSubject(item.id)}
+        onDelete={requestDelete}
         emptyMessage="No subjects found."
         loadingMessage="Loading subjects..."
+      />
+
+      <DeleteConfirmation
+        pendingDeleteId={pendingDeleteId}
+        pendingDeleteLabel={pendingDeleteLabel}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
 
       <SubjectFormModal

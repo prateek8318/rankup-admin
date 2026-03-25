@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import logo from '@/assets/images/rankup-logo.png';
 import categoryIcon from '@/assets/icons/category.png';
 import cmsIcon from '@/assets/icons/cms.png';
@@ -77,12 +78,21 @@ const masterItems: MenuGroupItem = {
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [openGroups, setOpenGroups] = useState<Record<MenuGroupItem['key'], boolean>>({
     master: false,
     reports: false,
     settings: false,
     cms: false,
   });
+
+  const handleLogout = () => {
+    logout();
+    setTimeout(() => {
+      navigate('/login');
+    }, 500);
+  };
 
   const isActivePath = (path: string) => location.pathname === path;
 
@@ -108,6 +118,22 @@ const Sidebar = () => {
 
   const renderLink = (item: MenuLinkItem) => {
     const isActive = isActivePath(item.path);
+
+    // Handle logout specially
+    if (item.path === '/login') {
+      return (
+        <button
+          key={item.path}
+          onClick={handleLogout}
+          className={`${styles.menuLink} ${styles.menuLinkButton}`}
+        >
+          <span className={styles.menuLabel}>
+            <img src={item.icon} alt="" className={styles.menuIcon} />
+            <span>{item.label}</span>
+          </span>
+        </button>
+      );
+    }
 
     return (
       <Link

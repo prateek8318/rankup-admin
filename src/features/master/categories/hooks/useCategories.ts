@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { categoryApi, CategoryDto, CreateCategoryDto } from '@/services/masterApi';
-import { errorHandlingService } from '@/services/errorHandlingService';
+import { getUserFriendlyErrorMessage } from '@/services/errorHandlingService';
 import { notificationService } from '@/services/notificationService';
+import { useMasterDataStore } from '@/context/MasterDataContext';
 
 export type CategoryLanguage = 'en' | 'hi';
 
@@ -27,36 +28,65 @@ const normalizeCategories = (response: any): CategoryDto[] => {
 
 export const useCategories = (selectedLanguage: CategoryLanguage) => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { featureState, dispatch } = useMasterDataStore('categories');
 
   const fetchCategories = useCallback(async () => {
     try {
-      setLoading(true);
+      dispatch({ type: 'FETCH_START', feature: 'categories' });
       const response = await categoryApi.getCategories(selectedLanguage);
       setCategories(normalizeCategories(response));
+      dispatch({ type: 'FETCH_SUCCESS', feature: 'categories' });
     } catch (error) {
-      errorHandlingService.handleError(error, 'fetchCategories');
+      dispatch({
+        type: 'REQUEST_ERROR',
+        feature: 'categories',
+        message: getUserFriendlyErrorMessage(error),
+      });
       setCategories([]);
-    } finally {
-      setLoading(false);
     }
-  }, [selectedLanguage]);
+  }, [dispatch, selectedLanguage]);
 
   useEffect(() => {
     void fetchCategories();
   }, [fetchCategories]);
 
-  const deleteCategory = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) {
+  const requestDeleteCategory = (category: CategoryDto) => {
+    dispatch({
+      type: 'SET_PENDING_DELETE',
+      feature: 'categories',
+      id: category.id,
+      label: category.nameEn,
+    });
+  };
+
+  const cancelDeleteCategory = () => {
+    dispatch({ type: 'RESET_DELETE_STATE', feature: 'categories' });
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!featureState.pendingDeleteId) {
       return;
     }
-
     try {
-      await categoryApi.delete(id);
+      dispatch({
+        type: 'DELETE_START',
+        feature: 'categories',
+        id: featureState.pendingDeleteId,
+      });
+      await categoryApi.delete(featureState.pendingDeleteId);
       await fetchCategories();
+      dispatch({
+        type: 'DELETE_SUCCESS',
+        feature: 'categories',
+        message: 'Category deleted successfully',
+      });
       notificationService.success('Category deleted successfully');
     } catch (error) {
-      errorHandlingService.handleError(error, 'deleteCategory');
+      dispatch({
+        type: 'REQUEST_ERROR',
+        feature: 'categories',
+        message: getUserFriendlyErrorMessage(error),
+      });
     }
   };
 
@@ -65,10 +95,7 @@ export const useCategories = (selectedLanguage: CategoryLanguage) => {
     editingCategory: CategoryDto | null,
   ) => {
     try {
-      // Log the request payload for debugging
-      console.log('Saving category with data:', formData);
-      
-      // Validate required fields
+      dispatch({ type: 'SAVE_START', feature: 'categories' });
       if (!formData.nameEn?.trim()) {
         throw new Error('English name is required');
       }
@@ -81,24 +108,51 @@ export const useCategories = (selectedLanguage: CategoryLanguage) => {
 
       if (editingCategory) {
         await categoryApi.update(editingCategory.id, { ...formData, id: editingCategory.id });
+        dispatch({
+          type: 'SAVE_SUCCESS',
+          feature: 'categories',
+          message: 'Category updated successfully',
+        });
         notificationService.success('Category updated successfully');
       } else {
         await categoryApi.create(formData);
+        dispatch({
+          type: 'SAVE_SUCCESS',
+          feature: 'categories',
+          message: 'Category created successfully',
+        });
         notificationService.success('Category created successfully');
       }
 
       await fetchCategories();
       return true;
     } catch (error) {
-      errorHandlingService.handleError(error, 'saveCategory');
+      dispatch({
+        type: 'REQUEST_ERROR',
+        feature: 'categories',
+        message: getUserFriendlyErrorMessage(error),
+      });
       return false;
     }
   };
 
+  const clearSuccessMessage = () => {
+    dispatch({ type: 'CLEAR_SUCCESS', feature: 'categories' });
+  };
+
   return {
     categories,
-    deleteCategory,
-    loading,
+    requestDeleteCategory,
+    confirmDeleteCategory,
+    cancelDeleteCategory,
+    pendingDeleteId: featureState.pendingDeleteId,
+    pendingDeleteLabel: featureState.pendingDeleteLabel,
+    loading: featureState.loading,
+    saving: featureState.saving,
+    deletingId: featureState.deletingId,
+    error: featureState.error,
+    successMessage: featureState.successMessage,
+    clearSuccessMessage,
     saveCategory,
   };
 };

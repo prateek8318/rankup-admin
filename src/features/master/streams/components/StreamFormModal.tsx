@@ -5,6 +5,7 @@ import FormSelect from '@/components/common/FormSelect';
 import FormTextarea from '@/components/common/FormTextarea';
 import LanguageChecklistPicker from '@/components/common/LanguageChecklistPicker';
 import MasterModal from '@/components/common/MasterModal';
+import { pageValidations } from '@/utils/validationConfig';
 import { CreateStreamDto, LanguageDto, QualificationDto, StreamDto } from '@/types/qualification';
 import styles from '@/styles/pages/Streams.module.css';
 import StreamTranslationFields from './StreamTranslationFields';
@@ -19,6 +20,7 @@ interface StreamFormModalProps {
   languagesLoading: boolean;
   autoTranslate: boolean;
   isTranslating: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void | Promise<void>;
   onNameChange: (value: string) => void;
@@ -43,6 +45,7 @@ const StreamFormModal = ({
   languagesLoading,
   autoTranslate,
   isTranslating,
+  isSubmitting,
   onClose,
   onSubmit,
   onNameChange,
@@ -56,6 +59,8 @@ const StreamFormModal = ({
     isOpen={isOpen}
     title={editingStream ? 'Edit Stream' : 'Add Stream'}
     width={600}
+    onClose={isSubmitting ? undefined : onClose}
+    disableClose={isSubmitting}
   >
     <form onSubmit={onSubmit}>
       <FormInput
@@ -63,6 +68,7 @@ const StreamFormModal = ({
         value={formData.name}
         onChange={onNameChange}
         required
+        validationConfig={pageValidations.streams.name}
         labelSuffix={isTranslating ? (
           <span className={styles.translatingText}>(Translating...)</span>
         ) : null}
@@ -108,8 +114,8 @@ const StreamFormModal = ({
 
       <FormActions
         onCancel={onClose}
-        submitLabel={isTranslating ? 'Translating...' : editingStream ? 'Update' : 'Create'}
-        disabled={isTranslating}
+        submitLabel={isSubmitting ? 'Saving...' : isTranslating ? 'Translating...' : editingStream ? 'Update' : 'Create'}
+        disabled={isSubmitting || isTranslating}
       />
     </form>
   </MasterModal>

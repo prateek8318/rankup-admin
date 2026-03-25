@@ -2,6 +2,9 @@ import type { ExamDto } from '@/services';
 import DeleteModal from '@/components/common/DeleteModal';
 import ExamCard from '@/components/exams/ExamCard';
 import Loader from '@/components/common/Loader';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
+import viewIcon from '@/assets/icons/view.png';
 import { formatExamDate, formatExamDuration, useExamsManagement } from '@/features/exams/hooks/useExamsManagement';
 import { notificationService } from '@/services/notificationService';
 import styles from '@/styles/features/ExamsManagement.module.css';
@@ -260,14 +263,14 @@ export const ExamsManagementContent: React.FC = () => {
                       </td>
                       <td className={styles.tableCell}>
                         <div className={styles.actionButtons}>
-                          <button type="button" className={styles.linkButton} onClick={() => handleViewExam(exam)}>
-                            View
+                          <button type="button" className={styles.iconButton} onClick={() => handleViewExam(exam)} title="View">
+                            <img src={viewIcon} alt="View" style={{ width: 16 }} />
                           </button>
-                          <button type="button" className={styles.linkButton} onClick={() => handleEditExam(exam)}>
-                            Edit
+                          <button type="button" className={styles.iconButton} onClick={() => handleEditExam(exam)} title="Edit">
+                            <img src={editIcon} alt="Edit" style={{ width: 16 }} />
                           </button>
-                          <button type="button" className={styles.dangerLinkButton} onClick={() => handleDeleteRequest(exam)}>
-                            Delete
+                          <button type="button" className={styles.iconButton} onClick={() => handleDeleteRequest(exam)} title="Delete">
+                            <img src={deleteIcon} alt="Delete" style={{ width: 16 }} />
                           </button>
                         </div>
                       </td>

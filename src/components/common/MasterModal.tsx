@@ -1,4 +1,5 @@
 import React from 'react';
+import { CrossIcon } from './CrossIcon';
 
 export interface MasterModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ export interface MasterModalProps {
   width?: string | number;
   maxWidth?: string;
   onClose?: () => void;
+  disableClose?: boolean;
 }
 
 const MasterModal: React.FC<MasterModalProps> = ({
@@ -15,7 +17,8 @@ const MasterModal: React.FC<MasterModalProps> = ({
   children,
   width = "500px",
   maxWidth = "90%",
-  onClose
+  onClose,
+  disableClose = false,
 }) => {
   if (!isOpen) return null;
 
@@ -32,7 +35,7 @@ const MasterModal: React.FC<MasterModalProps> = ({
       justifyContent: "center",
       zIndex: 1000
     }}
-    onClick={onClose}
+    onClick={disableClose ? undefined : onClose}
     >
       <div style={{
         background: "#fff",
@@ -50,31 +53,10 @@ const MasterModal: React.FC<MasterModalProps> = ({
             {title}
           </h3>
           {onClose && (
-            <button
+            <CrossIcon
               onClick={onClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#6b7280',
-                padding: '0',
-                width: '30px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '4px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              ×
-            </button>
+              disabled={disableClose}
+            />
           )}
         </div>
         

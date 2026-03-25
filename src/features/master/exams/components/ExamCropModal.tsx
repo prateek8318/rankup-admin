@@ -1,4 +1,5 @@
 import Cropper from 'react-easy-crop';
+import { CrossIcon } from '@/components/common/CrossIcon';
 import styles from '@/styles/pages/Exams.module.css';
 
 interface ExamCropModalProps {
@@ -31,7 +32,10 @@ const ExamCropModal = ({
   return (
     <div className={styles.cropperOverlay}>
       <div className={styles.cropperModal}>
-        <h3 className={styles.cropperTitle}>Crop Image</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 className={styles.cropperTitle}>Crop Image</h3>
+          <CrossIcon onClick={onCancel} />
+        </div>
         <div className={styles.cropperContainer}>
           <Cropper
             image={URL.createObjectURL(imageFile)}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getUsersList, type UserDto } from '@/services/usersApi';
 import { getUsersCount } from '@/services/dashboardApi';
+import apiClient from '@/services/apiClient';
 
 export type User = UserDto;
 
@@ -144,22 +145,18 @@ export const useUsers = () => {
       try {
         const countData = await getUsersCount();
 
-        const dailyActiveResponse = await fetch('/api/admin/users/daily-active-count', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
         let dailyActiveCount = 0;
-        if (dailyActiveResponse.ok) {
-          const dailyActiveData = await dailyActiveResponse.json();
+        try {
+          const dailyActiveResponse = await apiClient.get('/api/admin/users/daily-active-count');
+          const dailyActiveData = dailyActiveResponse.data;
+
           if (dailyActiveData.success && dailyActiveData.data) {
             dailyActiveCount = dailyActiveData.data.dailyActiveUsers || 0;
           } else {
             dailyActiveCount = dailyActiveData.dailyActiveUsers || dailyActiveData.count || 0;
           }
+        } catch (error) {
+          dailyActiveCount = 0;
         }
 
         if (countData && typeof countData === 'object') {

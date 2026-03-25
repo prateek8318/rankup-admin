@@ -22,14 +22,16 @@ const FormActions: React.FC<FormActionsProps> = ({
       <button
         type="button"
         onClick={onCancel}
+        disabled={disabled}
         style={{
           padding: "10px 20px",
           borderRadius: 8,
           border: "1px solid #e5e7eb",
           background: "#fff",
           fontSize: "14px",
-          cursor: "pointer",
-          color: "#374151"
+          cursor: disabled ? "not-allowed" : "pointer",
+          color: "#374151",
+          opacity: disabled ? 0.7 : 1
         }}
       >
         {cancelLabel}

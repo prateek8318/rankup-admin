@@ -46,6 +46,15 @@ export interface ApiEndpointsShape {
       GET_FILTERED: string;
       GET_ACTIVE: string;
     };
+    USER_SUBSCRIPTIONS: {
+      CREATE: string;
+      GET_MY_SUBSCRIPTION: string;
+      GET_HISTORY: string;
+      ACTIVATE: string;
+      CANCEL: string;
+      RENEW: string;
+      DELETE: (id: string) => string;
+    };
   };
   DASHBOARD: {
     OVERVIEW: string;
@@ -171,6 +180,15 @@ export const apiEndpoints = {
       GET_STATS: '/api/admin/subscription-plans/stats',
       GET_FILTERED: '/api/admin/subscription-plans/filtered',
       GET_ACTIVE: '/api/admin/subscription-plans/active',
+    },
+    USER_SUBSCRIPTIONS: {
+      CREATE: '/api/user/subscriptions',
+      GET_MY_SUBSCRIPTION: '/api/user/subscriptions/my-subscription',
+      GET_HISTORY: '/api/user/subscriptions/history',
+      ACTIVATE: '/api/user/subscriptions/activate',
+      CANCEL: '/api/user/subscriptions/cancel',
+      RENEW: '/api/admin/user-subscriptions/renew',
+      DELETE: (id: string) => `/api/admin/user-subscriptions/${id}`,
     },
   },
   DASHBOARD: {

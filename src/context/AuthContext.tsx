@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import apiClient from "@/services/apiClient";
 import { apiEndpoints } from "@/services/apiEndpoints";
-import { appConfig } from "@/services/appConfig";
 import type { AuthState, TwoFactorData } from "@/types";
+import { authApi } from "@/features/auth/services/authApi";
+import { parseApiError } from "@/services/errorHandlingService";
+import { notificationService } from "@/services/notificationService";
 
 interface AuthContextType {
   auth: AuthState;
@@ -37,9 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async ({ email, password }: { email: string; password: string }) => {
     try {
-      const response = await apiClient.post(apiEndpoints.AUTH.LOGIN, {
-        email,
-        password,
+      const response = await apiClient.post(apiEndpoints.AUTH.LOGIN, { email, password }, {
+        skipGlobalErrorHandler: true,
       });
 
       if (response.data.requiresTwoFactor) {
@@ -67,24 +67,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("Token not found in response");
       }
     } catch (error: unknown) {
-      ;
-      const err = error as { code?: string; message?: string; response?: { data?: { message?: string } } };
-      if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+      const parsedError = parseApiError(error);
+      if (parsedError.code === 'NETWORK_ERROR') {
         return {
           success: false,
-          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.21:56924'
+          error: 'Network connection failed. Please check if the backend server is running at http://192.168.1.23:56924'
         };
       }
       return {
         success: false,
-        error: err.response?.data?.message || err.message || 'Login failed. Please check your credentials.'
+        error: parsedError.message || 'Login failed. Please check your credentials.'
       };
     }
   };
 
   const forgotPassword = async (email: string) => {
     try {
-      await apiClient.post(apiEndpoints.AUTH.FORGOT_PASSWORD, { email });
+      await authApi.forgotPassword(email);
       return { success: true };
     } catch (error) {
       return { success: false };
@@ -96,36 +95,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: "No two-factor session found" };
     }
     try {
-      const response = await axios.post(
-        `${appConfig.apiBaseUrl}${apiEndpoints.AUTH.VERIFY_OTP}`,
-        { email: twoFactorData.email, otp },
-        { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }
-      );
+      const response = await authApi.verifyOTP(twoFactorData.email, otp);
 
-      if (response.data.success && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        if (response.data.refreshToken) {
-          localStorage.setItem("refreshToken", response.data.refreshToken);
+      if (response.success && response.token) {
+        localStorage.setItem("token", response.token);
+        if (response.refreshToken) {
+          localStorage.setItem("refreshToken", response.refreshToken);
         }
-        localStorage.setItem("admin", JSON.stringify(response.data.admin));
-        setAuth({ token: response.data.token, user: response.data.admin });
+        localStorage.setItem("admin", JSON.stringify(response.admin));
+        setAuth({ token: response.token, user: response.admin });
         setTwoFactorData(null);
+        
+        // Show success message for OTP verification
+        notificationService.success(
+          '✅ Verification Successful!',
+          'Two-factor authentication completed successfully.',
+          { duration: 3000 }
+        );
+        
         return { success: true };
       } else {
-        throw new Error(response.data.message || "OTP verification failed");
+        throw new Error(response.message || "OTP verification failed");
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      ;
-      return { success: false, error: err.response?.data?.message || err.message };
+      const parsedError = parseApiError(error);
+      notificationService.error(
+        '❌ Verification Failed',
+        parsedError.message || 'Invalid OTP. Please try again.'
+      );
+      return { success: false, error: parsedError.message };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setAuth({ token: null, user: null });
-    setTwoFactorData(null);
-  };
+  // Show logout success message using the global service
+  try {
+    notificationService.success(
+      '👋 Goodbye!', 
+      'You have been successfully logged out.',
+      { duration: 3000 }
+    );
+  } catch (error) {
+    // Fallback: simple alert
+    alert('👋 You have been successfully logged out.');
+  }
+  
+  // Clear auth state
+  localStorage.removeItem("token");
+  setAuth({ token: null, user: null });
+  setTwoFactorData(null);
+};
 
   const hasPermission = (sectionName: string, action: string) => {
     if (!auth.user?.role?.permission) return false;

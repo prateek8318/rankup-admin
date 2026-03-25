@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import editIcon from '@/assets/icons/edit.png';
+import deleteIcon from '@/assets/icons/delete.png';
+import viewIcon from '@/assets/icons/view.png';
 
 const Coupon = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,6 +75,23 @@ const Coupon = () => {
   const handleSelectAll = () => {
     if (selectedCoupons.length === coupons.length) setSelectedCoupons([]);
     else setSelectedCoupons(coupons.map(c => c.id));
+  };
+
+  const handleViewCoupon = (coupon: any) => {
+    console.log('View coupon:', coupon);
+    // TODO: Implement view functionality
+  };
+
+  const handleEditCoupon = (coupon: any) => {
+    console.log('Edit coupon:', coupon);
+    // TODO: Implement edit functionality
+  };
+
+  const handleDeleteCoupon = (couponId: string) => {
+    if (window.confirm('Are you sure you want to delete this coupon?')) {
+      console.log('Delete coupon:', couponId);
+      // TODO: Implement delete functionality
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -210,37 +230,40 @@ const Coupon = () => {
                       </span>
                     </td>
                     <td style={{ padding: "16px", fontSize: "14px" }}>
-                      <button style={{
-                        background: "none",
-                        border: "none",
-                        color: "#2563eb",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        marginRight: "8px",
-                        fontWeight: "500"
-                      }}>
-                        View
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          marginRight: "8px",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => handleViewCoupon(coupon)}
+                        title="View"
+                      >
+                        <img src={viewIcon} alt="View" style={{ width: 16 }} />
                       </button>
-                      <button style={{
-                        background: "none",
-                        border: "none",
-                        color: "#2563eb",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        marginRight: "8px",
-                        fontWeight: "500"
-                      }}>
-                        Edit
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          marginRight: "8px",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => handleEditCoupon(coupon)}
+                        title="Edit"
+                      >
+                        <img src={editIcon} alt="Edit" style={{ width: 16 }} />
                       </button>
-                      <button style={{
-                        background: "none",
-                        border: "none",
-                        color: "#dc2626",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "500"
-                      }}>
-                        Delete
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => handleDeleteCoupon(coupon.id)}
+                        title="Delete"
+                      >
+                        <img src={deleteIcon} alt="Delete" style={{ width: 16 }} />
                       </button>
                     </td>
                   </tr>

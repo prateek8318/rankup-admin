@@ -86,6 +86,7 @@ export const logError = (error: any, context?: string): ApiError => {
 
 export class ErrorHandlingService {
   private static instance: ErrorHandlingService;
+  private authRedirectInFlight = false;
 
   private constructor() {}
 
@@ -99,6 +100,11 @@ export class ErrorHandlingService {
   handleError(error: any, context?: string): ApiError {
     const apiError = parseApiError(error);
     logError(apiError, context);
+    if (apiError.status === 401) {
+      this.handleAuthError();
+      return apiError;
+    }
+
     this.showUserNotification(apiError);
     return apiError;
   }
@@ -109,8 +115,24 @@ export class ErrorHandlingService {
   }
 
   handleAuthError(): void {
+    if (this.authRedirectInFlight) {
+      return;
+    }
+
+    this.authRedirectInFlight = true;
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('admin');
     notificationService.warning('Session expired. Please log in again.');
-    window.location.href = '/login';
+
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+      return;
+    }
+
+    setTimeout(() => {
+      this.authRedirectInFlight = false;
+    }, 500);
   }
 
   handleValidationError(errors: Record<string, string>): void {

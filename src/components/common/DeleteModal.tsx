@@ -29,7 +29,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onOk={onConfirm}
       onCancel={onCancel}
       confirmLoading={loading}
-      okText="Delete"
+      okText="Confirm"
       cancelText="Cancel"
       okButtonProps={{
         danger: true,

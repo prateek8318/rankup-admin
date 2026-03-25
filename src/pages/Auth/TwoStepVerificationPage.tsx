@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { notificationService } from "@/services/notificationService";
+import { authApi } from '@/features/auth/services/authApi';
 import inFlag from '@/assets/images/in.png';
 
 import styles from '@/styles/auth/TwoStepVerificationPage.module.css';
@@ -18,15 +19,23 @@ const TwoStepVerificationPage: React.FC = () => {
   }
 
   const mobile = location.state?.mobileNumber || '+91 9876543210';
+  const email = location.state?.email || '';
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [verifying, setVerifying] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(30); // Changed from 60 to 30 seconds
+  const [isExpired, setIsExpired] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [resending, setResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    const timer = setInterval(() => setCountdown((prev) => (prev <= 1 ? 0 : prev - 1)), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (countdown > 0 && !isExpired) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0 && !isExpired) {
+      setIsExpired(true);
+    }
+  }, [countdown, isExpired]);
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
 
@@ -35,6 +44,7 @@ const TwoStepVerificationPage: React.FC = () => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+    setError(''); // Clear error when user starts typing
     if (value && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
@@ -44,13 +54,43 @@ const TwoStepVerificationPage: React.FC = () => {
 
   const isComplete = otp.every((d) => d !== '');
 
+  const handleResendOTP = async () => {
+    if (!email) return;
+    
+    setResending(true);
+    try {
+      // Use the same verify-otp endpoint with empty OTP to trigger resend
+      await authApi.verifyOTP(email, '');
+      notificationService.success('OTP resent successfully');
+      setCountdown(30);
+      setIsExpired(false);
+      setOtp(['', '', '', '', '', '']);
+      setError('');
+    } catch (error) {
+      notificationService.error('Failed to resend OTP');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleVerify = async () => {
     if (!isComplete) return;
+    
     setVerifying(true);
-    const { success } = await verifyOTP(otp.join(''));
-    if (success) navigate('/home');
-    else notificationService.error('Invalid OTP');
-    setVerifying(false);
+    setError('');
+    
+    try {
+      const { success, error: errorMessage } = await verifyOTP(otp.join(''));
+      if (success) {
+        navigate('/home');
+      } else {
+        setError(errorMessage || 'Invalid OTP. Please try again.');
+      }
+    } catch (error) {
+      setError('Invalid OTP. Please try again.');
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
@@ -64,8 +104,34 @@ const TwoStepVerificationPage: React.FC = () => {
           <div className={styles.verticalLine} />
           <input value={mobile} className={styles.mobileInput} readOnly />
         </div>
-        <div className={styles.resend}>Re-send</div>
-        <div className={styles.timer}>Didn't receive OTP SMS?<br />Send OTP again in <span className={styles.countdown}>{formatTime(countdown)} sec</span></div>
+
+        {/* Error Message Display */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+
+        {/* Timer and Resend Section */}
+        <div className={styles.timerSection}>
+          {!isExpired ? (
+            <div className={styles.timer}>
+              Didn't receive OTP SMS?<br />
+              Send OTP again in <span className={styles.countdown}>{formatTime(countdown)} sec</span>
+            </div>
+          ) : (
+            <div className={styles.resendSection}>
+              <span className={styles.expiredMessage}>OTP has expired</span>
+              <button 
+                className={styles.resendButton}
+                onClick={handleResendOTP}
+                disabled={resending}
+              >
+                {resending ? 'Resending...' : 'Resend OTP'}
+              </button>
+            </div>
+          )}
+        </div>
         <div style={{ fontSize: 14 }}>Enter verification code we have sent to</div>
         <div className={styles.mobileText}>{mobile}</div>
         <div className={styles.otpContainer}>

@@ -315,7 +315,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* TOP ROW - WHITE CARDS */}
-        <div style={{ display: "flex", gap: 45, marginBottom: 30, marginLeft: 40 }}>
+        <div style={{ display: "flex", gap: 45, marginBottom: 30, margin: "0 50px 30px 50px" }}>
           {topRowCards.map((card: any, index: number) => (
             <DashboardCard
               key={index}
@@ -331,14 +331,15 @@ const DashboardPage: React.FC = () => {
        
 
         {/* MAIN CONTENT AREA - CHART AND RIGHT SIDE CARDS */}
-        <div style={{ display: "flex", gap: 60, marginBottom: 30 }}>
+        <div style={{ display: "flex", gap: 60, marginBottom: 30, margin: "0 50px 30px 50px" }}>
           {/* EARNINGS CHART SECTION */}
           <div style={{ 
-            width: "calc(3 * 290px + 2 * 44px)", // Width of first 3 cards + gaps
+            width: "calc(3 * 275px + 2 * 45px)", // Width of first 3 cards + gaps
             height: 700,
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            flexShrink: 0
           }}>
             <img
               src={chartIcon}
@@ -352,7 +353,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
           {/* RIGHT SIDE STATIC CARDS */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 30, flex: 1 }}>
             <DashboardCard
               number="23"
               label="Open SUpport Tickets"

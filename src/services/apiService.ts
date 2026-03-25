@@ -1,74 +1,10 @@
-import Axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { errorHandlingService, ApiError } from './errorHandlingService';
+import { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { createApiClient } from './axios';
 
-// API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://api.rankupadmin.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.rankupadmin.com';
 
-// Create Axios instance with default configuration
-const createApiInstance = (): AxiosInstance => {
-  const instance = Axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 30000, // 30 seconds
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+const createApiInstance = (): AxiosInstance => createApiClient(String(API_BASE_URL));
 
-  // Request interceptor
-  instance.interceptors.request.use(
-    (config) => {
-      // Add auth token if available
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Add request timestamp for debugging
-      config.metadata = { startTime: new Date() };
-
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
-  // Response interceptor
-  instance.interceptors.response.use(
-    (response) => {
-      // Calculate request duration
-      const endTime = new Date();
-      const duration = endTime.getTime() - (response.config.metadata?.startTime?.getTime() || 0);
-      
-      // Log successful requests in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`API Success: ${response.config.method?.toUpperCase()} ${response.config.url} - ${duration}ms`);
-      }
-
-      return response;
-    },
-    (error) => {
-      // Handle errors globally
-      const apiError = errorHandlingService.handleError(error);
-      
-      // Handle specific error cases
-      if (apiError.status === 401) {
-        // Token expired or invalid
-        localStorage.removeItem('authToken');
-        window.location.href = '/login';
-      } else if (apiError.status === 403) {
-        // Insufficient permissions
-        console.warn('Access forbidden: insufficient permissions');
-      }
-
-      return Promise.reject(apiError);
-    }
-  );
-
-  return instance;
-};
-
-// API Service class
 export class ApiService {
   private static instance: ApiService;
   private axiosInstance: AxiosInstance;
@@ -84,7 +20,6 @@ export class ApiService {
     return ApiService.instance;
   }
 
-  // HTTP Methods
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.get<T>(url, config);
     return response.data;
@@ -110,31 +45,26 @@ export class ApiService {
     return response.data;
   }
 
-  // File upload
   async upload<T>(url: string, file: File, config?: AxiosRequestConfig): Promise<T> {
     const formData = new FormData();
     formData.append('file', file);
 
-    const uploadConfig: AxiosRequestConfig = {
+    const response = await this.axiosInstance.post<T>(url, formData, {
       ...config,
       headers: {
         'Content-Type': 'multipart/form-data',
         ...config?.headers,
       },
-      onUploadProgress: config?.onUploadProgress,
-    };
+    });
 
-    const response = await this.axiosInstance.post<T>(url, formData, uploadConfig);
     return response.data;
   }
 
-  // Download file
   async download(url: string, filename?: string): Promise<void> {
     const response = await this.axiosInstance.get(url, {
       responseType: 'blob',
     });
 
-    // Create download link
     const blob = new Blob([response.data]);
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -146,34 +76,26 @@ export class ApiService {
     window.URL.revokeObjectURL(downloadUrl);
   }
 
-  // Cancel request
   createCancelToken(): () => void {
-    const cancelTokenSource = Axios.CancelToken.source();
-    return () => cancelTokenSource.cancel('Request cancelled by user');
+    const controller = new AbortController();
+    return () => controller.abort();
   }
 
-  // Set auth token
   setAuthToken(token: string): void {
-    localStorage.setItem('authToken', token);
-    this.axiosInstance.defaults.headers.Authorization = `Bearer ${token}`;
+    localStorage.setItem('token', token);
   }
 
-  // Remove auth token
   removeAuthToken(): void {
-    localStorage.removeItem('authToken');
-    delete this.axiosInstance.defaults.headers.Authorization;
+    localStorage.removeItem('token');
   }
 
-  // Check if authenticated
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('authToken');
+    return !!localStorage.getItem('token');
   }
 }
 
-// Export singleton instance
 export const apiService = ApiService.getInstance();
 
-// Export types
 export interface ApiResponse<T> {
   data: T;
   message?: string;
@@ -188,13 +110,4 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
-}
-
-// Request metadata for timing
-declare module 'axios' {
-  interface AxiosRequestConfig {
-    metadata?: {
-      startTime: Date;
-    };
-  }
 }

@@ -7,6 +7,9 @@ import { useQualificationForm } from '@/features/master/qualifications/hooks/use
 import { filterQualifications } from '@/features/master/qualifications/qualificationUtils';
 import { useQualifications } from '@/hooks/useQualifications';
 import Loader from '@/components/common/Loader';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { DeleteConfirmation } from '@/components/common/DeleteConfirmation';
+import { createDeleteConfirmationConfig } from '@/utils/deleteUtils';
 
 const Qualifications = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +24,20 @@ const Qualifications = () => {
     deleteQualification,
     saveQualification,
   } = useQualifications(selectedLanguageFilter);
+
+  const {
+    pendingDeleteId,
+    pendingDeleteLabel,
+    isDeleting,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
+  } = useDeleteConfirmation(
+    createDeleteConfirmationConfig(
+      deleteQualification,
+      (qualification: any) => qualification.name || 'Qualification'
+    )
+  );
 
   const {
     autoTranslate,
@@ -79,9 +96,17 @@ const Qualifications = () => {
         data={filteredQualifications}
         loading={false}
         onEdit={openEditModal}
-        onDelete={(item) => deleteQualification(item.id)}
+        onDelete={requestDelete}
         emptyMessage="No qualifications found."
         loadingMessage="Loading qualifications..."
+      />
+
+      <DeleteConfirmation
+        pendingDeleteId={pendingDeleteId}
+        pendingDeleteLabel={pendingDeleteLabel}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
 
       <QualificationFormModal

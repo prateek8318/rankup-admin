@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/AuthContext";
+import { MasterDataProvider } from "@/context/MasterDataContext";
 import { AlertProvider, useAlert } from "@/components/common/StylishAlertContainer";
 import { notificationService } from "@/services/notificationService";
 
@@ -31,11 +32,13 @@ const NotificationConnector: React.FC = () => {
 export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <AuthProvider>
-      <AlertProvider>
-        <NotificationConnector />
-        {children}
-        <Toaster position="top-center" reverseOrder={false} />
-      </AlertProvider>
+      <MasterDataProvider>
+        <AlertProvider>
+          <NotificationConnector />
+          {children}
+          <Toaster position="top-center" reverseOrder={false} />
+        </AlertProvider>
+      </MasterDataProvider>
     </AuthProvider>
   );
 };

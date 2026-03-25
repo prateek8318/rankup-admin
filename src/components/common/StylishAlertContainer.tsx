@@ -63,13 +63,14 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
       {children}
       
       {/* Alert Container */}
-      <div className="fixed top-4 right-4 z-50 space-y-3 max-w-md w-full">
+      <div className="fixed top-4 right-4 z-[9999] space-y-3 max-w-md w-full pointer-events-none">
         {alerts.map((alert) => (
-          <StylishAlert
-            key={alert.id}
-            {...alert}
-            onClose={() => hideAlert(alert.id)}
-          />
+          <div key={alert.id} className="pointer-events-auto">
+            <StylishAlert
+              {...alert}
+              onClose={() => hideAlert(alert.id)}
+            />
+          </div>
         ))}
       </div>
     </AlertContext.Provider>

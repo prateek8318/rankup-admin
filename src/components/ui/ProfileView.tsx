@@ -12,8 +12,8 @@ import {
   Alert
 } from '@mui/material';
 import profileFallback from '@/assets/images/profilelogo.png';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '@/services/apiClient';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -48,10 +48,10 @@ const ProfileView: React.FC = () => {
     }
     try {
       setLoading(true);
-      await axios.patch(`${BASE_URL}/api/admin/passwordUpdate`, {
+      await apiClient.patch(`${BASE_URL}/api/admin/passwordUpdate`, {
         currentPassword: formData.currentPassword,
         password: formData.password
-      }, { headers: { Authorization: `Bearer ${auth.token}` } });
+      });
       setSuccess('Password changed successfully');
       setFormData({ currentPassword: '', password: '', confirmPassword: '' });
       setShowPasswordForm(false);

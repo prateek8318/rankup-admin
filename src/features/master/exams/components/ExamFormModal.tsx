@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import Loader from '@/components/common/Loader';
+import { CrossIcon } from '@/components/common/CrossIcon';
 import { ExamDto, CreateExamDto } from '@/services/examsApi';
 import { LanguageDto, QualificationDto, StreamDto } from '@/types/qualification';
 import styles from '@/styles/pages/Exams.module.css';
@@ -60,7 +61,10 @@ const ExamFormModal = ({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <h3 className={styles.modalTitle}>{editingExam ? 'Edit Exam' : 'Add Exam'}</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 className={styles.modalTitle}>{editingExam ? 'Edit Exam' : 'Add Exam'}</h3>
+          <CrossIcon onClick={onClose} />
+        </div>
 
         <div style={{ marginBottom: 20, textAlign: 'center' }}>
           {errors.image && <div className={styles.errorText} style={{ marginBottom: 8 }}>{errors.image}</div>}
